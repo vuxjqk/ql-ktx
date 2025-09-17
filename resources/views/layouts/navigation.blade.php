@@ -16,22 +16,24 @@
             {{ __('Dashboard') }}
         </x-nav-link>
 
-        <div class="px-6 py-2 mt-4">
-            <h3 class="font-semibold text-xs text-gray-300 leading-tight uppercase tracking-wide">Quản lý</h3>
-        </div>
-        @foreach ([
-        [
-            'route' => 'users.index',
-            'routeMatch' => 'users.*',
-            'icon' => 'fa-user-tie',
-            'label' => 'Nhân viên',
-        ],
-    ] as $item)
-            <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
-                <i class="fas {{ $item['icon'] }} w-6"></i>
-                {{ $item['label'] }}
-            </x-nav-link>
-        @endforeach
+        @cannot('is-student')
+            <div class="px-6 py-2 mt-4">
+                <h3 class="font-semibold text-xs text-gray-300 leading-tight uppercase tracking-wide">Quản lý</h3>
+            </div>
+            @foreach ([
+            [
+                'route' => 'users.index',
+                'routeMatch' => 'users.*',
+                'icon' => 'fa-user-tie',
+                'label' => 'Nhân viên',
+            ],
+        ] as $item)
+                <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
+                    <i class="fas {{ $item['icon'] }} w-6"></i>
+                    {{ $item['label'] }}
+                </x-nav-link>
+            @endforeach
+        @endcannot
     </nav>
 </aside>
 

@@ -95,7 +95,22 @@
         </div>
     </div>
 
+    <x-toast />
+
     @stack('scripts')
+    <script>
+        window.addEventListener('load', () => {
+            @if (session('success'))
+                showToast("{{ session('success') }}", "success");
+            @endif
+
+            @if (session('error'))
+                showToast("{{ session('error') }}", "error");
+            @endif
+
+            showToast("Xin chào: {{ Auth::user()->name }} - {{ Auth::user()->role }}", "success");
+        });
+    </script>
 </body>
 
 </html>

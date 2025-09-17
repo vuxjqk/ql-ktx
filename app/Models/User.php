@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'date_of_birth',
+        'gender',
+        'phone',
+        'address',
+        'avatar',
+        'role',
     ];
 
     /**
@@ -44,5 +51,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected const SORT_OPTIONS = [
+        'a_to_z' => ['name', 'asc'],
+        'z_to_a' => ['name', 'desc'],
+    ];
+
+    public function scopeFilter($query, array $filters)
+    {
+        return $query
+            ->when(
+                $filters['search'] ?? null,
+                fn($q, $search) =>
+                $q->where(
+                    fn($q) =>
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                )
+            )
+            ->when(
+                $filters['role'] ?? null,
+                fn($q, $role) =>
+                $q->where('role', $role)
+            )
+            ->when(
+                $filters['sort'] ?? null,
+                fn($q, $sort) =>
+                self::SORT_OPTIONS[$sort] ?? false
+                    ? $q->orderBy(...self::SORT_OPTIONS[$sort])
+                    : $q->orderBy('updated_at', 'desc'),
+                fn($q) => $q->orderBy('updated_at', 'desc')
+            );
     }
 }
