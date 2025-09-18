@@ -27,6 +27,12 @@
                 'icon' => 'fa-user-tie',
                 'label' => 'Nhân viên',
             ],
+            [
+                'route' => 'students.index',
+                'routeMatch' => 'students.*',
+                'icon' => 'fa-graduation-cap',
+                'label' => 'Sinh viên',
+            ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
                     <i class="fas {{ $item['icon'] }} w-6"></i>

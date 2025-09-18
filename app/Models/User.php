@@ -71,6 +71,15 @@ class User extends Authenticatable implements MustVerifyEmail
                 )
             )
             ->when(
+                $filters['student_code'] ?? null,
+                fn($q, $student_code) =>
+                $q->whereHas(
+                    'student',
+                    fn($q) =>
+                    $q->where('student_code', 'like', "%{$student_code}%")
+                )
+            )
+            ->when(
                 $filters['role'] ?? null,
                 fn($q, $role) =>
                 $q->where('role', $role)
@@ -83,5 +92,10 @@ class User extends Authenticatable implements MustVerifyEmail
                     : $q->orderBy('updated_at', 'desc'),
                 fn($q) => $q->orderBy('updated_at', 'desc')
             );
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
     }
 }
