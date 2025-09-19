@@ -23,7 +23,7 @@
             @foreach ([
             [
                 'route' => 'room_registrations.create',
-                'routeMatch' => 'room_registrations.create',
+                'routeMatch' => ['room_registrations.create', 'room_assignments.edit'],
                 'icon' => 'fa-bed',
                 'label' => 'Đăng ký phòng',
             ],

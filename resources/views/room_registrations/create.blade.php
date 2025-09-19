@@ -160,6 +160,18 @@
                                     x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
                                     Xoá
                                 </x-danger-button>
+                            @else
+                                @if ($registration->assignment->checked_in_at)
+                                    <x-secondary-button class="bg-green-600 hover:bg-green-700 text-white"
+                                        onclick="showToast('Tính năng đang phát triển!', 'warning')">
+                                        Thanh toán
+                                    </x-secondary-button>
+                                @else
+                                    <x-secondary-button :href="route('room_assignments.edit', $registration->assignment)"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white">
+                                        Tiếp tục đến hợp đồng
+                                    </x-secondary-button>
+                                @endif
                             @endif
                         </div>
 

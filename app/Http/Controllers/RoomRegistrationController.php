@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\RoomAssignment;
 use App\Models\RoomRegistration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,6 +85,14 @@ class RoomRegistrationController extends Controller
             'status' => 'required|in:approved,rejected',
             'notes' => 'nullable|string',
         ]);
+
+        if ($validated['status'] === 'approved') {
+            RoomAssignment::create([
+                'user_id' => $roomRegistration->user_id,
+                'room_id' => $roomRegistration->room_id,
+                'registration_id' => $roomRegistration->id,
+            ]);
+        }
 
         $roomRegistration->update([
             'status' => $validated['status'],

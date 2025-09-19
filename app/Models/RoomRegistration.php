@@ -38,6 +38,11 @@ class RoomRegistration extends Model
         return $this->belongsTo(User::class, 'processed_by');
     }
 
+    public function assignment()
+    {
+        return $this->hasOne(RoomAssignment::class, 'registration_id');
+    }
+
     public function scopeFilter($query, array $filters)
     {
         return $query

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoomAssignmentController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomRegistrationController;
 use App\Http\Controllers\StudentController;
@@ -39,6 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/room_registrations/create', [RoomRegistrationController::class, 'create'])->name('room_registrations.create');
         Route::post('/room_registrations', [RoomRegistrationController::class, 'store'])->name('room_registrations.store');
         Route::delete('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'destroy'])->name('room_registrations.destroy');
+
+        Route::get('/room_assignments/{roomAssignment}/edit', [RoomAssignmentController::class, 'edit'])->name('room_assignments.edit');
+        Route::put('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'update'])->name('room_assignments.update');
     });
 });
 
