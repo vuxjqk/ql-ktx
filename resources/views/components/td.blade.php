@@ -1,3 +1,3 @@
-<td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+<td class="px-6 py-4 text-gray-800 whitespace-nowrap" {{ $attributes->merge([]) }}>
     {{ $slot }}
 </td>

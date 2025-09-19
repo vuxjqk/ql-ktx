@@ -1,0 +1,289 @@
+<x-app-layout>
+    <x-slot name="header">
+        Đăng ký phòng
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid gap-6">
+            <x-breadcrumb :items="[['label' => 'Trang chủ', 'url' => url('/')], ['label' => 'Đăng ký phòng']]" />
+
+            <div class="mx-6 flex items-center justify-between">
+                <div>
+                    <h1 class="font-semibold text-xl text-gray-800 leading-tight">
+                        <i class="fas fa-bed text-blue-800"></i>
+                        Đăng ký phòng
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600">Tiến hành đăng ký phòng nội trú</p>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="font-semibold text-xl text-gray-800 leading-tight">
+                    <i class="fas fa-info-circle text-blue-800"></i>
+                    Thông tin sinh viên
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="row-span-3 flex items-center justify-center">
+                        @if ($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar"
+                                class="w-24 h-24 rounded-full object-cover">
+                        @else
+                            <div
+                                class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center font-bold text-4xl text-white">
+                                {{ substr($user->name, 0, 2) }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-user"></i>
+                            Tên:
+                            <span class="font-semibold">{{ $user->name }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-id-card"></i>
+                            MSSV:
+                            <span class="font-semibold">{{ $user->student->student_code }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-birthday-cake"></i>
+                            Ngày sinh:
+                            <span class="font-semibold">{{ $user->date_of_birth ?? 'N/A' }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-graduation-cap"></i>
+                            Ngành:
+                            <span class="font-semibold">{{ $user->major ?? 'N/A' }}</span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-venus-mars"></i>
+                            Giới tính:
+                            <span class="font-semibold">
+                                @if ($user->gender == 'male')
+                                    Nam
+                                @elseif ($user->gender == 'female')
+                                    Nữ
+                                @else
+                                    N/A
+                                @endif
+                            </span>
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-blue-800 leading-tight">
+                            <i class="fas fa-users"></i>
+                            Lớp:
+                            <span class="font-semibold">{{ $user->class ?? 'N/A' }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            @if ($registration)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h3 class="font-semibold text-xl text-gray-800 leading-tight">
+                        <i class="fas fa-bed text-blue-800"></i>
+                        Phòng đã đăng ký
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                        <div class="row-span-2 flex items-center justify-center border-2 border-blue-800">
+                            <div class="flex items-center justify-center font-bold text-xl text-blue-800">
+                                @if ($registration->status == 'pending')
+                                    Đang chờ xử lý
+                                @elseif ($registration->status == 'approved')
+                                    Đã phê duyệt
+                                @else
+                                    Đã từ chối
+                                @endif
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-key"></i>
+                                Mã phòng:
+                                <span class="font-semibold">{{ $registration->room->room_code }}</span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-users"></i>
+                                Sức chứa:
+                                <span class="font-semibold">{{ $registration->room->capacity }}</span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-venus-mars"></i>
+                                Loại phòng:
+                                <span class="font-semibold">
+                                    @if ($registration->room->gender_type == 'male')
+                                        Nam
+                                    @elseif ($registration->room->gender_type == 'female')
+                                        Nữ
+                                    @else
+                                        Hỗn hợp
+                                    @endif
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-user-friends"></i>
+                                Số người hiện tại:
+                                <span class="font-semibold">{{ $registration->room->current_occupancy }}</span>
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-center">
+                            @if ($registration->status !== 'approved')
+                                <x-danger-button :data-delete-url="route('room_registrations.destroy', $registration)" x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
+                                    Xoá
+                                </x-danger-button>
+                            @endif
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-money-bill"></i>
+                                Giá mỗi tháng:
+                                <span class="font-semibold">
+                                    {{ number_format($registration->room->price_per_month, 0, ',', '.') }} VNĐ
+                                </span>
+                            </p>
+                        </div>
+
+                        <div></div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-calendar-check"></i>
+                                Ngày xử lý:
+                                <span class="font-semibold">
+                                    {{ $registration->processed_at ? $registration->processed_at->format('d/m/Y H:i') : 'Chưa xử lý' }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-user-check"></i>
+                                Người xử lý:
+                                <span class="font-semibold">
+                                    {{ $registration->processed_by ? $registration->processor->name : 'Chưa có' }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <p class="text-blue-800 leading-tight">
+                                <i class="fas fa-align-left"></i>
+                                Ghi chú:
+                                <span class="font-semibold">{{ $registration->notes ?? 'Không có ghi chú' }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <x-table title="Chọn phòng đăng ký">
+                    <x-thead>
+                        <x-tr>
+                            <x-th>STT</x-th>
+                            <x-th>Mã phòng</x-th>
+                            <x-th>Loại phòng</x-th>
+                            <x-th>Giá mỗi tháng</x-th>
+                            <x-th>Sức chứa</x-th>
+                            <x-th>Số người hiện tại</x-th>
+                        </x-tr>
+                    </x-thead>
+                    <x-tbody>
+                        @foreach ($rooms as $index => $room)
+                            <x-tr :data-room-id="$room->id" class="cursor-pointer" x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'confirm-registration')">
+                                <x-td>#{{ $loop->iteration }}</x-td>
+                                <x-td>{{ $room->room_code }}</x-td>
+                                <x-td>
+                                    @if ($room->gender_type == 'male')
+                                        Nam
+                                    @elseif ($room->gender_type == 'female')
+                                        Nữ
+                                    @else
+                                        Hỗn hợp
+                                    @endif
+                                </x-td>
+                                <x-td>{{ number_format($room->price_per_month, 0, ',', '.') }} VNĐ</x-td>
+                                <x-td>{{ $room->capacity }}</x-td>
+                                <x-td>{{ $room->current_occupancy }}</x-td>
+                            </x-tr>
+                            <x-tr>
+                                <x-td colspan="6">Mô tả: {{ $room->description ?? 'N/A' }}</x-td>
+                            </x-tr>
+                        @endforeach
+                    </x-tbody>
+                </x-table>
+            </div>
+        </div>
+    </div>
+
+    <x-delete-modal />
+
+    <x-modal name="confirm-registration" focusable>
+        <form method="post" action="{{ route('room_registrations.store') }}" class="p-6">
+            @csrf
+
+            <input id="room_id" type="hidden" name="room_id">
+
+            <h2 class="text-lg font-medium text-gray-900">
+                Bạn có chắc chắn muốn đăng ký
+                <span class="font-semibold text-green-500">phòng</span>
+                này không?
+            </h2>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    Huỷ
+                </x-secondary-button>
+
+                <x-primary-button class="ms-3">
+                    Xác nhận
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
+
+    @pushOnce('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const room_id = document.getElementById('room_id');
+
+                document.querySelectorAll('[data-room-id]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        room_id.value = button.getAttribute('data-room-id');
+                    });
+                });
+            });
+        </script>
+    @endPushOnce
+</x-app-layout>

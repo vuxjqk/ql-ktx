@@ -16,6 +16,25 @@
             {{ __('Dashboard') }}
         </x-nav-link>
 
+        @can('is-student')
+            <div class="px-6 py-2 mt-4">
+                <h3 class="font-semibold text-xs text-gray-300 leading-tight uppercase tracking-wide">Nội trú</h3>
+            </div>
+            @foreach ([
+            [
+                'route' => 'room_registrations.create',
+                'routeMatch' => 'room_registrations.create',
+                'icon' => 'fa-bed',
+                'label' => 'Đăng ký phòng',
+            ],
+        ] as $item)
+                <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
+                    <i class="fas {{ $item['icon'] }} w-6"></i>
+                    {{ $item['label'] }}
+                </x-nav-link>
+            @endforeach
+        @endcan
+
         @cannot('is-student')
             <div class="px-6 py-2 mt-4">
                 <h3 class="font-semibold text-xs text-gray-300 leading-tight uppercase tracking-wide">Quản lý</h3>
@@ -38,6 +57,12 @@
                 'routeMatch' => 'rooms.*',
                 'icon' => 'fa-door-open',
                 'label' => 'Phòng',
+            ],
+            [
+                'route' => 'room_registrations.index',
+                'routeMatch' => 'room_registrations.*',
+                'icon' => 'fa-clipboard-list',
+                'label' => 'Kiểm duyệt',
             ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">

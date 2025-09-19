@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\RoomRegistrationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
         Route::resource('students', StudentController::class)->except(['show'])->parameters(['students' => 'user']);
         Route::post('/students/{id}', [StudentController::class, 'restore'])->name('students.restore');
+
+        Route::get('/room_registrations', [RoomRegistrationController::class, 'index'])->name('room_registrations.index');
+        Route::get('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'show'])->name('room_registrations.show');
+        Route::put('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'update'])->name('room_registrations.update');
+    });
+
+    Route::prefix('student')->middleware(['role:student'])->group(function () {
+        Route::get('/room_registrations/create', [RoomRegistrationController::class, 'create'])->name('room_registrations.create');
+        Route::post('/room_registrations', [RoomRegistrationController::class, 'store'])->name('room_registrations.store');
+        Route::delete('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'destroy'])->name('room_registrations.destroy');
     });
 });
 
