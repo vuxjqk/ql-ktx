@@ -161,13 +161,28 @@
                                     Xoá
                                 </x-danger-button>
                             @else
-                                @if ($registration->assignment->checked_in_at)
-                                    <x-secondary-button class="bg-green-600 hover:bg-green-700 text-white"
-                                        onclick="showToast('Tính năng đang phát triển!', 'warning')">
-                                        Thanh toán
-                                    </x-secondary-button>
+                                @php
+                                    $assignment = $registration->assignment;
+                                @endphp
+
+                                @if ($assignment->checked_in_at)
+                                    @php
+                                        $bill = $assignment->bills()->orderBy('created_at', 'asc')->first();
+                                    @endphp
+
+                                    @if ($bill->status === 'paid')
+                                        <span
+                                            class="bg-green-700 text-white px-4 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest shadow-sm">
+                                            Đã thanh toán
+                                        </span>
+                                    @else
+                                        <x-secondary-button :href="route('vnpay.redirect', $bill)"
+                                            class="bg-green-600 hover:bg-green-700 text-white">
+                                            Thanh toán
+                                        </x-secondary-button>
+                                    @endif
                                 @else
-                                    <x-secondary-button :href="route('room_assignments.edit', $registration->assignment)"
+                                    <x-secondary-button :href="route('room_assignments.edit', $assignment)"
                                         class="bg-blue-600 hover:bg-blue-700 text-white">
                                         Tiếp tục đến hợp đồng
                                     </x-secondary-button>

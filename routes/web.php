@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomAssignmentController;
 use App\Http\Controllers\RoomController;
@@ -43,7 +44,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/room_assignments/{roomAssignment}/edit', [RoomAssignmentController::class, 'edit'])->name('room_assignments.edit');
         Route::put('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'update'])->name('room_assignments.update');
+
+        Route::get('/vnpay/{bill}', [BillController::class, 'redirect'])->name('vnpay.redirect');
     });
+
+    Route::get('/vnpay/callback', [BillController::class, 'callback'])->name('vnpay.callback');
 });
 
 require __DIR__ . '/auth.php';

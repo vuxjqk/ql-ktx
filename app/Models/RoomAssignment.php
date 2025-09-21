@@ -13,4 +13,14 @@ class RoomAssignment extends Model
         'checked_out_at',
         'registration_id',
     ];
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bill;
 use App\Models\RoomAssignment;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,14 @@ class RoomAssignmentController extends Controller
 
         $request->validate(['confirmation' => 'required']);
         $roomAssignment->update(['checked_in_at' => now()]);
+
+        Bill::create([
+            'user_id' => $roomAssignment->user_id,
+            'room_assignment_id' => $roomAssignment->id,
+            'amount' => $roomAssignment->room->price_per_month,
+            'due_date' => now()->addDays(7),
+        ]);
+
         return redirect()->route('room_registrations.create')->with('success', "Đã xác nhận hợp đồng thành công");
     }
 }

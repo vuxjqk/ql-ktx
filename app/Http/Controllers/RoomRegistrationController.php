@@ -101,7 +101,11 @@ class RoomRegistrationController extends Controller
             'processed_by' => Auth::id(),
         ]);
 
-        $status = $validated['status'] === 'approved' ? 'phê duyệt' : 'từ chối';
+        $status = 'phê duyệt';
+        if ($validated['status'] === 'rejected') {
+            $status = 'từ chối';
+            $roomRegistration->room->increment('current_occupancy');
+        }
 
         return redirect()->back()->with('success', "Đã $status thành công");
     }
@@ -112,7 +116,9 @@ class RoomRegistrationController extends Controller
             return redirect()->back()->with('error', 'Bạn không được phép huỷ đăng ký phòng');
         }
 
-        $roomRegistration->room->decrement('current_occupancy');
+        if ($roomRegistration->status === 'pending') {
+            $roomRegistration->room->decrement('current_occupancy');
+        }
 
         $roomRegistration->delete();
         return redirect()->back()->with('success', 'Đã huỷ đăng ký phòng thành công');
