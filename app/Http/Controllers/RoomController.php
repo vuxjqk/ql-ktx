@@ -14,7 +14,11 @@ class RoomController extends Controller
             ->filter($request->all());
 
         $rooms = $query->paginate(10)->appends($request->query());
+
         $totalRooms = Room::count();
+        $fullRooms = Room::whereRaw('current_occupancy >= capacity')->count();
+        $emptyRooms = Room::whereRaw('current_occupancy = 0')->count();
+        $missingRooms = Room::whereRaw('current_occupancy < capacity AND current_occupancy > 0')->count();
 
         $blocks = Room::select('block')
             ->distinct()
@@ -26,7 +30,15 @@ class RoomController extends Controller
             ->pluck('floor')
             ->mapWithKeys(fn($floor) => [$floor => 'Tầng ' . $floor]);
 
-        return view('rooms.index', compact('rooms', 'totalRooms', 'blocks', 'floors'));
+        return view('rooms.index', compact(
+            'rooms',
+            'totalRooms',
+            'fullRooms',
+            'emptyRooms',
+            'missingRooms',
+            'blocks',
+            'floors'
+        ));
     }
 
     public function create()

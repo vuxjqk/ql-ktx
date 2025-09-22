@@ -35,6 +35,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/room_registrations', [RoomRegistrationController::class, 'index'])->name('room_registrations.index');
         Route::get('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'show'])->name('room_registrations.show');
         Route::put('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'update'])->name('room_registrations.update');
+
+        Route::get('/room_assignments', [RoomAssignmentController::class, 'index'])->name('room_assignments.index');
+        Route::get('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'show'])->name('room_assignments.show');
+        Route::delete('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'destroy'])->name('room_assignments.destroy');
+
+        Route::put('/bills/{bill}', [BillController::class, 'update'])->name('bills.update');
     });
 
     Route::prefix('student')->middleware(['role:student'])->group(function () {

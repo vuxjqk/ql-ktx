@@ -64,6 +64,12 @@
                 'icon' => 'fa-clipboard-list',
                 'label' => 'Kiểm duyệt',
             ],
+            [
+                'route' => 'room_assignments.index',
+                'routeMatch' => 'room_assignments.*',
+                'icon' => 'fa-home',
+                'label' => 'Phân phòng',
+            ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
                     <i class="fas {{ $item['icon'] }} w-6"></i>

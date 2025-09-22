@@ -72,6 +72,7 @@ class RoomRegistrationController extends Controller
 
     public function show(RoomRegistration $roomRegistration)
     {
+        $roomRegistration->load(['user', 'room']);
         return view('room_registrations.show', ['registration' => $roomRegistration]);
     }
 
@@ -104,7 +105,7 @@ class RoomRegistrationController extends Controller
         $status = 'phê duyệt';
         if ($validated['status'] === 'rejected') {
             $status = 'từ chối';
-            $roomRegistration->room->increment('current_occupancy');
+            $roomRegistration->room->decrement('current_occupancy');
         }
 
         return redirect()->back()->with('success', "Đã $status thành công");

@@ -8,6 +8,25 @@ use Illuminate\Http\Request;
 
 class RoomAssignmentController extends Controller
 {
+    public function index()
+    {
+        $assignments = RoomAssignment::with([
+            'user:id,name,avatar',
+            'user.student:id,user_id,student_code',
+            'room:id,room_code',
+        ])->paginate(10);
+
+        $totalAssignments = RoomAssignment::count();
+
+        return view('room_assignments.index', compact('assignments', 'totalAssignments'));
+    }
+
+    public function show(RoomAssignment $roomAssignment)
+    {
+        $roomAssignment->load(['user', 'room', 'registration', 'bills']);
+        return view('room_assignments.show', ['assignment' => $roomAssignment]);
+    }
+
     public function edit(RoomAssignment $roomAssignment)
     {
         return view('room_assignments.edit', compact('roomAssignment'));
@@ -30,5 +49,17 @@ class RoomAssignmentController extends Controller
         ]);
 
         return redirect()->route('room_registrations.create')->with('success', "Đã xác nhận hợp đồng thành công");
+    }
+
+    public function destroy(RoomAssignment $roomAssignment)
+    {
+        if ($roomAssignment->checked_in_at) {
+            return redirect()->back()->with('error', "Không thể huỷ vì đã xác nhận hợp đồng");
+        }
+
+        $roomAssignment->room->decrement('current_occupancy');
+        $roomAssignment->registration->delete();
+        $roomAssignment->delete();
+        return redirect()->back()->with('success', "Đã huỷ phân công phòng thành công");
     }
 }

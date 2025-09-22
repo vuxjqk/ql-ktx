@@ -146,4 +146,14 @@ class BillController extends Controller
             return redirect()->route('room_registrations.create')->with('error', 'Chữ ký không hợp lệ, giao dịch có thể bị giả mạo!');
         }
     }
+
+    public function update(Bill $bill)
+    {
+        if ($bill->status === 'paid') {
+            return redirect()->back()->with('error', 'Hoá đơn này đã được thanh toán rồi');
+        }
+
+        $bill->update(['status' => 'paid']);
+        return redirect()->back()->with('success', 'Thanh toán hóa đơn #' . $bill->id . ' thành công!');
+    }
 }

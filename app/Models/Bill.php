@@ -13,4 +13,11 @@ class Bill extends Model
         'status',
         'due_date',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'due_date' => 'date',
+        ];
+    }
 }

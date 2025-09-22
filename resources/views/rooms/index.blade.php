@@ -33,6 +33,42 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                    <div class="flex items-center space-x-6">
+                        <div class="shadow-sm rounded-lg bg-green-100 p-3">
+                            <i class="fas fa-bed text-green-800 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Phòng đầy</p>
+                            <p class="font-semibold text-xl text-gray-800 leading-tight">{{ $fullRooms }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                    <div class="flex items-center space-x-6">
+                        <div class="shadow-sm rounded-lg bg-red-100 p-3">
+                            <i class="fas fa-bed text-red-800 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Phòng trống</p>
+                            <p class="font-semibold text-xl text-gray-800 leading-tight">{{ $emptyRooms }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
+                    <div class="flex items-center space-x-6">
+                        <div class="shadow-sm rounded-lg bg-yellow-100 p-3">
+                            <i class="fas fa-bed text-yellow-800 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Phòng còn thiếu</p>
+                            <p class="font-semibold text-xl text-gray-800 leading-tight">{{ $missingRooms }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
