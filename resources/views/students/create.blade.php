@@ -103,7 +103,7 @@
 
                     <div>
                         <x-input-label for="address" value="Địa chỉ" icon="fas fa-map-marker-alt" />
-                        <x-text-input id="address" class="block mt-1 w-full" type="tel" name="address"
+                        <x-text-input id="address" class="block mt-1 w-full" type="text" name="address"
                             :value="old('address')" autocomplete="address" placeholder="Nhập địa chỉ" />
                         <x-input-error :messages="$errors->get('address')" class="mt-2" />
                     </div>

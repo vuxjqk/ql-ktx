@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Branche;
 use App\Models\Room;
 use App\Models\Student;
 use App\Models\User;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Student::factory(10)->create();
+        Branche::factory(3)->create();
         Room::factory(15)->create();
     }
 }

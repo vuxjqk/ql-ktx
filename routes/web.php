@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomAssignmentController;
 use App\Http\Controllers\RoomController;
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::middleware(['role:super_admin,admin'])->group(function () {
+        Route::resource('branches', BranchController::class)->except(['create', 'show', 'edit']);
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('/users/{id}', [UserController::class, 'restore'])->name('users.restore');
         Route::resource('rooms', RoomController::class)->except(['show']);

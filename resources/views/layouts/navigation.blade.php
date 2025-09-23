@@ -53,6 +53,12 @@
                 'label' => 'Sinh viên',
             ],
             [
+                'route' => 'branches.index',
+                'routeMatch' => 'branches.*',
+                'icon' => 'fa-building',
+                'label' => 'Chi nhánh',
+            ],
+            [
                 'route' => 'rooms.index',
                 'routeMatch' => 'rooms.*',
                 'icon' => 'fa-door-open',
