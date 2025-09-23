@@ -48,7 +48,7 @@
                         <p class="text-blue-800 leading-tight">
                             <i class="fas fa-id-card"></i>
                             MSSV:
-                            <span class="font-semibold">{{ $user->student->student_code }}</span>
+                            <span class="font-semibold">{{ $user->student->student_code ?? 'N/A' }}</span>
                         </p>
                     </div>
 

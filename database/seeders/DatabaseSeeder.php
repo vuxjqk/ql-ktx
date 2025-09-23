@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Room;
 use App\Models\Student;
 use App\Models\User;
+use DateTime;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -20,10 +21,12 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'date_of_birth' => new DateTime('2004-10-10'),
+            'gender' => 'male',
             'role' => 'super_admin',
         ]);
 
-        Student::factory(5)->create();
+        Student::factory(10)->create();
         Room::factory(15)->create();
     }
 }
