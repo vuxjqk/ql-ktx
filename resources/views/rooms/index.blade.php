@@ -77,7 +77,7 @@
                     Tìm kiếm phòng
                 </h3>
 
-                <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mt-6">
+                <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                     <div>
                         <x-input-label for="room_code" value="Mã phòng" icon="fas fa-key" />
                         <x-text-input id="room_code" class="block mt-1 w-full" type="search" name="room_code"
@@ -102,6 +102,11 @@
                         ]" name="gender_type"
                             :selected="request('gender_type')" placeholder="Chọn loại phòng" />
                     </div>
+                    <div class="col-span-2">
+                        <x-input-label for="branch_id" value="Chi nhánh" icon="fas fa-building" />
+                        <x-select id="branch_id" class="block mt-1 w-full" :options="$branches" name="branch_id"
+                            :selected="request('branch_id')" placeholder="Chọn chi nhánh" />
+                    </div>
                     <div class="flex items-end">
                         <x-primary-button>
                             <i class="fas fa-search"></i>
@@ -117,6 +122,7 @@
                         <x-tr>
                             <x-th>STT</x-th>
                             <x-th>Mã phòng</x-th>
+                            <x-th>Chi nhánh</x-th>
                             <x-th>Loại phòng</x-th>
                             <x-th>
                                 <div class="flex items-center gap-6">
@@ -138,6 +144,7 @@
                             <x-tr>
                                 <x-td>#{{ $rooms->firstItem() + $index }}</x-td>
                                 <x-td>{{ $room->room_code }}</x-td>
+                                <x-td>{{ $room->branch->name }}</x-td>
                                 <x-td>
                                     @if ($room->gender_type == 'male')
                                         Nam

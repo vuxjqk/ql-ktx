@@ -10,6 +10,7 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
+        'branch_id',
         'room_code',
         'block',
         'floor',
@@ -51,6 +52,11 @@ class Room extends Model
                 $q->where('gender_type', $gender_type)
             )
             ->when(
+                $filters['branch_id'] ?? null,
+                fn($q, $branch_id) =>
+                $q->where('branch_id', $branch_id)
+            )
+            ->when(
                 $filters['sort'] ?? null,
                 fn($q, $sort) =>
                 self::SORT_OPTIONS[$sort] ?? false
@@ -58,5 +64,10 @@ class Room extends Model
                     : $q->orderBy('updated_at', 'desc'),
                 fn($q) => $q->orderBy('updated_at', 'desc')
             );
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

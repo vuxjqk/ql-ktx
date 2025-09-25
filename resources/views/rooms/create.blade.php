@@ -43,6 +43,13 @@
                     </div>
 
                     <div>
+                        <x-input-label for="branch_id" value="Chi nhánh" icon="fas fa-building" />
+                        <x-select id="branch_id" class="block mt-1 w-full" :options="$branches" name="branch_id"
+                            :selected="old('branch_id')" required placeholder="Chọn chi nhánh" />
+                        <x-input-error :messages="$errors->get('branch_id')" class="mt-2" />
+                    </div>
+
+                    <div>
                         <x-input-label for="block" value="Khu nhà" icon="fas fa-building" />
                         <x-text-input list="block-list" id="block" class="block mt-1 w-full" type="text"
                             name="block" :value="old('block')" required autocomplete="block"
@@ -92,7 +99,7 @@
                     <div>
                         <x-input-label for="current_occupancy" value="Số người hiện tại" icon="fas fa-user-friends" />
                         <x-text-input id="current_occupancy" class="block mt-1 w-full" type="number"
-                            name="current_occupancy" :value="old('current_occupancy')" autocomplete="current_occupancy"
+                            name="current_occupancy" :value="old('current_occupancy')" required autocomplete="current_occupancy"
                             placeholder="Nhập số người hiện tại" />
                         <x-input-error :messages="$errors->get('current_occupancy')" class="mt-2" />
                     </div>

@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
-            $table->string('room_code', 20)->unique();
+            $table->foreignId('branch_id')->constrained();
+            $table->string('room_code', 20);
             $table->string('block', 1);
             $table->unsignedTinyInteger('floor');
             $table->enum('gender_type', ['male', 'female', 'mixed']);
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('current_occupancy')->default(0);
             $table->text('description')->nullable();
             $table->timestamps();
+            $table->unique(['branch_id', 'room_code']);
         });
     }
 

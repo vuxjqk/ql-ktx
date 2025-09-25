@@ -53,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'datetime',
         ];
     }
 
@@ -88,6 +89,15 @@ class User extends Authenticatable implements MustVerifyEmail
                 $q->where('role', $role)
             )
             ->when(
+                $filters['status'] ?? null,
+                fn($q, $status) =>
+                $q->whereHas(
+                    'roomRegistration',
+                    fn($q) =>
+                    $q->where('status', $status)
+                )
+            )
+            ->when(
                 $filters['sort'] ?? null,
                 fn($q, $sort) =>
                 self::SORT_OPTIONS[$sort] ?? false
@@ -105,5 +115,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function roomRegistration()
     {
         return $this->hasOne(RoomRegistration::class);
+    }
+
+    public function roomAssignment()
+    {
+        return $this->hasOne(RoomAssignment::class)->whereNull('checked_out_at');
+    }
+
+    public function roomAssignments()
+    {
+        return $this->hasMany(RoomAssignment::class);
     }
 }

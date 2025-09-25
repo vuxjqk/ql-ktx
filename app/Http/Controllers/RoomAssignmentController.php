@@ -4,27 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\RoomAssignment;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class RoomAssignmentController extends Controller
 {
-    public function index()
+    public function index(User $user)
     {
-        $assignments = RoomAssignment::with([
-            'user:id,name,avatar',
-            'user.student:id,user_id,student_code',
-            'room:id,room_code',
-        ])->paginate(10);
+        $user->load(['student', 'roomAssignments.room.branch']);
 
-        $totalAssignments = RoomAssignment::count();
-
-        return view('room_assignments.index', compact('assignments', 'totalAssignments'));
+        return view('room_assignments.index', compact('user'));
     }
 
-    public function show(RoomAssignment $roomAssignment)
+    public function show(User $user, RoomAssignment $roomAssignment)
     {
-        $roomAssignment->load(['user', 'room', 'registration', 'bills']);
-        return view('room_assignments.show', ['assignment' => $roomAssignment]);
+        $user->load(['student']);
+        $roomAssignment->load(['room.branch', 'bills']);
+        return view('room_assignments.show', ['user' => $user, 'assignment' => $roomAssignment]);
     }
 
     public function edit(RoomAssignment $roomAssignment)

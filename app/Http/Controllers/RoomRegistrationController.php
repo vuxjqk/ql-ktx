@@ -10,29 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class RoomRegistrationController extends Controller
 {
-    public function index(Request $request)
-    {
-        $registrations = RoomRegistration::with([
-            'user:id,name,avatar',
-            'user.student:id,user_id,student_code',
-            'room:id,room_code',
-        ])
-            ->select('id', 'user_id', 'room_id', 'status', 'requested_at')
-            ->filter($request->all())
-            ->orderBy('requested_at', 'desc')
-            ->paginate(10)
-            ->appends($request->query());
-
-        $totalRegistrations = RoomRegistration::count();
-
-        $statusCounts = RoomRegistration::select('status')
-            ->selectRaw('COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        return view('room_registrations.index', compact('registrations', 'totalRegistrations', 'statusCounts'));
-    }
-
     public function create()
     {
         $user = Auth::user();
@@ -68,12 +45,6 @@ class RoomRegistrationController extends Controller
         $room->increment('current_occupancy');
 
         return redirect()->back()->with('success', 'Đã đăng ký phòng thành công');
-    }
-
-    public function show(RoomRegistration $roomRegistration)
-    {
-        $roomRegistration->load(['user', 'room']);
-        return view('room_registrations.show', ['registration' => $roomRegistration]);
     }
 
     public function update(Request $request, RoomRegistration $roomRegistration)

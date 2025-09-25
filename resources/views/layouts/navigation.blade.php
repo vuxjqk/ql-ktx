@@ -48,7 +48,7 @@
             ],
             [
                 'route' => 'students.index',
-                'routeMatch' => 'students.*',
+                'routeMatch' => ['students.*', 'room_assignments.*'],
                 'icon' => 'fa-graduation-cap',
                 'label' => 'Sinh viên',
             ],
@@ -63,18 +63,6 @@
                 'routeMatch' => 'rooms.*',
                 'icon' => 'fa-door-open',
                 'label' => 'Phòng',
-            ],
-            [
-                'route' => 'room_registrations.index',
-                'routeMatch' => 'room_registrations.*',
-                'icon' => 'fa-clipboard-list',
-                'label' => 'Kiểm duyệt',
-            ],
-            [
-                'route' => 'room_assignments.index',
-                'routeMatch' => 'room_assignments.*',
-                'icon' => 'fa-home',
-                'label' => 'Phân phòng',
             ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">

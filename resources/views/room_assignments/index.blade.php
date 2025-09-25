@@ -1,102 +1,113 @@
 <x-app-layout>
     <x-slot name="header">
-        Quản lý phân phòng
+        Lịch sử nội trú
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid gap-6">
-            <x-breadcrumb :items="[['label' => 'Trang chủ', 'url' => url('/')], ['label' => 'Quản lý phân phòng']]" />
+            <x-breadcrumb :items="[
+                ['label' => 'Trang chủ', 'url' => url('/')],
+                ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
+                ['label' => 'Chi tiết sinh viên', 'url' => route('students.show', $user)],
+                ['label' => 'Lịch sử nội trú'],
+            ]" />
 
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-home text-blue-800"></i>
-                        Quản lý phân phòng
+                        <i class="fas fa-history text-blue-600"></i>
+                        Lịch sử nội trú
                     </h1>
-                    <p class="mt-1 text-sm text-gray-600">Quản lý tất cả phân phòng trong hệ thống</p>
+                    <p class="mt-1 text-sm text-gray-600">Xem lịch sử nội trú của sinh viên</p>
                 </div>
+                <x-secondary-button :href="route('students.show', $user)">
+                    <i class="fas fa-arrow-left"></i>
+                    Quay lại
+                </x-secondary-button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
-                    <div class="flex items-center space-x-6">
-                        <div class="shadow-sm rounded-lg bg-blue-100 p-3">
-                            <i class="fas fa-home text-blue-800 text-xl"></i>
+            <!-- Thông tin sinh viên -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">
+                    <i class="fas fa-user-graduate text-blue-600"></i>
+                    Thông tin sinh viên
+                </h3>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-shrink-0">
+                        @if ($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar"
+                                class="w-32 h-32 rounded-lg object-cover shadow-sm">
+                        @else
+                            <div
+                                class="w-32 h-32 rounded-lg bg-blue-500 flex items-center justify-center font-bold text-2xl text-white">
+                                {{ substr($user->name, 0, 2) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label value="Mã sinh viên" icon="fas fa-id-card" />
+                            <p class="mt-1 text-gray-600">{{ $user->student->student_code ?? 'N/A' }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Tổng phân phòng</p>
-                            <p class="font-semibold text-xl text-gray-800 leading-tight">{{ $totalAssignments }}</p>
+                            <x-input-label value="Họ tên" icon="fas fa-user" />
+                            <p class="mt-1 text-gray-600">{{ $user->name }}</p>
+                        </div>
+                        <div>
+                            <x-input-label value="Email" icon="fas fa-envelope" />
+                            <p class="mt-1 text-gray-600">{{ $user->email }}</p>
+                        </div>
+                        <div>
+                            <x-input-label value="Số điện thoại" icon="fas fa-phone" />
+                            <p class="mt-1 text-gray-600">{{ $user->phone ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Lịch sử nội trú -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <x-table title="Danh sách phân phòng">
+                <x-table title="Lịch sử nội trú">
                     <x-thead>
                         <x-tr>
                             <x-th>STT</x-th>
-                            <x-th>MSSV</x-th>
-                            <x-th>Sinh viên</x-th>
                             <x-th>Mã phòng</x-th>
+                            <x-th>Chi nhánh</x-th>
                             <x-th>Ngày nhận phòng</x-th>
                             <x-th>Ngày trả phòng</x-th>
-                            <x-th>Mã đăng ký</x-th>
                             <x-th>Hành động</x-th>
                         </x-tr>
                     </x-thead>
                     <x-tbody>
-                        @foreach ($assignments as $index => $assignment)
+                        @forelse ($user->roomAssignments as $index => $assignment)
                             <x-tr>
-                                <x-td>#{{ $assignments->firstItem() + $index }}</x-td>
-                                <x-td>{{ $assignment->user->student->student_code ?? 'N/A' }}</x-td>
-                                <x-td>
-                                    <div class="flex items-center gap-2">
-                                        @if ($assignment->user->avatar)
-                                            <img src="{{ asset('storage/' . $assignment->user->avatar) }}"
-                                                alt="Avatar" class="w-8 h-8 rounded-full object-cover">
-                                        @else
-                                            <div
-                                                class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs text-white">
-                                                {{ substr($assignment->user->name, 0, 2) }}
-                                            </div>
-                                        @endif
-                                        {{ $assignment->user->name }}
-                                    </div>
-                                </x-td>
+                                <x-td>#{{ $index + 1 }}</x-td>
                                 <x-td>{{ $assignment->room->room_code }}</x-td>
-                                <x-td>{{ $assignment->checked_in_at ? $assignment->checked_in_at->format('d/m/Y H:i') : 'Chưa nhận phòng' }}</x-td>
-                                <x-td>{{ $assignment->checked_out_at ? $assignment->checked_out_at->format('d/m/Y H:i') : 'Chưa trả phòng' }}</x-td>
+                                <x-td>{{ $assignment->room->branch->name }}</x-td>
                                 <x-td>
-                                    @if ($assignment->registration_id)
-                                        <a href="{{ route('room_registrations.show', $assignment->registration) }}"
-                                            class="underline text-sm text-blue-600 hover:text-blue-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                            #{{ $assignment->registration_id }}
-                                        </a>
-                                    @else
-                                        <span class="text-sm text-gray-600">N/A</span>
-                                    @endif
+                                    {{ $assignment->checked_in_at ? $assignment->checked_in_at->format('d/m/Y H:i') : 'Chưa nhận phòng' }}
                                 </x-td>
                                 <x-td>
-                                    <x-icon-button :href="route('room_assignments.show', $assignment)" title="Chi tiết"
+                                    {{ $assignment->checked_out_at ? $assignment->checked_out_at->format('d/m/Y H:i') : 'Chưa trả phòng' }}
+                                </x-td>
+                                <x-td>
+                                    <x-icon-button :href="route('room_assignments.show', [$user, $assignment])" title="Chi tiết"
                                         class="bg-blue-500 hover:bg-blue-600 text-white">
                                         <i class="fas fa-eye"></i>
                                     </x-icon-button>
-                                    <x-icon-button :data-delete-url="route('room_assignments.destroy', $assignment)" title="Xoá"
-                                        class="bg-red-500 hover:bg-red-600 text-white" x-data=""
-                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
-                                        <i class="fas fa-trash"></i>
-                                    </x-icon-button>
                                 </x-td>
                             </x-tr>
-                        @endforeach
+                        @empty
+                            <x-tr>
+                                <x-td colspan="8">
+                                    Không có lịch sử nội trú
+                                </x-td>
+                            </x-tr>
+                        @endforelse
                     </x-tbody>
                 </x-table>
             </div>
-
-            {{ $assignments->links() }}
         </div>
     </div>
-
-    <x-delete-modal />
 </x-app-layout>

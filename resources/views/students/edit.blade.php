@@ -19,10 +19,15 @@
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Cập nhật thông tin sinh viên trong hệ thống</p>
                 </div>
-                <x-secondary-button :href="route('students.index')">
-                    <i class="fas fa-arrow-left"></i>
-                    Quay lại
-                </x-secondary-button>
+                <div>
+                    <x-secondary-button :href="route('students.index')">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại
+                    </x-secondary-button>
+                    <x-icon-button :href="route('students.show', $user)" title="Chi tiết" class="bg-blue-500 hover:bg-blue-600 text-white">
+                        <i class="fas fa-eye"></i>
+                    </x-icon-button>
+                </div>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">

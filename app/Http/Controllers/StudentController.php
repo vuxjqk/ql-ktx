@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RoomRegistration;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,16 +12,29 @@ class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::select('id', 'name', 'email', 'phone', 'avatar', 'role', 'deleted_at')
+        $query = User::select('id', 'name', 'email', 'phone', 'address', 'avatar', 'role', 'deleted_at')
             ->withTrashed()
             ->whereHas('student')
-            ->with(['student:id,user_id,student_code,class'])
+            ->with([
+                'student:id,user_id,student_code,class',
+                'roomRegistration:id,user_id,room_id,status,requested_at',
+                'roomRegistration.room:id,room_code'
+            ])
             ->filter($request->all());
 
         $users = $query->paginate(10)->appends($request->query());
-        $totalStudents = User::withTrashed()->whereHas('student')->count();
 
-        return view('students.index', compact('users', 'totalStudents'));
+        $totalStudents = User::withTrashed()->whereHas('student')->count();
+        $statusCounts = RoomRegistration::select('status')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return view('students.index', compact(
+            'users',
+            'totalStudents',
+            'statusCounts'
+        ));
     }
 
     public function create()
@@ -65,8 +79,15 @@ class StudentController extends Controller
         return redirect()->route('students.index')->with('success', 'Sinh viên đã được tạo thành công');
     }
 
+    public function show(User $user)
+    {
+        $user->load(['student', 'roomRegistration.room.branch', 'roomAssignment.bills']);
+        return view('students.show', compact('user'));
+    }
+
     public function edit(User $user)
     {
+        $user->load(['student']);
         return view('students.edit', compact('user'));
     }
 

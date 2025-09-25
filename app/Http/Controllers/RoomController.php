@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Room;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RoomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Room::select('id', 'room_code', 'block', 'floor', 'gender_type', 'capacity', 'current_occupancy')
+        $query = Room::select('id', 'branch_id', 'room_code', 'block', 'floor', 'gender_type', 'capacity', 'current_occupancy')
+            ->with(['branch'])
             ->filter($request->all());
 
         $rooms = $query->paginate(10)->appends($request->query());
@@ -30,6 +33,8 @@ class RoomController extends Controller
             ->pluck('floor')
             ->mapWithKeys(fn($floor) => [$floor => 'Tầng ' . $floor]);
 
+        $branches = Branch::pluck('name', 'id')->toArray();
+
         return view('rooms.index', compact(
             'rooms',
             'totalRooms',
@@ -37,25 +42,35 @@ class RoomController extends Controller
             'emptyRooms',
             'missingRooms',
             'blocks',
-            'floors'
+            'floors',
+            'branches'
         ));
     }
 
     public function create()
     {
-        return view('rooms.create');
+        $branches = Branch::pluck('name', 'id')->toArray();
+        return view('rooms.create', compact('branches'));
     }
 
     public function store(Request $request)
     {
         $rules = [
-            'room_code'         => 'required|string|max:20|unique:rooms,room_code',
+            'branch_id'         => 'required|exists:branches,id',
+            'room_code'         => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('rooms')->where(function ($query) use ($request) {
+                    return $query->where('branch_id', $request->branch_id);
+                })
+            ],
             'block'             => 'required|string|size:1',
             'floor'             => 'required|integer|min:0',
             'gender_type'       => 'required|in:male,female,mixed',
             'price_per_month'   => 'required|numeric|min:0',
             'capacity'          => 'required|integer|min:1',
-            'current_occupancy' => 'nullable|integer|min:0|lte:capacity',
+            'current_occupancy' => 'required|integer|min:0|lte:capacity',
             'description'       => 'nullable|string',
         ];
 
@@ -68,13 +83,22 @@ class RoomController extends Controller
 
     public function edit(Room $room)
     {
-        return view('rooms.edit', compact('room'));
+        $branches = Branch::pluck('name', 'id')->toArray();
+        return view('rooms.edit', compact('room', 'branches'));
     }
 
     public function update(Request $request, Room $room)
     {
         $rules = [
-            'room_code'         => 'required|string|max:20|unique:rooms,room_code,' . $room->id,
+            'branch_id'         => 'required|exists:branches,id',
+            'room_code'         => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('rooms')->where(function ($query) use ($request) {
+                    return $query->where('branch_id', $request->branch_id);
+                })->ignore($room->id)
+            ],
             'block'             => 'required|string|size:1',
             'floor'             => 'required|integer|min:0',
             'gender_type'       => 'required|in:male,female,mixed',
