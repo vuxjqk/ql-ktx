@@ -81,7 +81,7 @@ class StudentController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['student', 'roomRegistration.room.branch', 'roomAssignment.bills']);
+        $user->load(['student', 'roomRegistration.room.branch', 'roomAssignment.bills.transactions']);
         return view('students.show', compact('user'));
     }
 

@@ -19,7 +19,7 @@ class RoomAssignmentController extends Controller
     public function show(User $user, RoomAssignment $roomAssignment)
     {
         $user->load(['student']);
-        $roomAssignment->load(['room.branch', 'bills']);
+        $roomAssignment->load(['room.branch', 'bills.transactions']);
         return view('room_assignments.show', ['user' => $user, 'assignment' => $roomAssignment]);
     }
 
@@ -38,6 +38,7 @@ class RoomAssignmentController extends Controller
         $roomAssignment->update(['checked_in_at' => now()]);
 
         Bill::create([
+            'code' => $this->generateCode(),
             'user_id' => $roomAssignment->user_id,
             'room_assignment_id' => $roomAssignment->id,
             'amount' => $roomAssignment->room->price_per_month,
@@ -57,5 +58,12 @@ class RoomAssignmentController extends Controller
         $roomAssignment->registration->delete();
         $roomAssignment->delete();
         return redirect()->back()->with('success', "Đã huỷ phân công phòng thành công");
+    }
+
+    private function generateCode()
+    {
+        $date = now()->format('ymdHis');
+        $countToday = Bill::whereDate('created_at', today())->count();
+        return 'HD' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
     }
 }

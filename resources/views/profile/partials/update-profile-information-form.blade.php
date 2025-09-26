@@ -70,7 +70,7 @@
         <div>
             <x-input-label for="date_of_birth" value="Ngày sinh" icon="fas fa-calendar-alt" />
             <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth"
-                :value="old('date_of_birth', $user->date_of_birth)" placeholder="Nhập ngày sinh" />
+                :value="old('date_of_birth', $user->date_of_birth?->format('Y-m-d'))" placeholder="Nhập ngày sinh" />
             <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
         </div>
 

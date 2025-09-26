@@ -53,7 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'date_of_birth' => 'datetime',
+            'date_of_birth' => 'date',
         ];
     }
 
@@ -102,8 +102,8 @@ class User extends Authenticatable implements MustVerifyEmail
                 fn($q, $sort) =>
                 self::SORT_OPTIONS[$sort] ?? false
                     ? $q->orderBy(...self::SORT_OPTIONS[$sort])
-                    : $q->orderBy('updated_at', 'desc'),
-                fn($q) => $q->orderBy('updated_at', 'desc')
+                    : $q->orderBy('created_at', 'desc'),
+                fn($q) => $q->orderBy('created_at', 'desc')
             );
     }
 

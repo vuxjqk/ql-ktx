@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('room_assignment_id')->constrained();
             $table->decimal('amount', 10, 0);

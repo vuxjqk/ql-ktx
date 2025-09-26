@@ -280,7 +280,7 @@
                             @foreach ($user->roomAssignment->bills->flatMap->transactions as $index => $transaction)
                                 <x-tr>
                                     <x-td>#{{ $index + 1 }}</x-td>
-                                    <x-td>{{ $transaction->bill_id }}</x-td>
+                                    <x-td>{{ $transaction->bill->code }}</x-td>
                                     <x-td>{{ number_format($transaction->vnp_amount, 0, ',', '.') }} VNĐ</x-td>
                                     <x-td>{{ $transaction->vnp_bank_code ?? 'N/A' }}</x-td>
                                     <x-td>

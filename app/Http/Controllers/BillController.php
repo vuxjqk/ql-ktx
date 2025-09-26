@@ -17,8 +17,8 @@ class BillController extends Controller
         $vnp_ReturnUrl = config('services.vnpay.return_url');
 
         // Chuẩn bị dữ liệu
-        $vnp_TxnRef = $bill->id;
-        $vnp_OrderInfo = "Thanh toan hoa don #" . $bill->id;
+        $vnp_TxnRef = $bill->code;
+        $vnp_OrderInfo = "Thanh toan hoa don #" . $bill->code;
         $vnp_OrderType = 'billpayment';
         $vnp_Amount = $bill->amount * 100;
         $vnp_Locale = 'vn';
@@ -98,48 +98,54 @@ class BillController extends Controller
         $secureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
 
         // Lấy thông tin giao dịch
-        $billId = $inputData['vnp_TxnRef'] ?? null;
+        $billCode = $inputData['vnp_TxnRef'] ?? null;
         $responseCode = $inputData['vnp_ResponseCode'] ?? null;
         $transactionStatus = $inputData['vnp_TransactionStatus'] ?? null;
-        $amount = ($inputData['vnp_Amount'] ?? 0); // Lưu nguyên giá trị VNPay (đã nhân 100)
+        $amount = ($inputData['vnp_Amount'] ?? 0) / 100;
 
         // Kiểm tra chữ ký
         if ($secureHash === $vnp_SecureHash) {
             // Tìm hóa đơn
-            $bill = Bill::find($billId);
+            $bill = Bill::where('code', $billCode)->first();
 
             if (!$bill) {
                 return redirect()->route('room_registrations.create')->with('error', 'Hóa đơn không tồn tại!');
             }
 
             // Kiểm tra số tiền
-            if ($bill->amount * 100 != $amount) {
+            if ($bill->amount != $amount) {
                 return redirect()->route('room_registrations.create')->with('error', 'Số tiền không khớp!');
             }
 
-            // Lưu thông tin giao dịch vào bảng vnpay_transactions
-            $transaction = Transaction::create([
-                'bill_id' => $billId,
-                'vnp_transaction_no' => $inputData['vnp_TransactionNo'] ?? null,
-                'vnp_amount' => $amount,
-                'vnp_bank_code' => $inputData['vnp_BankCode'] ?? null,
-                'vnp_bank_tran_no' => $inputData['vnp_BankTranNo'] ?? null,
-                'vnp_card_type' => $inputData['vnp_CardType'] ?? null,
-                'vnp_order_info' => $inputData['vnp_OrderInfo'] ?? null,
-                'vnp_response_code' => $responseCode,
-                'vnp_transaction_status' => $transactionStatus,
-                'vnp_pay_date' => $inputData['vnp_PayDate'] ?? null,
-                'vnp_txn_ref' => $inputData['vnp_TxnRef'] ?? null,
-                'vnp_secure_hash' => $vnp_SecureHash,
-            ]);
+            $existing = Transaction::where('vnp_txn_ref', $inputData['vnp_TxnRef'] ?? null)
+                ->where('vnp_transaction_no', $inputData['vnp_TransactionNo'] ?? null)
+                ->first();
+
+            if (!$existing) {
+                // Lưu thông tin giao dịch vào bảng vnpay_transactions
+                Transaction::create([
+                    'bill_id' => $bill->id,
+                    'vnp_transaction_no' => $inputData['vnp_TransactionNo'] ?? null,
+                    'vnp_amount' => $amount,
+                    'vnp_bank_code' => $inputData['vnp_BankCode'] ?? null,
+                    'vnp_bank_tran_no' => $inputData['vnp_BankTranNo'] ?? null,
+                    'vnp_card_type' => $inputData['vnp_CardType'] ?? null,
+                    'vnp_order_info' => $inputData['vnp_OrderInfo'] ?? null,
+                    'vnp_response_code' => $responseCode,
+                    'vnp_transaction_status' => $transactionStatus,
+                    'vnp_pay_date' => $inputData['vnp_PayDate'] ?? null,
+                    'vnp_txn_ref' => $inputData['vnp_TxnRef'] ?? null,
+                    'vnp_secure_hash' => $vnp_SecureHash,
+                ]);
+            }
 
             // Cập nhật trạng thái hóa đơn
             if ($responseCode == '00' && $transactionStatus == '00') {
                 $bill->update(['status' => 'paid']);
-                return redirect()->route('room_registrations.create')->with('success', 'Thanh toán hóa đơn #' . $billId . ' thành công!');
+                return redirect()->route('room_registrations.create')->with('success', 'Thanh toán hóa đơn #' . $bill->id . ' thành công!');
             } else {
                 $bill->update(['status' => 'failed']);
-                return redirect()->route('room_registrations.create')->with('error', 'Thanh toán hóa đơn #' . $billId . ' thất bại! Mã lỗi: ' . $responseCode);
+                return redirect()->route('room_registrations.create')->with('error', 'Thanh toán hóa đơn #' . $bill->id . ' thất bại! Mã lỗi: ' . $responseCode);
             }
         } else {
             // Chữ ký không hợp lệ
@@ -154,6 +160,6 @@ class BillController extends Controller
         }
 
         $bill->update(['status' => 'paid']);
-        return redirect()->back()->with('success', 'Thanh toán hóa đơn #' . $bill->id . ' thành công!');
+        return redirect()->back()->with('success', 'Thanh toán hóa đơn #' . $bill->code . ' thành công!');
     }
 }

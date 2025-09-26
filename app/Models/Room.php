@@ -61,8 +61,8 @@ class Room extends Model
                 fn($q, $sort) =>
                 self::SORT_OPTIONS[$sort] ?? false
                     ? $q->orderBy(...self::SORT_OPTIONS[$sort])
-                    : $q->orderBy('updated_at', 'desc'),
-                fn($q) => $q->orderBy('updated_at', 'desc')
+                    : $q->orderBy('created_at', 'desc'),
+                fn($q) => $q->orderBy('created_at', 'desc')
             );
     }
 
