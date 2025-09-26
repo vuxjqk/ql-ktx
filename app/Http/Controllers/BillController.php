@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class BillController extends Controller
 {
+    public function create()
+    {
+        return view('bills.create');
+    }
+
     public function redirect(Bill $bill)
     {
         // Lấy cấu hình từ config

@@ -210,6 +210,12 @@
                                     Huỷ đăng ký
                                 </x-secondary-button>
                             </div>
+                            <div>
+                                <x-secondary-button :href="route('bills.create')" class="bg-blue-600 hover:bg-blue-700 text-white">
+                                    <i class="fas fa-plus"></i>
+                                    Tạo hoá đơn
+                                </x-secondary-button>
+                            </div>
                         @endif
                     </div>
                 </div>

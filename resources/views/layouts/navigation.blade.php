@@ -60,7 +60,7 @@
             ],
             [
                 'route' => 'rooms.index',
-                'routeMatch' => 'rooms.*',
+                'routeMatch' => ['rooms.*', 'utilities.*'],
                 'icon' => 'fa-door-open',
                 'label' => 'Phòng',
             ],

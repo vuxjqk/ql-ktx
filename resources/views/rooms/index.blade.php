@@ -121,9 +121,7 @@
                     <x-thead>
                         <x-tr>
                             <x-th>STT</x-th>
-                            <x-th>Mã phòng</x-th>
-                            <x-th>Chi nhánh</x-th>
-                            <x-th>Loại phòng</x-th>
+                            <x-th>Phòng</x-th>
                             <x-th>
                                 <div class="flex items-center gap-6">
                                     <span>Sức chứa</span>
@@ -143,16 +141,21 @@
                         @foreach ($rooms as $index => $room)
                             <x-tr>
                                 <x-td>#{{ $rooms->firstItem() + $index }}</x-td>
-                                <x-td>{{ $room->room_code }}</x-td>
-                                <x-td>{{ $room->branch->name }}</x-td>
                                 <x-td>
-                                    @if ($room->gender_type == 'male')
-                                        Nam
-                                    @elseif ($room->gender_type == 'female')
-                                        Nữ
-                                    @else
-                                        Hỗn hợp
-                                    @endif
+                                    <div class="flex flex-col">
+                                        <span class="font-semibold">Phòng: {{ $room->room_code }}</span>
+                                        <span class="text-sm">{{ $room->branch->name }}</span>
+                                        <span class="text-sm">
+                                            Loại phòng:
+                                            @if ($room->gender_type == 'male')
+                                                Nam
+                                            @elseif ($room->gender_type == 'female')
+                                                Nữ
+                                            @else
+                                                Hỗn hợp
+                                            @endif
+                                        </span>
+                                    </div>
                                 </x-td>
                                 <x-td>{{ $room->capacity }}</x-td>
                                 <x-td>{{ $room->current_occupancy }}</x-td>
@@ -166,6 +169,12 @@
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
                                         <i class="fas fa-trash"></i>
                                     </x-icon-button>
+                                    @if ($room->current_occupancy > 0)
+                                        <x-icon-button :href="route('utilities.create', $room)" title="Thêm bản ghi"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white">
+                                            <i class="fas fa-plus"></i>
+                                        </x-icon-button>
+                                    @endif
                                 </x-td>
                             </x-tr>
                         @endforeach

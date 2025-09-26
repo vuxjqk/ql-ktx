@@ -8,6 +8,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomRegistrationController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UtilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,7 +41,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/students/{user}/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'show'])->name('room_assignments.show');
         Route::delete('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'destroy'])->name('room_assignments.destroy');
 
+        Route::get('/bills/create', [BillController::class, 'create'])->name('bills.create');
         Route::put('/bills/{bill}', [BillController::class, 'update'])->name('bills.update');
+
+        Route::get('/rooms/{room}/utilities', [UtilityController::class, 'create'])->name('utilities.create');
+        Route::post('/rooms/{room}/utilities', [UtilityController::class, 'store'])->name('utilities.store');
+        Route::put('/rooms/{utility}/utilities', [UtilityController::class, 'update'])->name('utilities.update');
+        Route::delete('/rooms/{utility}/utilities', [UtilityController::class, 'destroy'])->name('utilities.destroy');
     });
 
     Route::prefix('student')->middleware(['role:student'])->group(function () {

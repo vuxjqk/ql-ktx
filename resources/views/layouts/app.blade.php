@@ -117,8 +117,6 @@
             @if (session('error'))
                 showToast("{{ session('error') }}", "error");
             @endif
-
-            showToast("Xin chào: {{ Auth::user()->name }} - {{ Auth::user()->role }}", "success");
         });
     </script>
 </body>
