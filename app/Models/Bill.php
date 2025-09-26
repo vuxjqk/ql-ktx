@@ -29,4 +29,14 @@ class Bill extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(BillItem::class);
+    }
+
+    public function roomAssignment()
+    {
+        return $this->belongsTo(RoomAssignment::class);
+    }
 }

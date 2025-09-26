@@ -4,10 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BillController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'Bạn chưa đăng nhập.');
+        }
+
+        $user = User::with([
+            'student',
+            'bills.items',
+            'bills.roomAssignment.room'
+        ])->find($user->id);
+
+        return view('bills.index', compact('user'));
+    }
+
     public function create()
     {
         return view('bills.create');

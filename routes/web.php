@@ -59,6 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'update'])->name('room_assignments.update');
 
         Route::get('/vnpay/{bill}', [BillController::class, 'redirect'])->name('vnpay.redirect');
+
+        Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
     });
 
     Route::get('/vnpay/callback', [BillController::class, 'callback'])->name('vnpay.callback');
