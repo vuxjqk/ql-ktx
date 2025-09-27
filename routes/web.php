@@ -44,14 +44,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Quản lý phòng
         Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
 
-        Route::put('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'update'])->name('room_registrations.update');
+        // Phê duyệt hoặc từ chối đăng ký phòng
+        Route::put('/room_registrations/{registration}', [RoomRegistrationController::class, 'update'])->name('registrations.update');
 
-        Route::get('/students/{user}/room_assignments', [RoomAssignmentController::class, 'index'])->name('room_assignments.index');
-        Route::get('/students/{user}/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'show'])->name('room_assignments.show');
-        Route::delete('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'destroy'])->name('room_assignments.destroy');
+        // Huỷ phân phòng nếu không xác nhận hợp đồng
+        Route::delete('/room_assignments/{assignment}', [RoomAssignmentController::class, 'destroy'])->name('assignments.destroy');
+
+        // Lịch sử nội trú
+        Route::get('/students/{user}/assignments', [RoomAssignmentController::class, 'index'])->name('assignments.index');
+        Route::get('/students/{user}/assignments/{assignment}', [RoomAssignmentController::class, 'show'])->name('assignments.show');
+
+        // Thanh toán trực tiếp
+        Route::put('/bills/{bill}', [BillController::class, 'update'])->name('bills.update');
 
         Route::get('/bills/create', [BillController::class, 'create'])->name('bills.create');
-        Route::put('/bills/{bill}', [BillController::class, 'update'])->name('bills.update');
 
         Route::get('/rooms/{room}/utilities', [UtilityController::class, 'create'])->name('utilities.create');
         Route::post('/rooms/{room}/utilities', [UtilityController::class, 'store'])->name('utilities.store');
@@ -64,8 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/room_registrations', [RoomRegistrationController::class, 'store'])->name('room_registrations.store');
         Route::delete('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'destroy'])->name('room_registrations.destroy');
 
-        Route::get('/room_assignments/{roomAssignment}/edit', [RoomAssignmentController::class, 'edit'])->name('room_assignments.edit');
-        Route::put('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'update'])->name('room_assignments.update');
+        Route::get('/room_assignments/{roomAssignment}/edit', [RoomAssignmentController::class, 'edit'])->name('assignments.edit');
+        Route::put('/room_assignments/{roomAssignment}', [RoomAssignmentController::class, 'update'])->name('assignments.update');
 
         Route::get('/vnpay/{bill}', [BillController::class, 'redirect'])->name('vnpay.redirect');
 

@@ -92,7 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 $filters['status'] ?? null,
                 fn($q, $status) =>
                 $q->whereHas(
-                    'roomRegistration',
+                    'registration',
                     fn($q) =>
                     $q->where('status', $status)
                 )
@@ -112,19 +112,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Student::class);
     }
 
-    public function roomRegistration()
+    public function registration()
     {
         return $this->hasOne(RoomRegistration::class);
     }
 
-    public function roomAssignment()
+    public function assignment()
     {
         return $this->hasOne(RoomAssignment::class)->whereNull('checked_out_at');
     }
 
-    public function roomAssignments()
+    public function assignments()
     {
-        return $this->hasMany(RoomAssignment::class);
+        return $this->hasMany(RoomAssignment::class)->whereNotNull('checked_out_at');;
     }
 
     public function bills()

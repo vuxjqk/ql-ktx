@@ -44,7 +44,7 @@
                     <div>
                         <x-input-label for="student_code" value="MSSV" icon="fas fa-id-card" />
                         <x-text-input id="student_code" class="block mt-1 w-full" type="text" name="student_code"
-                            :value="old('student_code', $user->student->student_code)" required autofocus autocomplete="student_code" placeholder="Nhập MSSV" />
+                            :value="old('student_code', $user->student->student_code ?? '')" required autofocus autocomplete="student_code" placeholder="Nhập MSSV" />
                         <x-input-error :messages="$errors->get('student_code')" class="mt-2" />
                     </div>
 
@@ -58,21 +58,21 @@
                     <div>
                         <x-input-label for="class" value="Lớp" icon="fas fa-chalkboard" />
                         <x-text-input id="class" class="block mt-1 w-full" type="text" name="class"
-                            :value="old('class', $user->student->class)" autocomplete="class" placeholder="Nhập lớp" />
+                            :value="old('class', $user->student->class ?? '')" autocomplete="class" placeholder="Nhập lớp" />
                         <x-input-error :messages="$errors->get('class')" class="mt-2" />
                     </div>
 
                     <div>
                         <x-input-label for="cohort" value="Khóa" icon="fas fa-layer-group" />
                         <x-text-input id="cohort" class="block mt-1 w-full" type="number" name="cohort"
-                            :value="old('cohort', $user->student->cohort)" autocomplete="cohort" placeholder="Nhập khoá" />
+                            :value="old('cohort', $user->student->cohort ?? '')" autocomplete="cohort" placeholder="Nhập khoá" />
                         <x-input-error :messages="$errors->get('cohort')" class="mt-2" />
                     </div>
 
                     <div>
                         <x-input-label for="major" value="Ngành" icon="fas fa-graduation-cap" />
                         <x-text-input id="major" class="block mt-1 w-full" type="text" name="major"
-                            :value="old('major', $user->student->major)" autocomplete="major" placeholder="Nhập ngành" />
+                            :value="old('major', $user->student->major ?? '')" autocomplete="major" placeholder="Nhập ngành" />
                         <x-input-error :messages="$errors->get('major')" class="mt-2" />
                     </div>
 
@@ -82,7 +82,7 @@
                             1 => 'Rồi',
                             0 => 'Chưa',
                         ]" name="graduated"
-                            :selected="old('graduated', $user->student->graduated)" />
+                            :selected="old('graduated', $user->student->graduated ?? '')" />
                         <x-input-error :messages="$errors->get('graduated')" class="mt-2" />
                     </div>
 

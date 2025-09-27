@@ -11,21 +11,21 @@ class RoomAssignmentController extends Controller
 {
     public function index(User $user)
     {
-        $user->load(['student', 'roomAssignments.room.branch']);
+        $user->load(['student', 'assignments.room.branch']);
 
-        return view('room_assignments.index', compact('user'));
+        return view('assignments.index', compact('user'));
     }
 
-    public function show(User $user, RoomAssignment $roomAssignment)
+    public function show(User $user, RoomAssignment $assignment)
     {
-        $user->load(['student']);
-        $roomAssignment->load(['room.branch', 'bills.transactions']);
-        return view('room_assignments.show', ['user' => $user, 'assignment' => $roomAssignment]);
+        $user->load('student');
+        $assignment->load(['room.branch', 'bills.transactions']);
+        return view('assignments.show', compact('user', 'assignment'));
     }
 
     public function edit(RoomAssignment $roomAssignment)
     {
-        return view('room_assignments.edit', compact('roomAssignment'));
+        return view('assignments.edit', compact('roomAssignment'));
     }
 
     public function update(Request $request, RoomAssignment $roomAssignment)
@@ -48,15 +48,15 @@ class RoomAssignmentController extends Controller
         return redirect()->route('room_registrations.create')->with('success', "Đã xác nhận hợp đồng thành công");
     }
 
-    public function destroy(RoomAssignment $roomAssignment)
+    public function destroy(RoomAssignment $assignment)
     {
-        if ($roomAssignment->checked_in_at) {
+        if ($assignment->checked_in_at) {
             return redirect()->back()->with('error', "Không thể huỷ vì đã xác nhận hợp đồng");
         }
 
-        $roomAssignment->room->decrement('current_occupancy');
-        $roomAssignment->registration->delete();
-        $roomAssignment->delete();
+        $assignment->room->decrement('current_occupancy');
+        $assignment->registration->delete();
+        $assignment->delete();
         return redirect()->back()->with('success', "Đã huỷ phân công phòng thành công");
     }
 

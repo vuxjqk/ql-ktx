@@ -80,7 +80,7 @@
                         </x-tr>
                     </x-thead>
                     <x-tbody>
-                        @forelse ($user->roomAssignments as $index => $assignment)
+                        @forelse ($user->assignments as $index => $assignment)
                             <x-tr>
                                 <x-td>#{{ $index + 1 }}</x-td>
                                 <x-td>{{ $assignment->room->room_code }}</x-td>
@@ -92,7 +92,7 @@
                                     {{ $assignment->checked_out_at ? $assignment->checked_out_at->format('d/m/Y H:i') : 'Chưa trả phòng' }}
                                 </x-td>
                                 <x-td>
-                                    <x-icon-button :href="route('room_assignments.show', [$user, $assignment])" title="Chi tiết"
+                                    <x-icon-button :href="route('assignments.show', [$user, $assignment])" title="Chi tiết"
                                         class="bg-blue-500 hover:bg-blue-600 text-white">
                                         <i class="fas fa-eye"></i>
                                     </x-icon-button>

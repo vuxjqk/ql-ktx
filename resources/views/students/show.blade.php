@@ -21,37 +21,41 @@
                     </p>
                 </div>
                 <div>
-                    <x-secondary-button :href="route('students.index')">
-                        <i class="fas fa-arrow-left"></i>
-                        Quay lại
-                    </x-secondary-button>
-                    <x-secondary-button :href="route('room_assignments.index', $user)" class="bg-blue-600 hover:bg-blue-700 text-white">
-                        <i class="fas fa-clock-rotate-left"></i>
-                        Lịch sử nội trú
-                    </x-secondary-button>
-                    @if ($registration = $user->roomRegistration)
-                        @if ($registration->status === 'pending')
-                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="approved" data-status-label="phê duyệt"
+                    <div>
+                        <x-secondary-button :href="route('students.index')">
+                            <i class="fas fa-arrow-left"></i>
+                            Quay lại
+                        </x-secondary-button>
+                        <x-secondary-button :href="route('assignments.index', $user)" class="bg-blue-600 hover:bg-blue-700 text-white">
+                            <i class="fas fa-clock-rotate-left"></i>
+                            Lịch sử nội trú
+                        </x-secondary-button>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-2">
+                        @if ($user->registration && $user->registration->status === 'pending')
+                            <x-icon-button :data-update-url="route('registrations.update', $user->registration)" data-status-value="approved" data-status-label="phê duyệt"
                                 title="Phê duyệt" class="bg-green-500 hover:bg-green-600 text-white"
                                 x-data=""
                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                 <i class="fas fa-check-circle"></i>
                             </x-icon-button>
-                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="rejected" data-status-label="từ chối"
-                                title="Từ chối" class="bg-red-500 hover:bg-red-600 text-white" x-data=""
+                            <x-icon-button :data-update-url="route('registrations.update', $user->registration)" data-status-value="rejected" data-status-label="từ chối"
+                                title="Từ chối" class="bg-orange-500 hover:bg-orange-600 text-white"
+                                x-data=""
                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                 <i class="fas fa-times-circle"></i>
                             </x-icon-button>
                         @endif
-                    @endif
-                    <x-icon-button :href="route('students.edit', $user)" title="Chỉnh sửa"
-                        class="bg-yellow-500 hover:bg-yellow-600 text-white">
-                        <i class="fas fa-edit"></i>
-                    </x-icon-button>
-                    <x-icon-button :data-delete-url="route('students.destroy', $user)" title="Xoá" class="bg-red-500 hover:bg-red-600 text-white"
-                        x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
-                        <i class="fas fa-trash"></i>
-                    </x-icon-button>
+
+                        <x-icon-button :href="route('students.edit', $user)" title="Chỉnh sửa"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white">
+                            <i class="fas fa-edit"></i>
+                        </x-icon-button>
+                        <x-icon-button :data-delete-url="route('students.destroy', $user)" title="Xoá" class="bg-red-500 hover:bg-red-600 text-white"
+                            x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
+                            <i class="fas fa-trash"></i>
+                        </x-icon-button>
+                    </div>
                 </div>
             </div>
 
@@ -84,6 +88,28 @@
                             <p class="mt-1 text-gray-600">{{ $user->name }}</p>
                         </div>
                         <div>
+                            <x-input-label value="Lớp" icon="fas fa-chalkboard" />
+                            <p class="mt-1 text-gray-600">{{ $user->student->class ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <x-input-label value="Khoá" icon="fas fa-layer-group" />
+                            <p class="mt-1 text-gray-600">{{ $user->student->cohort ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <x-input-label value="Ngành" icon="fas fa-graduation-cap" />
+                            <p class="mt-1 text-gray-600">{{ $user->student->major ?? 'N/A' }}</p>
+                        </div>
+                        <div>
+                            <x-input-label value="Đã tốt nghiệp chưa?" icon="fas fa-user-graduate" />
+                            <p class="mt-1 text-gray-600">
+                                @if ($user->student)
+                                    {{ $user->student->graduated ? 'Rồi' : 'Chưa' }}
+                                @else
+                                    N/A
+                                @endif
+                            </p>
+                        </div>
+                        <div>
                             <x-input-label value="Email" icon="fas fa-envelope" />
                             <p class="mt-1 text-gray-600">{{ $user->email }}</p>
                         </div>
@@ -102,14 +128,6 @@
                                 {{ $user->gender == 'male' ? 'Nam' : ($user->gender == 'female' ? 'Nữ' : 'N/A') }}
                             </p>
                         </div>
-                        <div>
-                            <x-input-label value="Ngành học" icon="fas fa-graduation-cap" />
-                            <p class="mt-1 text-gray-600">{{ $user->student->major ?? 'N/A' }}</p>
-                        </div>
-                        <div>
-                            <x-input-label value="Lớp" icon="fas fa-chalkboard" />
-                            <p class="mt-1 text-gray-600">{{ $user->student->class ?? 'N/A' }}</p>
-                        </div>
                         <div class="col-span-2">
                             <x-input-label value="Địa chỉ" icon="fas fa-map-marker-alt" />
                             <p class="mt-1 text-gray-600">{{ $user->address ?? 'N/A' }}</p>
@@ -119,36 +137,49 @@
             </div>
 
             <!-- Thông tin đăng ký phòng -->
-            @if ($user->roomRegistration)
+            @if ($user->registration)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">
-                        <i class="fas fa-clipboard-list text-blue-600"></i>
-                        Thông tin đăng ký phòng
-                    </h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-lg text-gray-800 leading-tight mb-4">
+                            <i class="fas fa-clipboard-list text-blue-600"></i>
+                            Thông tin đăng ký phòng
+                        </h3>
+
+                        @if ($user->assignment)
+                            <div>
+                                <x-secondary-button :data-delete-url="route('assignments.destroy', $user->assignment)" class="bg-red-500 hover:bg-red-600 text-white"
+                                    x-data=""
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
+                                    <i class="fas fa-trash"></i>
+                                    Huỷ đăng ký
+                                </x-secondary-button>
+                            </div>
+                        @endif
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <x-input-label value="Mã phòng" icon="fas fa-key" />
-                            <p class="mt-1 text-gray-600">{{ $user->roomRegistration->room->room_code }}</p>
+                            <p class="mt-1 text-gray-600">{{ $user->registration->room->room_code }}</p>
                         </div>
                         <div>
                             <x-input-label value="Chi nhánh" icon="fas fa-building" />
-                            <p class="mt-1 text-gray-600">{{ $user->roomRegistration->room->branch->name }}</p>
+                            <p class="mt-1 text-gray-600">{{ $user->registration->room->branch->name }}</p>
                         </div>
                         <div>
                             <x-input-label value="Khu nhà" icon="fas fa-building" />
-                            <p class="mt-1 text-gray-600">{{ $user->roomRegistration->room->block }}</p>
+                            <p class="mt-1 text-gray-600">{{ $user->registration->room->block }}</p>
                         </div>
                         <div>
                             <x-input-label value="Tầng" icon="fas fa-layer-group" />
-                            <p class="mt-1 text-gray-600">{{ $user->roomRegistration->room->floor }}</p>
+                            <p class="mt-1 text-gray-600">{{ $user->registration->room->floor }}</p>
                         </div>
                         <div>
                             <x-input-label value="Loại phòng" icon="fas fa-venus-mars" />
                             <p class="mt-1 text-gray-600">
-                                @if ($user->roomRegistration->room->gender_type == 'male')
+                                @if ($user->registration->room->gender_type == 'male')
                                     Nam
-                                @elseif ($user->roomRegistration->room->gender_type == 'female')
+                                @elseif ($user->registration->room->gender_type == 'female')
                                     Nữ
                                 @else
                                     Hỗn hợp
@@ -156,11 +187,16 @@
                             </p>
                         </div>
                         <div>
+                            <x-input-label value="Giá mỗi tháng" icon="fas fa-money-bill" />
+                            <p class="mt-1 text-gray-600">
+                                {{ number_format($user->registration->room->price_per_month, 0, ',', '.') }} VNĐ</p>
+                        </div>
+                        <div>
                             <x-input-label value="Trạng thái" icon="fas fa-info-circle" />
                             <p class="mt-1">
-                                @if ($user->roomRegistration->status == 'pending')
+                                @if ($user->registration->status == 'pending')
                                     <span class="text-yellow-600">Đang chờ</span>
-                                @elseif ($user->roomRegistration->status == 'approved')
+                                @elseif ($user->registration->status == 'approved')
                                     <span class="text-green-600">Đã duyệt</span>
                                 @else
                                     <span class="text-red-600">Đã từ chối</span>
@@ -170,138 +206,131 @@
                         <div>
                             <x-input-label value="Ngày yêu cầu" icon="fas fa-calendar-alt" />
                             <p class="mt-1 text-gray-600">
-                                {{ $user->roomRegistration->requested_at->format('d/m/Y H:i') }}</p>
-                        </div>
-                        <div>
-                            <x-input-label value="Ghi chú" icon="fas fa-align-left" />
-                            <p class="mt-1 text-gray-600">{{ $user->roomRegistration->notes ?? 'Không có ghi chú' }}
-                            </p>
+                                {{ $user->registration->requested_at->format('d/m/Y H:i') }}</p>
                         </div>
                         <div>
                             <x-input-label value="Ngày xử lý" icon="fas fa-calendar-check" />
                             <p class="mt-1 text-gray-600">
-                                {{ $user->roomRegistration->processed_at ? $user->roomRegistration->processed_at->format('d/m/Y H:i') : 'Chưa xử lý' }}
+                                {{ $user->registration->processed_at ? $user->registration->processed_at->format('d/m/Y H:i') : 'Chưa xử lý' }}
                             </p>
                         </div>
                         <div>
                             <x-input-label value="Người xử lý" icon="fas fa-user-check" />
                             <p class="mt-1 text-gray-600">
-                                {{ $user->roomRegistration->processed_by ? $user->roomRegistration->processor->name : 'Chưa có' }}
+                                {{ $user->registration->processed_by ? $user->registration->processor->name : 'Chưa có' }}
                             </p>
                         </div>
-                        <div>
-                            <x-input-label value="Ngày nhận phòng" icon="fas fa-calendar-check" />
-                            <p class="mt-1 text-gray-600">
-                                {{ $user->roomAssignment?->checked_in_at?->format('d/m/Y H:i') ?? 'Chưa nhận phòng' }}
+                        <div class="col-span-2">
+                            <x-input-label value="Ghi chú" icon="fas fa-align-left" />
+                            <p class="mt-1 text-gray-600">{{ $user->registration->notes ?? 'Không có ghi chú' }}
                             </p>
                         </div>
-                        <div>
-                            <x-input-label value="Ngày trả phòng" icon="fas fa-calendar-times" />
-                            <p class="mt-1 text-gray-600">
-                                {{ $user->roomAssignment?->checked_out_at?->format('d/m/Y H:i') ?? 'Chưa trả phòng' }}
-                            </p>
-                        </div>
-                        @if ($assignment = $user->roomAssignment)
+                        @if ($user->assignment)
                             <div>
-                                <x-secondary-button :data-delete-url="route('room_assignments.destroy', $assignment)" class="bg-red-500 hover:bg-red-600 text-white"
-                                    x-data=""
-                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
-                                    <i class="fas fa-trash"></i>
-                                    Huỷ đăng ký
-                                </x-secondary-button>
+                                <x-input-label value="Ngày nhận phòng" icon="fas fa-calendar-check" />
+                                <p class="mt-1 text-gray-600">
+                                    {{ $user->assignment->checked_in_at?->format('d/m/Y H:i') ?? 'Chưa nhận phòng' }}
+                                </p>
                             </div>
                             <div>
-                                <x-secondary-button :href="route('bills.create')" class="bg-blue-600 hover:bg-blue-700 text-white">
-                                    <i class="fas fa-plus"></i>
-                                    Tạo hoá đơn
-                                </x-secondary-button>
+                                <x-input-label value="Ngày trả phòng" icon="fas fa-calendar-times" />
+                                <p class="mt-1 text-gray-600">
+                                    {{ $user->assignment->checked_out_at?->format('d/m/Y H:i') ?? 'Chưa trả phòng' }}
+                                </p>
                             </div>
                         @endif
                     </div>
                 </div>
-            @endif
 
-            @if ($user->roomRegistration && $user->roomRegistration->status == 'approved' && $user->roomAssignment)
-                <!-- Danh sách hóa đơn -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <x-table title="Hóa đơn liên quan">
-                        <x-thead>
-                            <x-tr>
-                                <x-th>STT</x-th>
-                                <x-th>Số tiền</x-th>
-                                <x-th>Trạng thái</x-th>
-                                <x-th>Ngày tạo</x-th>
-                                <x-th>Ngày đến hạn</x-th>
-                                <x-th>Hành động</x-th>
-                            </x-tr>
-                        </x-thead>
-                        <x-tbody>
-                            @foreach ($user->roomAssignment->bills as $index => $bill)
+                @if ($user->assignment)
+                    <!-- Danh sách hóa đơn -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <x-table title="Hóa đơn liên quan">
+                            <x-thead>
                                 <x-tr>
-                                    <x-td>#{{ $index + 1 }}</x-td>
-                                    <x-td>{{ number_format($bill->amount, 0, ',', '.') }} VNĐ</x-td>
-                                    <x-td>
-                                        @if ($bill->status == 'pending')
-                                            <span class="text-yellow-600">Đang chờ</span>
-                                        @elseif ($bill->status == 'paid')
-                                            <span class="text-green-600">Đã thanh toán</span>
-                                        @elseif ($bill->status == 'failed')
-                                            <span class="text-red-600">Thất bại</span>
-                                        @else
-                                            <span class="text-red-600">Quá hạn</span>
-                                        @endif
-                                    </x-td>
-                                    <x-td>{{ $bill->created_at->format('d/m/Y H:i') }}</x-td>
-                                    <x-td>{{ $bill->due_date->format('d/m/Y') }}</x-td>
-                                    <x-td>
-                                        @if ($bill->status == 'pending' || $bill->status == 'overdue')
-                                            <x-icon-button :data-bill-update-url="route('bills.update', $bill)" title="Thanh toán"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white"
-                                                x-data=""
-                                                x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-updation')">
-                                                <i class="fas fa-money-check-alt"></i>
-                                            </x-icon-button>
-                                        @endif
-                                    </x-td>
+                                    <x-th>STT</x-th>
+                                    <x-th>Mã hoá đơn</x-th>
+                                    <x-th>Số tiền</x-th>
+                                    <x-th>Trạng thái</x-th>
+                                    <x-th>Ngày tạo</x-th>
+                                    <x-th>Ngày đến hạn</x-th>
+                                    <x-th>Hành động</x-th>
                                 </x-tr>
-                            @endforeach
-                        </x-tbody>
-                    </x-table>
-                </div>
+                            </x-thead>
+                            <x-tbody>
+                                @foreach ($user->assignment->bills as $index => $bill)
+                                    <x-tr>
+                                        <x-td>#{{ $index + 1 }}</x-td>
+                                        <x-td>{{ $bill->code }}</x-td>
+                                        <x-td>{{ number_format($bill->amount, 0, ',', '.') }} VNĐ</x-td>
+                                        <x-td>
+                                            @if ($bill->status == 'pending')
+                                                <span class="text-yellow-600">Đang chờ</span>
+                                            @elseif ($bill->status == 'paid')
+                                                <span class="text-green-600">Đã thanh toán</span>
+                                            @elseif ($bill->status == 'failed')
+                                                <span class="text-red-600">Thất bại</span>
+                                            @else
+                                                <span class="text-red-600">Quá hạn</span>
+                                            @endif
+                                        </x-td>
+                                        <x-td>{{ $bill->created_at->format('d/m/Y') }}</x-td>
+                                        <x-td>{{ $bill->due_date->format('d/m/Y') }}</x-td>
+                                        <x-td>
+                                            @if ($bill->status === 'paid')
+                                                <span title="Đã thanh toán"
+                                                    class="bg-green-700 text-white p-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest shadow-sm">
+                                                    <i class="fas fa-money-check-alt"></i>
+                                                </span>
+                                            @else
+                                                <x-icon-button :data-bill-update-url="route('bills.update', $bill)" title="Thanh toán"
+                                                    class="bg-green-500 hover:bg-green-600 text-white"
+                                                    x-data=""
+                                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-updation')">
+                                                    <i class="fas fa-money-check-alt"></i>
+                                                </x-icon-button>
+                                            @endif
+                                        </x-td>
+                                    </x-tr>
+                                @endforeach
+                            </x-tbody>
+                        </x-table>
+                    </div>
 
-                <!-- Danh sách giao dịch -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <x-table title="Giao dịch liên quan">
-                        <x-thead>
-                            <x-tr>
-                                <x-th>STT</x-th>
-                                <x-th>Mã hoá đơn</x-th>
-                                <x-th>Số tiền</x-th>
-                                <x-th>Ngân hàng</x-th>
-                                <x-th>Trạng thái</x-th>
-                                <x-th>Ngày giao dịch</x-th>
-                            </x-tr>
-                        </x-thead>
-                        <x-tbody>
-                            @foreach ($user->roomAssignment->bills->flatMap->transactions as $index => $transaction)
+                    <!-- Danh sách giao dịch -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <x-table title="Giao dịch liên quan">
+                            <x-thead>
                                 <x-tr>
-                                    <x-td>#{{ $index + 1 }}</x-td>
-                                    <x-td>{{ $transaction->bill->code }}</x-td>
-                                    <x-td>{{ number_format($transaction->vnp_amount, 0, ',', '.') }} VNĐ</x-td>
-                                    <x-td>{{ $transaction->vnp_bank_code ?? 'N/A' }}</x-td>
-                                    <x-td>
-                                        @if ($transaction->vnp_transaction_status == '00')
-                                            <span class="text-green-600">Thành công</span>
-                                        @else
-                                            <span class="text-red-600">Thất bại</span>
-                                        @endif
-                                    </x-td>
-                                    <x-td>{{ $transaction->vnp_pay_date ? \Carbon\Carbon::parse($transaction->vnp_pay_date)->format('d/m/Y H:i') : 'N/A' }}</x-td>
+                                    <x-th>STT</x-th>
+                                    <x-th>Mã hoá đơn</x-th>
+                                    <x-th>Số tiền</x-th>
+                                    <x-th>Ngân hàng</x-th>
+                                    <x-th>Trạng thái</x-th>
+                                    <x-th>Ngày giao dịch</x-th>
                                 </x-tr>
-                            @endforeach
-                        </x-tbody>
-                    </x-table>
-                </div>
+                            </x-thead>
+                            <x-tbody>
+                                @foreach ($user->assignment->bills->flatMap->transactions as $index => $transaction)
+                                    <x-tr>
+                                        <x-td>#{{ $index + 1 }}</x-td>
+                                        <x-td>{{ $transaction->bill->code }}</x-td>
+                                        <x-td>{{ number_format($transaction->vnp_amount, 0, ',', '.') }} VNĐ</x-td>
+                                        <x-td>{{ $transaction->vnp_bank_code ?? 'N/A' }}</x-td>
+                                        <x-td>
+                                            @if ($transaction->vnp_transaction_status == '00')
+                                                <span class="text-green-600">Thành công</span>
+                                            @else
+                                                <span class="text-red-600">Thất bại</span>
+                                            @endif
+                                        </x-td>
+                                        <x-td>{{ $transaction->vnp_pay_date ? \Carbon\Carbon::parse($transaction->vnp_pay_date)->format('d/m/Y H:i') : 'N/A' }}</x-td>
+                                    </x-tr>
+                                @endforeach
+                            </x-tbody>
+                        </x-table>
+                    </div>
+                @endif
             @endif
         </div>
     </div>

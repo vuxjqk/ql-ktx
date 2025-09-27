@@ -130,10 +130,6 @@
                     </x-thead>
                     <x-tbody>
                         @foreach ($users as $index => $user)
-                            @php
-                                $registration = $user->roomRegistration;
-                            @endphp
-
                             <x-tr>
                                 <x-td>#{{ $users->firstItem() + $index }}</x-td>
                                 <x-td>
@@ -149,7 +145,8 @@
                                         @endif
                                         <div class="flex flex-col">
                                             <span class="font-semibold">{{ $user->name }}</span>
-                                            <span class="text-sm">MSSV: {{ $user->student->student_code }}</span>
+                                            <span class="text-sm">MSSV:
+                                                {{ $user->student->student_code ?? 'N/A' }}</span>
                                             <span class="text-sm">Lớp: {{ $user->student->class ?? 'N/A' }}</span>
                                         </div>
                                     </div>
@@ -163,15 +160,15 @@
                                 </x-td>
                                 <x-td>
                                     <div class="flex flex-col text-sm">
-                                        @if ($registration)
-                                            <span>Phòng: {{ $registration->room->room_code }}</span>
-                                            <span>Chi nhánh: {{ $registration->room->branch->name }}</span>
+                                        @if ($user->registration)
+                                            <span>Phòng: {{ $user->registration->room->room_code }}</span>
+                                            <span>Chi nhánh: {{ $user->registration->room->branch->name }}</span>
 
                                             <span>
                                                 Trạng thái:
-                                                @if ($registration->status === 'pending')
+                                                @if ($user->registration->status === 'pending')
                                                     <span class="text-yellow-800">Đang chờ xử lý</span>
-                                                @elseif ($registration->status === 'approved')
+                                                @elseif ($user->registration->status === 'approved')
                                                     <span class="text-green-800">Đã phê duyệt</span>
                                                 @else
                                                     <span class="text-red-800">Đã từ chối</span>
@@ -180,7 +177,7 @@
 
                                             <span class="text-xs">
                                                 Ngày yêu cầu:
-                                                {{ $registration->requested_at->format('d/m/Y H:i') }}
+                                                {{ $user->registration->requested_at->format('d/m/Y H:i') }}
                                             </span>
                                         @else
                                             Không đăng ký nội trú
@@ -211,15 +208,15 @@
                                             <i class="fas fa-trash"></i>
                                         </x-icon-button>
 
-                                        @if ($registration && $registration->status === 'pending')
-                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="approved"
+                                        @if ($user->registration && $user->registration->status === 'pending')
+                                            <x-icon-button :data-update-url="route('registrations.update', $user->registration)" data-status-value="approved"
                                                 data-status-label="phê duyệt" title="Phê duyệt"
                                                 class="bg-green-500 hover:bg-green-600 text-white"
                                                 x-data=""
                                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                                 <i class="fas fa-check-circle"></i>
                                             </x-icon-button>
-                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="rejected"
+                                            <x-icon-button :data-update-url="route('registrations.update', $user->registration)" data-status-value="rejected"
                                                 data-status-label="từ chối" title="Từ chối"
                                                 class="bg-orange-500 hover:bg-orange-600 text-white"
                                                 x-data=""

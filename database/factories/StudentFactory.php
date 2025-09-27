@@ -20,12 +20,14 @@ class StudentFactory extends Factory
         return [
             'user_id' => User::factory()->state(['role' => 'student']),
             'student_code' => strtoupper(fake()->bothify('SV########')),
+            'class' => fake()->optional()->regexify('1[1-5]DHTH0[1-9]'),
+            'cohort' => fake()->optional()->numberBetween(11, 15),
             'major' => fake()->optional()->randomElement([
                 'Công nghệ thông tin',
                 'Quản trị kinh doanh',
                 'Công nghiệp thực phẩm',
             ]),
-            'class' => fake()->optional()->regexify('1[1-5]DH0[1-9]'),
+            'graduated' => fake()->boolean(),
         ];
     }
 }

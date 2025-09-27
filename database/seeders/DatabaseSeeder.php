@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Bill;
 use App\Models\Branch;
 use App\Models\Room;
+use App\Models\RoomRegistration;
 use App\Models\Student;
 use App\Models\User;
 use DateTime;
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
         Student::factory(10)->create();
         Branch::factory(3)->create();
         Room::factory(15)->create();
+        RoomRegistration::factory(10)->create();
         Bill::factory(30)->create();
     }
 }

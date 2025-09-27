@@ -77,7 +77,7 @@
     </div>
 
     <div class="sticky bottom-0 max-w-7xl mx-auto sm:px-12 lg:px-14 bg-white py-6">
-        <form action="{{ route('room_assignments.update', $roomAssignment) }}" method="post"
+        <form action="{{ route('assignments.update', $roomAssignment) }}" method="post"
             class="flex items-center justify-between">
             @csrf
             @method('PUT')

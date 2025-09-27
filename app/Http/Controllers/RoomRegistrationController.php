@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Branch;
 use App\Models\Room;
 use App\Models\RoomAssignment;
 use App\Models\RoomRegistration;
@@ -10,14 +11,37 @@ use Illuminate\Support\Facades\Auth;
 
 class RoomRegistrationController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
         $user = Auth::user();
-        $rooms = Room::all();
 
-        $registration = $user->roomRegistration;
+        $rooms = Room::with('branch')
+            ->filter($request->all())
+            ->paginate(10)
+            ->appends($request->query());
 
-        return view('room_registrations.create', compact('user', 'rooms', 'registration'));
+        $blocks = Room::select('block')
+            ->distinct()
+            ->pluck('block')
+            ->mapWithKeys(fn($block) => [$block => 'Khu ' . $block]);
+
+        $floors = Room::select('floor')
+            ->distinct()
+            ->pluck('floor')
+            ->mapWithKeys(fn($floor) => [$floor => 'Tầng ' . $floor]);
+
+        $branches = Branch::pluck('name', 'id')->toArray();
+
+        $registration = $user->registration;
+
+        return view('room_registrations.create', compact(
+            'user',
+            'rooms',
+            'blocks',
+            'floors',
+            'branches',
+            'registration'
+        ));
     }
 
     public function store(Request $request)
@@ -47,10 +71,10 @@ class RoomRegistrationController extends Controller
         return redirect()->back()->with('success', 'Đã đăng ký phòng thành công');
     }
 
-    public function update(Request $request, RoomRegistration $roomRegistration)
+    public function update(Request $request, RoomRegistration $registration)
     {
-        if ($roomRegistration->status !== 'pending') {
-            return redirect()->back()->with('error', 'Đơn này đã được xử lý trước đó');
+        if ($registration->status !== 'pending') {
+            return redirect()->back()->with('error', 'Mục này đã được xử lý trước đó');
         }
 
         $validated = $request->validateWithBag('registrationUpdation', [
@@ -59,25 +83,25 @@ class RoomRegistrationController extends Controller
         ]);
 
         if ($validated['status'] === 'approved') {
+            $status = 'phê duyệt';
             RoomAssignment::create([
-                'user_id' => $roomRegistration->user_id,
-                'room_id' => $roomRegistration->room_id,
-                'registration_id' => $roomRegistration->id,
+                'user_id' => $registration->user_id,
+                'room_id' => $registration->room_id,
+                'registration_id' => $registration->id,
             ]);
+        } else {
+            $status = 'từ chối';
+            if ($registration->room->current_occupancy > 0) {
+                $registration->room->decrement('current_occupancy');
+            }
         }
 
-        $roomRegistration->update([
+        $registration->update([
             'status' => $validated['status'],
             'notes' => $validated['notes'],
             'processed_at' => now(),
             'processed_by' => Auth::id(),
         ]);
-
-        $status = 'phê duyệt';
-        if ($validated['status'] === 'rejected') {
-            $status = 'từ chối';
-            $roomRegistration->room->decrement('current_occupancy');
-        }
 
         return redirect()->back()->with('success', "Đã $status thành công");
     }

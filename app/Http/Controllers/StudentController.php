@@ -13,13 +13,13 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $users = User::withTrashed()
-            ->with(['student', 'roomRegistration.room.branch'])
-            ->whereHas('student')
+            ->with(['student', 'registration.room.branch'])
+            ->where('role', 'student')
             ->filter($request->all())
             ->paginate(10)
             ->appends($request->query());
 
-        $totalStudents = User::withTrashed()->whereHas('student')->count();
+        $totalStudents = User::withTrashed()->where('role', 'student')->count();
         $statusCounts = RoomRegistration::select('status')
             ->selectRaw('COUNT(*) as total')
             ->groupBy('status')
@@ -74,7 +74,7 @@ class StudentController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['student', 'roomRegistration.room.branch', 'roomAssignment.bills.transactions']);
+        $user->load(['student', 'registration.room.branch', 'assignment.bills.transactions']);
         return view('students.show', compact('user'));
     }
 

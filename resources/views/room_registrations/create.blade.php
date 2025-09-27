@@ -182,7 +182,7 @@
                                         </x-secondary-button>
                                     @endif
                                 @else
-                                    <x-secondary-button :href="route('room_assignments.edit', $assignment)"
+                                    <x-secondary-button :href="route('assignments.edit', $assignment)"
                                         class="bg-blue-600 hover:bg-blue-700 text-white">
                                         Tiếp tục đến hợp đồng
                                     </x-secondary-button>
@@ -233,6 +233,59 @@
                 </div>
             @endif
 
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="font-semibold text-xl text-gray-800 leading-tight">
+                    <i class="fas fa-filter text-blue-600"></i>
+                    Tìm kiếm phòng
+                </h3>
+
+                <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                    <div>
+                        <x-input-label for="room_code" value="Mã phòng" icon="fas fa-key" />
+                        <x-text-input id="room_code" class="block mt-1 w-full" type="search" name="room_code"
+                            :value="request('room_code')" autocomplete="room_code" placeholder="Mã phòng..." />
+                    </div>
+                    <div>
+                        <x-input-label for="block" value="Khu nhà" icon="fas fa-building" />
+                        <x-select id="block" class="block mt-1 w-full" :options="$blocks" name="block"
+                            :selected="request('block')" placeholder="Chọn khu nhà" />
+                    </div>
+                    <div>
+                        <x-input-label for="floor" value="Tầng" icon="fas fa-layer-group" />
+                        <x-select id="floor" class="block mt-1 w-full" :options="$floors" name="floor"
+                            :selected="request('floor')" placeholder="Chọn tầng" />
+                    </div>
+                    <div>
+                        <x-input-label for="gender_type" value="Loại phòng" icon="fas fa-venus-mars" />
+                        <x-select id="gender_type" class="block mt-1 w-full" :options="[
+                            'male' => 'Nam',
+                            'female' => 'Nữ',
+                            'mixed' => 'Hỗn hợp',
+                        ]" name="gender_type"
+                            :selected="request('gender_type')" placeholder="Chọn loại phòng" />
+                    </div>
+                    <div>
+                        <x-input-label for="is_active" value="Trạng thái" icon="fas fa-power-off" />
+                        <x-select id="is_active" class="block mt-1 w-full" :options="[
+                            1 => 'Đang hoạt động',
+                            0 => 'Đang bảo trì',
+                        ]" name="is_active"
+                            :selected="request('is_active')" placeholder="Chọn trạng thái" />
+                    </div>
+                    <div class="col-span-2">
+                        <x-input-label for="branch_id" value="Chi nhánh" icon="fas fa-building" />
+                        <x-select id="branch_id" class="block mt-1 w-full" :options="$branches" name="branch_id"
+                            :selected="request('branch_id')" placeholder="Chọn chi nhánh" />
+                    </div>
+                    <div class="flex items-end">
+                        <x-primary-button>
+                            <i class="fas fa-search"></i>
+                            Tìm kiếm
+                        </x-primary-button>
+                    </div>
+                </form>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <x-table title="Chọn phòng đăng ký">
                     <x-thead>
@@ -271,6 +324,8 @@
                     </x-tbody>
                 </x-table>
             </div>
+
+            {{ $rooms->links() }}
         </div>
     </div>
 

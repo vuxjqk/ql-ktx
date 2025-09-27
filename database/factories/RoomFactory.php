@@ -20,14 +20,15 @@ class RoomFactory extends Factory
         $floor = fake()->numberBetween(1, 5);
         $capacity = fake()->numberBetween(1, 5);
         return [
-            'branch_id' => fake()->numberBetween(1, 3),
             'room_code' => $block . $floor . str_pad(fake()->numberBetween(1, 99), 2, '0', STR_PAD_LEFT),
+            'branch_id' => fake()->numberBetween(1, 3),
             'block' => $block,
             'floor' => $floor,
             'gender_type' => fake()->randomElement(['male', 'female', 'mixed']),
             'price_per_month' => fake()->numberBetween(1_000_000, 3_000_000),
             'capacity' => $capacity,
             'current_occupancy' => fake()->numberBetween(0, $capacity),
+            'is_active' => fake()->boolean(),
             'description' => fake()->optional()->sentence(),
         ];
     }

@@ -9,7 +9,7 @@
                 ['label' => 'Trang chủ', 'url' => url('/')],
                 ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
                 ['label' => 'Chi tiết sinh viên', 'url' => route('students.show', $user)],
-                ['label' => 'Lịch sử nội trú', 'url' => route('room_assignments.index', $user)],
+                ['label' => 'Lịch sử nội trú', 'url' => route('assignments.index', $user)],
                 ['label' => 'Chi tiết lịch sử nội trú'],
             ]" />
 
@@ -21,7 +21,7 @@
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Xem chi tiết lịch sử nội trú của sinh viên</p>
                 </div>
-                <x-secondary-button :href="route('room_assignments.index', $user)">
+                <x-secondary-button :href="route('assignments.index', $user)">
                     <i class="fas fa-arrow-left"></i>
                     Quay lại
                 </x-secondary-button>
@@ -103,7 +103,11 @@
                             @endif
                         </p>
                     </div>
-                    <div></div>
+                    <div>
+                        <x-input-label value="Giá mỗi tháng" icon="fas fa-money-bill" />
+                        <p class="mt-1 text-gray-600">
+                            {{ number_format($assignment->room->price_per_month, 0, ',', '.') }} VNĐ</p>
+                    </div>
                     <div>
                         <x-input-label value="Ngày nhận phòng" icon="fas fa-calendar-check" />
                         <p class="mt-1 text-gray-600">
@@ -125,17 +129,18 @@
                     <x-thead>
                         <x-tr>
                             <x-th>STT</x-th>
+                            <x-th>Mã hoá đơn</x-th>
                             <x-th>Số tiền</x-th>
                             <x-th>Trạng thái</x-th>
                             <x-th>Ngày tạo</x-th>
                             <x-th>Ngày đến hạn</x-th>
-                            <x-th>Hành động</x-th>
                         </x-tr>
                     </x-thead>
                     <x-tbody>
                         @foreach ($assignment->bills as $index => $bill)
                             <x-tr>
                                 <x-td>#{{ $index + 1 }}</x-td>
+                                <x-td>{{ $bill->code }}</x-td>
                                 <x-td>{{ number_format($bill->amount, 0, ',', '.') }} VNĐ</x-td>
                                 <x-td>
                                     @if ($bill->status == 'pending')
@@ -148,16 +153,8 @@
                                         <span class="text-red-600">Quá hạn</span>
                                     @endif
                                 </x-td>
-                                <x-td>{{ $bill->created_at->format('d/m/Y H:i') }}</x-td>
+                                <x-td>{{ $bill->created_at->format('d/m/Y') }}</x-td>
                                 <x-td>{{ $bill->due_date->format('d/m/Y') }}</x-td>
-                                <x-td>
-                                    @if ($bill->status == 'pending' || $bill->status == 'overdue')
-                                        <x-icon-button :href="route('bills.pay', $bill)" title="Thanh toán"
-                                            class="bg-blue-500 hover:bg-blue-600 text-white">
-                                            <i class="fas fa-money-check-alt"></i>
-                                        </x-icon-button>
-                                    @endif
-                                </x-td>
                             </x-tr>
                         @endforeach
                     </x-tbody>
