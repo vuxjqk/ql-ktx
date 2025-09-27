@@ -10,7 +10,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-door-open text-blue-800"></i>
+                        <i class="fas fa-door-open text-blue-600"></i>
                         Quản lý phòng
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Quản lý tất cả phòng trong hệ thống</p>
@@ -25,7 +25,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-blue-100 p-3">
-                            <i class="fas fa-door-open text-blue-800 text-xl"></i>
+                            <i class="fas fa-door-open text-blue-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Tổng số phòng</p>
@@ -37,7 +37,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-green-100 p-3">
-                            <i class="fas fa-bed text-green-800 text-xl"></i>
+                            <i class="fas fa-bed text-green-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Phòng đầy</p>
@@ -49,7 +49,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-red-100 p-3">
-                            <i class="fas fa-bed text-red-800 text-xl"></i>
+                            <i class="fas fa-bed text-red-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Phòng trống</p>
@@ -61,7 +61,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-yellow-100 p-3">
-                            <i class="fas fa-bed text-yellow-800 text-xl"></i>
+                            <i class="fas fa-bed text-yellow-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Phòng còn thiếu</p>
@@ -73,7 +73,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-filter text-blue-800"></i>
+                    <i class="fas fa-filter text-blue-600"></i>
                     Tìm kiếm phòng
                 </h3>
 
@@ -102,6 +102,14 @@
                         ]" name="gender_type"
                             :selected="request('gender_type')" placeholder="Chọn loại phòng" />
                     </div>
+                    <div>
+                        <x-input-label for="is_active" value="Trạng thái" icon="fas fa-power-off" />
+                        <x-select id="is_active" class="block mt-1 w-full" :options="[
+                            1 => 'Đang hoạt động',
+                            0 => 'Đang bảo trì',
+                        ]" name="is_active"
+                            :selected="request('is_active')" placeholder="Chọn trạng thái" />
+                    </div>
                     <div class="col-span-2">
                         <x-input-label for="branch_id" value="Chi nhánh" icon="fas fa-building" />
                         <x-select id="branch_id" class="block mt-1 w-full" :options="$branches" name="branch_id"
@@ -122,6 +130,7 @@
                         <x-tr>
                             <x-th>STT</x-th>
                             <x-th>Phòng</x-th>
+                            <x-th>Chi nhánh</x-th>
                             <x-th>
                                 <div class="flex items-center gap-6">
                                     <span>Sức chứa</span>
@@ -143,8 +152,7 @@
                                 <x-td>#{{ $rooms->firstItem() + $index }}</x-td>
                                 <x-td>
                                     <div class="flex flex-col">
-                                        <span class="font-semibold">Phòng: {{ $room->room_code }}</span>
-                                        <span class="text-sm">{{ $room->branch->name }}</span>
+                                        <span class="font-semibold">{{ $room->room_code }}</span>
                                         <span class="text-sm">
                                             Loại phòng:
                                             @if ($room->gender_type == 'male')
@@ -157,6 +165,7 @@
                                         </span>
                                     </div>
                                 </x-td>
+                                <x-td>{{ $room->branch->name }}</x-td>
                                 <x-td>{{ $room->capacity }}</x-td>
                                 <x-td>{{ $room->current_occupancy }}</x-td>
                                 <x-td>

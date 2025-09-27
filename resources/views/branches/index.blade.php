@@ -10,7 +10,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-building text-blue-800"></i>
+                        <i class="fas fa-building text-blue-600"></i>
                         Quản lý chi nhánh
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Quản lý tất cả chi nhánh trong hệ thống</p>
@@ -26,7 +26,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-blue-100 p-3">
-                            <i class="fas fa-building text-blue-800 text-xl"></i>
+                            <i class="fas fa-building text-blue-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Tổng chi nhánh</p>
@@ -80,7 +80,7 @@
             @csrf
 
             <h2 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-building text-blue-800"></i>
+                <i class="fas fa-building text-blue-600"></i>
                 Thông tin chi nhánh
             </h2>
 
@@ -94,7 +94,7 @@
             <div class="mt-6">
                 <x-input-label for="address-creation" value="Địa chỉ" icon="fas fa-map-marker-alt" />
                 <x-text-input id="address-creation" class="block mt-1 w-full" type="text" name="address"
-                    :value="old('address')" required autocomplete="address" placeholder="Nhập địa chỉ" />
+                    :value="old('address')" autocomplete="address" placeholder="Nhập địa chỉ" />
                 <x-input-error :messages="$errors->branchCreation->get('address')" class="mt-2" />
             </div>
 
@@ -116,7 +116,7 @@
             @method('put')
 
             <h2 class="text-lg font-medium text-gray-900">
-                <i class="fas fa-building text-blue-800"></i>
+                <i class="fas fa-building text-blue-600"></i>
                 Thông tin chi nhánh
             </h2>
 
@@ -130,7 +130,7 @@
             <div class="mt-6">
                 <x-input-label for="address" value="Địa chỉ" icon="fas fa-map-marker-alt" />
                 <x-text-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')"
-                    required autocomplete="address" placeholder="Nhập địa chỉ" />
+                    autocomplete="address" placeholder="Nhập địa chỉ" />
                 <x-input-error :messages="$errors->branchUpdation->get('address')" class="mt-2" />
             </div>
 

@@ -25,15 +25,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::middleware(['role:super_admin,admin'])->group(function () {
-        Route::resource('branches', BranchController::class)->except(['create', 'show', 'edit']);
+        // Quản lý nhân sự
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('/users/{id}', [UserController::class, 'restore'])->name('users.restore');
-        Route::resource('rooms', RoomController::class)->except(['show']);
+
+        // Quản lý chi nhánh
+        Route::resource('branches', BranchController::class)->except(['create', 'show', 'edit']);
+
+        // Quản lý phòng
+        Route::resource('rooms', RoomController::class)->except(['index', 'show']);
     });
 
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
+        // Quản lý sinh viên
         Route::resource('students', StudentController::class)->parameters(['students' => 'user']);
         Route::post('/students/{id}', [StudentController::class, 'restore'])->name('students.restore');
+
+        // Quản lý phòng
+        Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
 
         Route::put('/room_registrations/{roomRegistration}', [RoomRegistrationController::class, 'update'])->name('room_registrations.update');
 

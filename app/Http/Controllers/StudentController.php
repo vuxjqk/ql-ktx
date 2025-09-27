@@ -12,17 +12,12 @@ class StudentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::select('id', 'name', 'email', 'phone', 'address', 'avatar', 'role', 'deleted_at')
-            ->withTrashed()
+        $users = User::withTrashed()
+            ->with(['student', 'roomRegistration.room.branch'])
             ->whereHas('student')
-            ->with([
-                'student:id,user_id,student_code,class',
-                'roomRegistration:id,user_id,room_id,status,requested_at',
-                'roomRegistration.room:id,room_code'
-            ])
-            ->filter($request->all());
-
-        $users = $query->paginate(10)->appends($request->query());
+            ->filter($request->all())
+            ->paginate(10)
+            ->appends($request->query());
 
         $totalStudents = User::withTrashed()->whereHas('student')->count();
         $statusCounts = RoomRegistration::select('status')
@@ -30,11 +25,7 @@ class StudentController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        return view('students.index', compact(
-            'users',
-            'totalStudents',
-            'statusCounts'
-        ));
+        return view('students.index', compact('users', 'totalStudents', 'statusCounts'));
     }
 
     public function create()
@@ -55,8 +46,10 @@ class StudentController extends Controller
             'avatar'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
 
             'student_code'  => 'required|string|max:20|unique:students,student_code',
-            'major'         => 'nullable|string|max:255',
             'class'         => 'nullable|string|max:255',
+            'cohort'        => 'nullable|integer|min:1|max:255',
+            'major'         => 'nullable|string|max:255',
+            'graduated'     => 'required|boolean',
         ];
 
         $validated = $request->validate($rules);
@@ -87,7 +80,7 @@ class StudentController extends Controller
 
     public function edit(User $user)
     {
-        $user->load(['student']);
+        $user->load('student');
         return view('students.edit', compact('user'));
     }
 
@@ -108,8 +101,10 @@ class StudentController extends Controller
             'avatar'        => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
 
             'student_code'  => 'required|string|max:20|unique:students,student_code,' . ($user->student->id ?? 'NULL'),
-            'major'         => 'nullable|string|max:255',
             'class'         => 'nullable|string|max:255',
+            'cohort'        => 'nullable|integer|min:1|max:255',
+            'major'         => 'nullable|string|max:255',
+            'graduated'     => 'required|boolean',
         ];
 
         $validated = $request->validate($rules);
@@ -137,10 +132,6 @@ class StudentController extends Controller
     {
         if ($user->role !== 'student') {
             abort(403, 'Không Được Phép');
-        }
-
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
         }
 
         $user->delete();

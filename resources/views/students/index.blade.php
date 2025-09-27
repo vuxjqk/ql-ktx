@@ -10,7 +10,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-graduation-cap text-blue-800"></i>
+                        <i class="fas fa-graduation-cap text-blue-600"></i>
                         Quản lý sinh viên
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Quản lý tất cả sinh viên trong hệ thống</p>
@@ -25,7 +25,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-blue-100 p-3">
-                            <i class="fas fa-graduation-cap text-blue-800 text-xl"></i>
+                            <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Tổng sinh viên</p>
@@ -37,7 +37,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-yellow-100 p-3">
-                            <i class="fas fa-hourglass-half text-yellow-800 text-xl"></i>
+                            <i class="fas fa-hourglass-half text-yellow-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Đang chờ xử lý</p>
@@ -51,7 +51,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-green-100 p-3">
-                            <i class="fas fa-check-circle text-green-800 text-xl"></i>
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Đã phê duyệt</p>
@@ -65,7 +65,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-red-100 p-3">
-                            <i class="fas fa-times-circle text-red-800 text-xl"></i>
+                            <i class="fas fa-times-circle text-red-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Đã từ chối</p>
@@ -79,7 +79,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-filter text-blue-800"></i>
+                    <i class="fas fa-filter text-blue-600"></i>
                     Tìm kiếm sinh viên
                 </h3>
 
@@ -144,7 +144,7 @@
                                         @else
                                             <div
                                                 class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs text-white">
-                                                {{ substr($user->name, 0, 2) }}
+                                                {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                                             </div>
                                         @endif
                                         <div class="flex flex-col">
@@ -162,15 +162,13 @@
                                     </div>
                                 </x-td>
                                 <x-td>
-                                    <div class="flex flex-col">
+                                    <div class="flex flex-col text-sm">
                                         @if ($registration)
-                                            <span class="font-semibold">
-                                                <span class="text-sm">Phòng:</span>
-                                                {{ $registration->room->room_code }}
-                                            </span>
+                                            <span>Phòng: {{ $registration->room->room_code }}</span>
+                                            <span>Chi nhánh: {{ $registration->room->branch->name }}</span>
 
-                                            <span class="text-sm">
-                                                <span class="text-xs">Trạng thái:</span>
+                                            <span>
+                                                Trạng thái:
                                                 @if ($registration->status === 'pending')
                                                     <span class="text-yellow-800">Đang chờ xử lý</span>
                                                 @elseif ($registration->status === 'approved')
@@ -180,39 +178,16 @@
                                                 @endif
                                             </span>
 
-                                            <span class="text-sm">
-                                                <span class="text-xs">Ngày yêu cầu:</span>
+                                            <span class="text-xs">
+                                                Ngày yêu cầu:
                                                 {{ $registration->requested_at->format('d/m/Y H:i') }}
                                             </span>
                                         @else
-                                            <span class="text-sm">Không đăng ký nội trú</span>
+                                            Không đăng ký nội trú
                                         @endif
                                     </div>
                                 </x-td>
                                 <x-td>
-                                    <x-icon-button :href="route('students.show', $user)" title="Chi tiết"
-                                        class="bg-blue-500 hover:bg-blue-600 text-white">
-                                        <i class="fas fa-eye"></i>
-                                    </x-icon-button>
-
-                                    @if ($registration)
-                                        @if ($registration->status === 'pending')
-                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="approved"
-                                                data-status-label="phê duyệt" title="Phê duyệt"
-                                                class="bg-green-500 hover:bg-green-600 text-white"
-                                                x-data=""
-                                                x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
-                                                <i class="fas fa-check-circle"></i>
-                                            </x-icon-button>
-                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="rejected"
-                                                data-status-label="từ chối" title="Từ chối"
-                                                class="bg-red-500 hover:bg-red-600 text-white" x-data=""
-                                                x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
-                                                <i class="fas fa-times-circle"></i>
-                                            </x-icon-button>
-                                        @endif
-                                    @endif
-
                                     @if ($user->trashed())
                                         <form action="{{ route('students.restore', $user->id) }}" method="post">
                                             @csrf
@@ -222,6 +197,10 @@
                                             </x-icon-button>
                                         </form>
                                     @else
+                                        <x-icon-button :href="route('students.show', $user)" title="Chi tiết"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white">
+                                            <i class="fas fa-eye"></i>
+                                        </x-icon-button>
                                         <x-icon-button :href="route('students.edit', $user)" title="Chỉnh sửa"
                                             class="bg-yellow-500 hover:bg-yellow-600 text-white">
                                             <i class="fas fa-edit"></i>
@@ -231,6 +210,23 @@
                                             x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')">
                                             <i class="fas fa-trash"></i>
                                         </x-icon-button>
+
+                                        @if ($registration && $registration->status === 'pending')
+                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="approved"
+                                                data-status-label="phê duyệt" title="Phê duyệt"
+                                                class="bg-green-500 hover:bg-green-600 text-white"
+                                                x-data=""
+                                                x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
+                                                <i class="fas fa-check-circle"></i>
+                                            </x-icon-button>
+                                            <x-icon-button :data-update-url="route('room_registrations.update', $registration)" data-status-value="rejected"
+                                                data-status-label="từ chối" title="Từ chối"
+                                                class="bg-orange-500 hover:bg-orange-600 text-white"
+                                                x-data=""
+                                                x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
+                                                <i class="fas fa-times-circle"></i>
+                                            </x-icon-button>
+                                        @endif
                                     @endif
                                 </x-td>
                             </x-tr>

@@ -14,7 +14,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-graduation-cap text-blue-800"></i>
+                        <i class="fas fa-graduation-cap text-blue-600"></i>
                         Thêm sinh viên mới
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Thêm sinh viên mới vào hệ thống</p>
@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-info-circle text-blue-800"></i>
+                    <i class="fas fa-info-circle text-blue-600"></i>
                     Thông tin sinh viên
                 </h3>
 
@@ -49,18 +49,35 @@
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>
 
-                    <div class="mt-4">
+                    <div>
+                        <x-input-label for="class" value="Lớp" icon="fas fa-chalkboard" />
+                        <x-text-input id="class" class="block mt-1 w-full" type="text" name="class"
+                            :value="old('class')" autocomplete="class" placeholder="Nhập lớp" />
+                        <x-input-error :messages="$errors->get('class')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="cohort" value="Khóa" icon="fas fa-layer-group" />
+                        <x-text-input id="cohort" class="block mt-1 w-full" type="number" name="cohort"
+                            :value="old('cohort')" autocomplete="cohort" placeholder="Nhập khoá" />
+                        <x-input-error :messages="$errors->get('cohort')" class="mt-2" />
+                    </div>
+
+                    <div>
                         <x-input-label for="major" value="Ngành" icon="fas fa-graduation-cap" />
                         <x-text-input id="major" class="block mt-1 w-full" type="text" name="major"
                             :value="old('major')" autocomplete="major" placeholder="Nhập ngành" />
                         <x-input-error :messages="$errors->get('major')" class="mt-2" />
                     </div>
 
-                    <div class="mt-4">
-                        <x-input-label for="class" value="Lớp" icon="fas fa-chalkboard" />
-                        <x-text-input id="class" class="block mt-1 w-full" type="text" name="class"
-                            :value="old('class')" autocomplete="class" placeholder="Nhập lớp" />
-                        <x-input-error :messages="$errors->get('class')" class="mt-2" />
+                    <div>
+                        <x-input-label for="graduated" value="Đã tốt nghiệp chưa?" icon="fas fa-user-graduate" />
+                        <x-select id="graduated" class="block mt-1 w-full" :options="[
+                            1 => 'Rồi',
+                            0 => 'Chưa',
+                        ]" name="graduated"
+                            :selected="old('graduated')" />
+                        <x-input-error :messages="$errors->get('graduated')" class="mt-2" />
                     </div>
 
                     <div>
@@ -80,7 +97,7 @@
                     <div>
                         <x-input-label for="date_of_birth" value="Ngày sinh" icon="fas fa-calendar-alt" />
                         <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth"
-                            :value="old('date_of_birth')" placeholder="Nhập ngày sinh" />
+                            :value="old('date_of_birth')" />
                         <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                     </div>
 

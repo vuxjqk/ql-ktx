@@ -70,7 +70,7 @@
                         @else
                             <div
                                 class="w-32 h-32 rounded-lg bg-blue-500 flex items-center justify-center font-bold text-2xl text-white">
-                                {{ substr($user->name, 0, 2) }}
+                                {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                             </div>
                         @endif
                     </div>

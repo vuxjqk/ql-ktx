@@ -60,7 +60,7 @@
                                     @else
                                         <div
                                             class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs text-white">
-                                            {{ substr(Auth::user()->name, 0, 2) }}
+                                            {{ mb_substr(Auth::user()->name, 0, 2, 'UTF-8') }}
                                         </div>
                                     @endif
 

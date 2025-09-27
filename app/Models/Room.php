@@ -10,14 +10,15 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'branch_id',
         'room_code',
+        'branch_id',
         'block',
         'floor',
         'gender_type',
         'price_per_month',
         'capacity',
         'current_occupancy',
+        'is_active',
         'description',
     ];
 
@@ -50,6 +51,11 @@ class Room extends Model
                 $filters['gender_type'] ?? null,
                 fn($q, $gender_type) =>
                 $q->where('gender_type', $gender_type)
+            )
+            ->when(
+                $filters['is_status'] ?? null,
+                fn($q, $is_status) =>
+                $q->where('is_status', $is_status)
             )
             ->when(
                 $filters['branch_id'] ?? null,

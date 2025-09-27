@@ -10,7 +10,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-bed text-blue-800"></i>
+                        <i class="fas fa-bed text-blue-600"></i>
                         Đăng ký phòng
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Tiến hành đăng ký phòng nội trú</p>
@@ -19,7 +19,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-info-circle text-blue-800"></i>
+                    <i class="fas fa-info-circle text-blue-600"></i>
                     Thông tin sinh viên
                 </h3>
 
@@ -31,7 +31,7 @@
                         @else
                             <div
                                 class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center font-bold text-4xl text-white">
-                                {{ substr($user->name, 0, 2) }}
+                                {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                             </div>
                         @endif
                     </div>
@@ -97,7 +97,7 @@
             @if ($registration)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-bed text-blue-800"></i>
+                        <i class="fas fa-bed text-blue-600"></i>
                         Phòng đã đăng ký
                     </h3>
 

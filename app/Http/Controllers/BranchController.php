@@ -20,10 +20,11 @@ class BranchController extends Controller
     {
         $validated = $request->validateWithBag('branchCreation', [
             'name' => 'required|string|max:255|unique:branches,name',
-            'address' => 'nullable|string|max:255|unique:branches,address',
+            'address' => 'nullable|string|max:255',
         ]);
 
         Branch::create($validated);
+
         return redirect()->route('branches.index')->with('success', 'Chi nhánh đã được tạo thành công');
     }
 
@@ -31,7 +32,7 @@ class BranchController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:branches,name,' . $branch->id,
-            'address' => 'nullable|string|max:255|unique:branches,address,' . $branch->id,
+            'address' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {

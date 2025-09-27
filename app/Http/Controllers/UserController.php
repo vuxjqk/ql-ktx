@@ -14,8 +14,7 @@ class UserController extends Controller
     {
         $authRole = Auth::user()->role;
 
-        $query = User::select('id', 'name', 'email', 'phone', 'avatar', 'role', 'deleted_at')
-            ->withTrashed()
+        $query = User::withTrashed()
             ->filter($request->all());
 
         if ($authRole === 'super_admin') {
@@ -27,6 +26,7 @@ class UserController extends Controller
         }
 
         $users = $query->paginate(10)->appends($request->query());
+
         $totalStaffs = User::withTrashed()->where('role', 'staff')->count();
 
         return view('users.index', compact('users', 'totalAdmins', 'totalStaffs'));
@@ -74,7 +74,7 @@ class UserController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('users.index')->with('success', 'Nhân viên đã được tạo thành công');
+        return redirect()->route('users.index')->with('success', 'Nhân sự đã được tạo thành công');
     }
 
     public function edit(User $user)
@@ -126,7 +126,7 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return redirect()->route('users.index')->with('success', 'Nhân viên đã được cập nhật thành công');
+        return redirect()->route('users.index')->with('success', 'Nhân sự đã được cập nhật thành công');
     }
 
     public function destroy(User $user)
@@ -137,20 +137,23 @@ class UserController extends Controller
             abort(403, 'Không Được Phép');
         }
 
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'Nhân viên đã được xoá thành công');
+        return redirect()->route('users.index')->with('success', 'Nhân sự đã được xoá thành công');
     }
 
     public function restore($id)
     {
         $user = User::onlyTrashed()->findOrFail($id);
+
+        $authRole = Auth::user()->role;
+
+        if ($user->role === 'super_admin' || ($user->role === 'admin' && $authRole === 'admin')) {
+            abort(403, 'Không Được Phép');
+        }
+
         $user->restore();
 
-        return redirect()->route('users.index')->with('success', 'Nhân viên đã được khôi phục thành công');
+        return redirect()->route('users.index')->with('success', 'Nhân sự đã được khôi phục thành công');
     }
 }

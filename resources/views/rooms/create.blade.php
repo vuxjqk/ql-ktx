@@ -14,7 +14,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-door-open text-blue-800"></i>
+                        <i class="fas fa-door-open text-blue-600"></i>
                         Thêm phòng mới
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Thêm phòng mới vào hệ thống</p>
@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-info-circle text-blue-800"></i>
+                    <i class="fas fa-info-circle text-blue-600"></i>
                     Thông tin phòng
                 </h3>
 
@@ -102,6 +102,16 @@
                             name="current_occupancy" :value="old('current_occupancy')" required autocomplete="current_occupancy"
                             placeholder="Nhập số người hiện tại" />
                         <x-input-error :messages="$errors->get('current_occupancy')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="is_active" value="Trạng thái" icon="fas fa-power-off" />
+                        <x-select id="is_active" class="block mt-1 w-full" :options="[
+                            1 => 'Đang hoạt động',
+                            0 => 'Đang bảo trì',
+                        ]" name="is_active"
+                            :selected="old('is_active')" />
+                        <x-input-error :messages="$errors->get('is_active')" class="mt-2" />
                     </div>
 
                     <div class="col-span-2">

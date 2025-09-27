@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->primary()->constrained()->cascadeOnDelete();
             $table->string('student_code', 20)->unique();
-            $table->string('major')->nullable();
             $table->string('class')->nullable();
+            $table->unsignedTinyInteger('cohort')->nullable();
+            $table->string('major')->nullable();
+            $table->boolean('graduated')->default(false);
             $table->timestamps();
         });
     }

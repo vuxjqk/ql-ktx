@@ -1,23 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        Chỉnh sửa nhân viên
+        Chỉnh sửa nhân sự
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid gap-6">
             <x-breadcrumb :items="[
                 ['label' => 'Trang chủ', 'url' => url('/')],
-                ['label' => 'Quản lý nhân viên', 'url' => route('users.index')],
-                ['label' => 'Chỉnh sửa nhân viên'],
+                ['label' => 'Quản lý nhân sự', 'url' => route('users.index')],
+                ['label' => 'Chỉnh sửa nhân sự'],
             ]" />
 
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-user-tie text-blue-800"></i>
-                        Chỉnh sửa nhân viên
+                        <i class="fas fa-user-tie text-blue-600"></i>
+                        Chỉnh sửa nhân sự
                     </h1>
-                    <p class="mt-1 text-sm text-gray-600">Cập nhật thông tin nhân viên trong hệ thống</p>
+                    <p class="mt-1 text-sm text-gray-600">Cập nhật thông tin nhân sự trong hệ thống</p>
                 </div>
                 <x-secondary-button :href="route('users.index')">
                     <i class="fas fa-arrow-left"></i>
@@ -27,8 +27,8 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-info-circle text-blue-800"></i>
-                    Thông tin nhân viên
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                    Thông tin nhân sự
                 </h3>
 
                 <form action="{{ route('users.update', $user) }}" method="post" enctype="multipart/form-data"
@@ -60,7 +60,7 @@
                     <div>
                         <x-input-label for="date_of_birth" value="Ngày sinh" icon="fas fa-calendar-alt" />
                         <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth"
-                            :value="old('date_of_birth', $user->date_of_birth?->format('Y-m-d'))" placeholder="Nhập ngày sinh" />
+                            :value="old('date_of_birth', $user->date_of_birth?->format('Y-m-d'))" />
                         <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                     </div>
 
@@ -102,7 +102,7 @@
                             @else
                                 <div
                                     class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center font-bold text-2xl text-white">
-                                    {{ substr($user->name, 0, 2) }}
+                                    {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                                 </div>
                             @endif
                         </div>

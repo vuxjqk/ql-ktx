@@ -26,7 +26,7 @@
                 @else
                     <div
                         class="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center font-bold text-2xl text-white">
-                        {{ substr(Auth::user()->name, 0, 2) }}
+                        {{ mb_substr(Auth::user()->name, 0, 2, 'UTF-8') }}
                     </div>
                 @endif
                 <input id="avatar" class="hidden" type="file" name="avatar">

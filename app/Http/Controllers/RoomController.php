@@ -12,11 +12,10 @@ class RoomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Room::select('id', 'branch_id', 'room_code', 'block', 'floor', 'gender_type', 'capacity', 'current_occupancy')
-            ->with(['branch'])
-            ->filter($request->all());
-
-        $rooms = $query->paginate(10)->appends($request->query());
+        $rooms = Room::with('branch')
+            ->filter($request->all())
+            ->paginate(10)
+            ->appends($request->query());
 
         $totalRooms = Room::count();
         $fullRooms = Room::whereRaw('current_occupancy >= capacity')->count();
@@ -56,8 +55,7 @@ class RoomController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'branch_id'         => 'required|exists:branches,id',
-            'room_code'         => [
+            'room_code' => [
                 'required',
                 'string',
                 'max:20',
@@ -65,12 +63,14 @@ class RoomController extends Controller
                     return $query->where('branch_id', $request->branch_id);
                 })
             ],
+            'branch_id'         => 'required|exists:branches,id',
             'block'             => 'required|string|size:1',
-            'floor'             => 'required|integer|min:0',
+            'floor'             => 'required|integer|min:0|max:255',
             'gender_type'       => 'required|in:male,female,mixed',
             'price_per_month'   => 'required|numeric|min:0',
-            'capacity'          => 'required|integer|min:1',
+            'capacity'          => 'required|integer|min:1|max:255',
             'current_occupancy' => 'required|integer|min:0|lte:capacity',
+            'is_active'         => 'required|boolean',
             'description'       => 'nullable|string',
         ];
 
@@ -90,8 +90,7 @@ class RoomController extends Controller
     public function update(Request $request, Room $room)
     {
         $rules = [
-            'branch_id'         => 'required|exists:branches,id',
-            'room_code'         => [
+            'room_code' => [
                 'required',
                 'string',
                 'max:20',
@@ -99,12 +98,14 @@ class RoomController extends Controller
                     return $query->where('branch_id', $request->branch_id);
                 })->ignore($room->id)
             ],
+            'branch_id'         => 'required|exists:branches,id',
             'block'             => 'required|string|size:1',
-            'floor'             => 'required|integer|min:0',
+            'floor'             => 'required|integer|min:0|max:255',
             'gender_type'       => 'required|in:male,female,mixed',
             'price_per_month'   => 'required|numeric|min:0',
-            'capacity'          => 'required|integer|min:1',
-            'current_occupancy' => 'nullable|integer|min:0|lte:capacity',
+            'capacity'          => 'required|integer|min:1|max:255',
+            'current_occupancy' => 'required|integer|min:0|lte:capacity',
+            'is_active'         => 'required|boolean',
             'description'       => 'nullable|string',
         ];
 

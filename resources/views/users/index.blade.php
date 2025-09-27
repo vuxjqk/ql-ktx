@@ -1,23 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        Quản lý nhân viên
+        Quản lý nhân sự
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid gap-6">
-            <x-breadcrumb :items="[['label' => 'Trang chủ', 'url' => url('/')], ['label' => 'Quản lý nhân viên']]" />
+            <x-breadcrumb :items="[['label' => 'Trang chủ', 'url' => url('/')], ['label' => 'Quản lý nhân sự']]" />
 
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-user-tie text-blue-800"></i>
-                        Quản lý nhân viên
+                        <i class="fas fa-user-tie text-blue-600"></i>
+                        Quản lý nhân sự
                     </h1>
-                    <p class="mt-1 text-sm text-gray-600">Quản lý tất cả nhân viên trong hệ thống</p>
+                    <p class="mt-1 text-sm text-gray-600">Quản lý tất cả nhân sự trong hệ thống</p>
                 </div>
                 <x-secondary-button :href="route('users.create')" class="bg-blue-600 hover:bg-blue-700 text-white">
                     <i class="fas fa-plus"></i>
-                    Thêm nhân viên
+                    Thêm nhân sự
                 </x-secondary-button>
             </div>
 
@@ -25,7 +25,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                     <div class="flex items-center space-x-6">
                         <div class="shadow-sm rounded-lg bg-blue-100 p-3">
-                            <i class="fas fa-user-tie text-blue-800 text-xl"></i>
+                            <i class="fas fa-user text-blue-600 text-xl"></i>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Tổng nhân viên</p>
@@ -38,7 +38,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center">
                         <div class="flex items-center space-x-6">
                             <div class="shadow-sm rounded-lg bg-green-100 p-3">
-                                <i class="fas fa-user-shield text-green-800 text-xl"></i>
+                                <i class="fas fa-user-shield text-green-600 text-xl"></i>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Tổng quản trị viên</p>
@@ -51,8 +51,8 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-filter text-blue-800"></i>
-                    Tìm kiếm nhân viên
+                    <i class="fas fa-filter text-blue-600"></i>
+                    Tìm kiếm nhân sự
                 </h3>
 
                 <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
@@ -79,18 +79,17 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <x-table title="Danh sách nhân viên">
+                <x-table title="Danh sách nhân sự">
                     <x-thead>
                         <x-tr>
                             <x-th>STT</x-th>
                             <x-th>
                                 <div class="flex items-center gap-6">
-                                    <span>Tên</span>
+                                    <span>Nhân sự</span>
                                     <x-sortable-column :options="['a_to_z', 'z_to_a']" />
                                 </div>
                             </x-th>
-                            <x-th>Email</x-th>
-                            <x-th>Số điện thoại</x-th>
+                            <x-th>Liên hệ</x-th>
                             <x-th>Vai trò</x-th>
                             <x-th>Hành động</x-th>
                         </x-tr>
@@ -107,14 +106,19 @@
                                         @else
                                             <div
                                                 class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs text-white">
-                                                {{ substr($user->name, 0, 2) }}
+                                                {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                                             </div>
                                         @endif
                                         {{ $user->name }}
                                     </div>
                                 </x-td>
-                                <x-td>{{ $user->email }}</x-td>
-                                <x-td>{{ $user->phone ?? 'N/A' }}</x-td>
+                                <x-td>
+                                    <div class="flex flex-col text-sm">
+                                        <span>Email: {{ $user->email ?? 'N/A' }}</span>
+                                        <span>Sđt: {{ $user->phone ?? 'N/A' }}</span>
+                                        <span>Địa chỉ: {{ $user->address ?? 'N/A' }}</span>
+                                    </div>
+                                </x-td>
                                 <x-td>{{ $user->role == 'admin' ? 'Quản trị viên' : 'Nhân viên' }}</x-td>
                                 <x-td>
                                     @if ($user->trashed())

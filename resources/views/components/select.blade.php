@@ -10,7 +10,7 @@
 
     @foreach ($options as $value => $label)
         <option value="{{ $value }}"
-            {{ is_array($selected) ? (in_array($value, $selected) ? 'selected' : '') : ($selected == $value ? 'selected' : '') }}>
+            {{ is_array($selected) ? (in_array($value, $selected) ? 'selected' : '') : ($selected === (string) $value ? 'selected' : '') }}>
             {{ $label }}
         </option>
     @endforeach

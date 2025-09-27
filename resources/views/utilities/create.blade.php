@@ -14,7 +14,7 @@
             <div class="mx-6 flex items-center justify-between">
                 <div>
                     <h1 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-plug text-blue-800"></i>
+                        <i class="fas fa-plug text-blue-600"></i>
                         Thêm bản ghi tiện ích
                     </h1>
                     <p class="mt-1 text-sm text-gray-600">Thêm bản ghi tiện ích cho phòng {{ $room->room_code }}</p>
@@ -27,7 +27,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                    <i class="fas fa-info-circle text-blue-800"></i>
+                    <i class="fas fa-info-circle text-blue-600"></i>
                     Thông tin tiện ích
                 </h3>
 
@@ -94,7 +94,7 @@
             @if ($lastUtility)
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <h3 class="font-semibold text-xl text-gray-800 leading-tight">
-                        <i class="fas fa-info-circle text-blue-800"></i>
+                        <i class="fas fa-info-circle text-blue-600"></i>
                         Bản ghi tiện ích gần đây nhất
                     </h3>
 
