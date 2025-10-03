@@ -63,7 +63,7 @@ class UtilityController extends Controller
         $dueDate = $month->copy()->endOfMonth()->addDays(7);
 
         foreach ($assignments as $assignment) {
-            $totalAmount = $room->price_per_month + $electricPerUser + $waterPerUser;
+            $totalAmount = $room->price + $electricPerUser + $waterPerUser;
 
             $bill = Bill::create([
                 'code' => $this->generateCode(),
@@ -77,7 +77,7 @@ class UtilityController extends Controller
             $bill->items()->createMany([
                 [
                     'type' => 'Tiền phòng',
-                    'amount' => $room->price_per_month,
+                    'amount' => $room->price,
                     'description' => 'Phí thuê phòng tháng ' . $month->format('m/Y'),
                 ],
                 [

@@ -106,7 +106,7 @@
                     <div>
                         <x-input-label value="Giá mỗi tháng" icon="fas fa-money-bill" />
                         <p class="mt-1 text-gray-600">
-                            {{ number_format($assignment->room->price_per_month, 0, ',', '.') }} VNĐ</p>
+                            {{ number_format($assignment->room->price, 0, ',', '.') }} VNĐ</p>
                     </div>
                     <div>
                         <x-input-label value="Ngày nhận phòng" icon="fas fa-calendar-check" />

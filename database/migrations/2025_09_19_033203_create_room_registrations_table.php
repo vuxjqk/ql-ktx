@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('room_registrations', function (Blueprint $table) {
-            $table->foreignId('user_id')->primary()->constrained()->cascadeOnDelete();
+            $table->id();
+            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignId('room_id')->constrained()->cascadeOnDelete();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('notes')->nullable();

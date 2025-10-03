@@ -83,11 +83,11 @@
                     </div>
 
                     <div>
-                        <x-input-label for="price_per_month" value="Giá mỗi tháng" icon="fas fa-money-bill" />
-                        <x-text-input id="price_per_month" class="block mt-1 w-full" type="number"
-                            name="price_per_month" :value="old('price_per_month', $room->price_per_month)" required autocomplete="price_per_month"
+                        <x-input-label for="price" value="Giá mỗi tháng" icon="fas fa-money-bill" />
+                        <x-text-input id="price" class="block mt-1 w-full" type="number"
+                            name="price" :value="old('price', $room->price)" required autocomplete="price"
                             placeholder="Nhập giá mỗi tháng" />
-                        <x-input-error :messages="$errors->get('price_per_month')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('price')" class="mt-2" />
                     </div>
 
                     <div>

@@ -195,7 +195,7 @@
                                 <i class="fas fa-money-bill"></i>
                                 Giá mỗi tháng:
                                 <span class="font-semibold">
-                                    {{ number_format($registration->room->price_per_month, 0, ',', '.') }} VNĐ
+                                    {{ number_format($registration->room->price, 0, ',', '.') }} VNĐ
                                 </span>
                             </p>
                         </div>
@@ -313,7 +313,7 @@
                                         Hỗn hợp
                                     @endif
                                 </x-td>
-                                <x-td>{{ number_format($room->price_per_month, 0, ',', '.') }} VNĐ</x-td>
+                                <x-td>{{ number_format($room->price, 0, ',', '.') }} VNĐ</x-td>
                                 <x-td>{{ $room->capacity }}</x-td>
                                 <x-td>{{ $room->current_occupancy }}</x-td>
                             </x-tr>

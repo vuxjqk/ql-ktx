@@ -25,7 +25,7 @@ class RoomFactory extends Factory
             'block' => $block,
             'floor' => $floor,
             'gender_type' => fake()->randomElement(['male', 'female', 'mixed']),
-            'price_per_month' => fake()->numberBetween(1_000_000, 3_000_000),
+            'price' => fake()->numberBetween(1_000_000, 3_000_000),
             'capacity' => $capacity,
             'current_occupancy' => fake()->numberBetween(0, $capacity),
             'is_active' => fake()->boolean(),

@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bill_id')->constrained();
-            $table->string('vnp_transaction_no')->nullable();
-            $table->unsignedBigInteger('vnp_amount');
-            $table->string('vnp_bank_code')->nullable();
-            $table->string('vnp_bank_tran_no')->nullable();
-            $table->string('vnp_card_type')->nullable();
-            $table->string('vnp_order_info')->nullable();
-            $table->string('vnp_response_code');
-            $table->string('vnp_transaction_status');
-            $table->string('vnp_pay_date')->nullable();
-            $table->string('vnp_txn_ref');
-            $table->string('vnp_secure_hash');
+            $table->string('transaction_no')->nullable();
+            $table->unsignedBigInteger('amount');
+            $table->string('bank_code')->nullable();
+            $table->string('bank_tran_no')->nullable();
+            $table->string('card_type')->nullable();
+            $table->string('order_info')->nullable();
+            $table->string('response_code');
+            $table->string('transaction_status');
+            $table->string('pay_date')->nullable();
+            $table->string('txn_ref');
+            $table->string('secure_hash');
             $table->timestamps();
         });
     }

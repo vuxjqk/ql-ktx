@@ -189,7 +189,7 @@
                         <div>
                             <x-input-label value="Giá mỗi tháng" icon="fas fa-money-bill" />
                             <p class="mt-1 text-gray-600">
-                                {{ number_format($user->registration->room->price_per_month, 0, ',', '.') }} VNĐ</p>
+                                {{ number_format($user->registration->room->price, 0, ',', '.') }} VNĐ</p>
                         </div>
                         <div>
                             <x-input-label value="Trạng thái" icon="fas fa-info-circle" />

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RepairController;
 use App\Http\Controllers\RoomAssignmentController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomRegistrationController;
@@ -63,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/rooms/{room}/utilities', [UtilityController::class, 'store'])->name('utilities.store');
         Route::put('/rooms/{utility}/utilities', [UtilityController::class, 'update'])->name('utilities.update');
         Route::delete('/rooms/{utility}/utilities', [UtilityController::class, 'destroy'])->name('utilities.destroy');
+        Route::get('/repairs/edit', [RepairController::class, 'edit'])->name('repairs.edit');
+        Route::delete('/repairs/{repair}', [RepairController::class, 'destroy'])->name('repairs.destroy');
     });
 
     Route::prefix('student')->middleware(['role:student'])->group(function () {
@@ -76,7 +80,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/vnpay/{bill}', [BillController::class, 'redirect'])->name('vnpay.redirect');
 
         Route::get('/bills', [BillController::class, 'index'])->name('bills.index');
+
+        Route::post('/repairs', [RepairController::class, 'store'])->name('student.repairs.store');;
+        Route::get('/repairs/create', [RepairController::class, 'create'])->name('repairs.create');
     });
+
+    Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');
+    Route::get('/dashboard_', [DashboardController::class, 'index'])->name('dashboard.index');
 
     Route::get('/vnpay/callback', [BillController::class, 'callback'])->name('vnpay.callback');
 });

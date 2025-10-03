@@ -33,6 +33,12 @@
                 'icon' => 'fa-file-invoice-dollar',
                 'label' => 'Hoá đơn',
             ],
+            [
+                'route' => 'repairs.create',
+                'routeMatch' => 'repairs.*',
+                'icon' => 'fa-screwdriver-wrench',
+                'label' => 'Báo sửa chữa',
+            ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
                     <i class="fas {{ $item['icon'] }} w-6"></i>
@@ -69,6 +75,12 @@
                 'routeMatch' => ['rooms.*', 'utilities.*'],
                 'icon' => 'fa-door-open',
                 'label' => 'Phòng',
+            ],
+            [
+                'route' => 'repairs.index',
+                'routeMatch' => 'repairs.*',
+                'icon' => 'fa-screwdriver-wrench',
+                'label' => 'Sửa chữa',
             ],
         ] as $item)
                 <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">

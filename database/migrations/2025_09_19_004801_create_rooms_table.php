@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('block', 1);
             $table->unsignedTinyInteger('floor');
             $table->enum('gender_type', ['male', 'female', 'mixed']);
-            $table->decimal('price_per_month', 10, 0);
+            $table->decimal('price', 10, 0);
             $table->unsignedTinyInteger('capacity');
             $table->unsignedTinyInteger('current_occupancy')->default(0);
             $table->boolean('is_active')->default(true);

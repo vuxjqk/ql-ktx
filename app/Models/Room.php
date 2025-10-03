@@ -15,7 +15,7 @@ class Room extends Model
         'block',
         'floor',
         'gender_type',
-        'price_per_month',
+        'price',
         'capacity',
         'current_occupancy',
         'is_active',

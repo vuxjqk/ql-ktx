@@ -35,32 +35,32 @@ class BillController extends Controller
     public function redirect(Bill $bill)
     {
         // Lấy cấu hình từ config
-        $vnp_TmnCode = config('services.vnpay.tmn_code');
-        $vnp_HashSecret = config('services.vnpay.hash_secret');
-        $vnp_Url = config('services.vnpay.url');
-        $vnp_ReturnUrl = config('services.vnpay.return_url');
+        $TmnCode = config('services.vnpay.tmn_code');
+        $HashSecret = config('services.vnpay.hash_secret');
+        $Url = config('services.vnpay.url');
+        $ReturnUrl = config('services.vnpay.return_url');
 
         // Chuẩn bị dữ liệu
-        $vnp_TxnRef = $bill->code;
-        $vnp_OrderInfo = "Thanh toan hoa don #" . $bill->code;
-        $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $bill->amount * 100;
-        $vnp_Locale = 'vn';
-        $vnp_IpAddr = request()->ip();
+        $TxnRef = $bill->code;
+        $OrderInfo = "Thanh toan hoa don #" . $bill->code;
+        $OrderType = 'billpayment';
+        $Amount = $bill->amount * 100;
+        $Locale = 'vn';
+        $IpAddr = request()->ip();
 
         $inputData = [
-            "vnp_Version" => "2.1.0",
-            "vnp_TmnCode" => $vnp_TmnCode,
-            "vnp_Amount" => $vnp_Amount,
-            "vnp_Command" => "pay",
-            "vnp_CreateDate" => now()->format('YmdHis'),
-            "vnp_CurrCode" => "VND",
-            "vnp_IpAddr" => $vnp_IpAddr,
-            "vnp_Locale" => $vnp_Locale,
-            "vnp_OrderInfo" => $vnp_OrderInfo,
-            "vnp_OrderType" => $vnp_OrderType,
-            "vnp_ReturnUrl" => $vnp_ReturnUrl,
-            "vnp_TxnRef" => $vnp_TxnRef,
+            "Version" => "2.1.0",
+            "TmnCode" => $TmnCode,
+            "Amount" => $Amount,
+            "Command" => "pay",
+            "CreateDate" => now()->format('YmdHis'),
+            "CurrCode" => "VND",
+            "IpAddr" => $IpAddr,
+            "Locale" => $Locale,
+            "OrderInfo" => $OrderInfo,
+            "OrderType" => $OrderType,
+            "ReturnUrl" => $ReturnUrl,
+            "TxnRef" => $TxnRef,
         ];
 
         // Sắp xếp mảng theo key
@@ -81,10 +81,10 @@ class BillController extends Controller
         }
 
         // Tạo SecureHash
-        $vnp_SecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+        $SecureHash = hash_hmac('sha512', $hashdata, $HashSecret);
 
         // Tạo URL thanh toán
-        $paymentUrl = $vnp_Url . "?" . $query . "vnp_SecureHash=" . $vnp_SecureHash;
+        $paymentUrl = $Url . "?" . $query . "SecureHash=" . $SecureHash;
 
         // Redirect đến VNPay
         return redirect()->away($paymentUrl);
@@ -93,15 +93,15 @@ class BillController extends Controller
     public function callback(Request $request)
     {
         // Lấy hash secret từ config
-        $vnp_HashSecret = config('services.vnpay.hash_secret');
+        $HashSecret = config('services.vnpay.hash_secret');
 
         // Lấy tất cả tham số từ query string
         $inputData = $request->all();
-        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
+        $SecureHash = $inputData['SecureHash'] ?? '';
 
         // Loại bỏ các tham số liên quan đến chữ ký
-        unset($inputData['vnp_SecureHashType']);
-        unset($inputData['vnp_SecureHash']);
+        unset($inputData['SecureHashType']);
+        unset($inputData['SecureHash']);
 
         // Sắp xếp mảng theo key
         ksort($inputData);
@@ -119,16 +119,16 @@ class BillController extends Controller
         }
 
         // Tạo chữ ký để kiểm tra
-        $secureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+        $secureHash = hash_hmac('sha512', $hashdata, $HashSecret);
 
         // Lấy thông tin giao dịch
-        $billCode = $inputData['vnp_TxnRef'] ?? null;
-        $responseCode = $inputData['vnp_ResponseCode'] ?? null;
-        $transactionStatus = $inputData['vnp_TransactionStatus'] ?? null;
-        $amount = ($inputData['vnp_Amount'] ?? 0) / 100;
+        $billCode = $inputData['TxnRef'] ?? null;
+        $responseCode = $inputData['ResponseCode'] ?? null;
+        $transactionStatus = $inputData['TransactionStatus'] ?? null;
+        $amount = ($inputData['Amount'] ?? 0) / 100;
 
         // Kiểm tra chữ ký
-        if ($secureHash === $vnp_SecureHash) {
+        if ($secureHash === $SecureHash) {
             // Tìm hóa đơn
             $bill = Bill::where('code', $billCode)->first();
 
@@ -141,25 +141,25 @@ class BillController extends Controller
                 return redirect()->route('room_registrations.create')->with('error', 'Số tiền không khớp!');
             }
 
-            $existing = Transaction::where('vnp_txn_ref', $inputData['vnp_TxnRef'] ?? null)
-                ->where('vnp_transaction_no', $inputData['vnp_TransactionNo'] ?? null)
+            $existing = Transaction::where('txn_ref', $inputData['TxnRef'] ?? null)
+                ->where('transaction_no', $inputData['TransactionNo'] ?? null)
                 ->first();
 
             if (!$existing) {
                 // Lưu thông tin giao dịch vào bảng vnpay_transactions
                 Transaction::create([
                     'bill_id' => $bill->id,
-                    'vnp_transaction_no' => $inputData['vnp_TransactionNo'] ?? null,
-                    'vnp_amount' => $amount,
-                    'vnp_bank_code' => $inputData['vnp_BankCode'] ?? null,
-                    'vnp_bank_tran_no' => $inputData['vnp_BankTranNo'] ?? null,
-                    'vnp_card_type' => $inputData['vnp_CardType'] ?? null,
-                    'vnp_order_info' => $inputData['vnp_OrderInfo'] ?? null,
-                    'vnp_response_code' => $responseCode,
-                    'vnp_transaction_status' => $transactionStatus,
-                    'vnp_pay_date' => $inputData['vnp_PayDate'] ?? null,
-                    'vnp_txn_ref' => $inputData['vnp_TxnRef'] ?? null,
-                    'vnp_secure_hash' => $vnp_SecureHash,
+                    'transaction_no' => $inputData['TransactionNo'] ?? null,
+                    'amount' => $amount,
+                    'bank_code' => $inputData['BankCode'] ?? null,
+                    'bank_tran_no' => $inputData['BankTranNo'] ?? null,
+                    'card_type' => $inputData['CardType'] ?? null,
+                    'order_info' => $inputData['OrderInfo'] ?? null,
+                    'response_code' => $responseCode,
+                    'transaction_status' => $transactionStatus,
+                    'pay_date' => $inputData['PayDate'] ?? null,
+                    'txn_ref' => $inputData['TxnRef'] ?? null,
+                    'secure_hash' => $SecureHash,
                 ]);
             }
 

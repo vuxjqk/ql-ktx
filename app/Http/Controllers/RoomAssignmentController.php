@@ -41,7 +41,7 @@ class RoomAssignmentController extends Controller
             'code' => $this->generateCode(),
             'user_id' => $roomAssignment->user_id,
             'room_assignment_id' => $roomAssignment->id,
-            'amount' => $roomAssignment->room->price_per_month,
+            'amount' => $roomAssignment->room->price,
             'due_date' => now()->addDays(7),
         ]);
 
