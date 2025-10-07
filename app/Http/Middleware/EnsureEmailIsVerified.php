@@ -3,10 +3,11 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CorsMiddleware
+class EnsureEmailIsVerified
 {
     /**
      * Handle an incoming request.
@@ -15,12 +16,12 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        if (! $request->user() ||
+            ($request->user() instanceof MustVerifyEmail &&
+            ! $request->user()->hasVerifiedEmail())) {
+            return response()->json(['message' => 'Your email address is not verified.'], 409);
+        }
 
-        $response->headers->set('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-        return $response;
+        return $next($request);
     }
 }
