@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\RoomController as ApiRoomController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\ProfileController;
@@ -43,9 +42,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 });
-
-Route::get('/floors-by-branch/{branch_id}', [FloorController::class, 'getByBranch']);
-Route::get('/rooms', [ApiRoomController::class, 'index']);
-Route::get('/rooms/{room}', [ApiRoomController::class, 'show']);
 
 require __DIR__ . '/auth.php';

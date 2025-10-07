@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div x-data="roomFilter('{{ url('/floors-by-branch') }}')" x-init="init()"
+            <div x-data="roomFilter('{{ url('/api/floors-by-branch') }}')" x-init="init()"
                 class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="font-semibold text-xl text-gray-800 leading-tight">
                     <i class="fas fa-filter text-blue-600 me-1"></i>

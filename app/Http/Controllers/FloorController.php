@@ -80,9 +80,4 @@ class FloorController extends Controller
             return redirect()->back()->with('error', $msg);
         }
     }
-
-    public function getByBranch($branchId)
-    {
-        return Floor::where('branch_id', $branchId)->pluck('floor_number', 'id');
-    }
 }
