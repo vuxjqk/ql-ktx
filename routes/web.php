@@ -42,10 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('rooms', RoomController::class)->except(['show']);
         });
     });
-
-    Route::get('/floors-by-branch/{branch_id}', [FloorController::class, 'getByBranch']);
-    Route::get('/rooms', [ApiRoomController::class, 'index']);
-    Route::get('/rooms/{room}', [ApiRoomController::class, 'show']);
 });
+
+Route::get('/floors-by-branch/{branch_id}', [FloorController::class, 'getByBranch']);
+Route::get('/rooms', [ApiRoomController::class, 'index']);
+Route::get('/rooms/{room}', [ApiRoomController::class, 'show']);
 
 require __DIR__ . '/auth.php';
