@@ -1,0 +1,147 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Bill;
+use App\Models\BillItem;
+use App\Models\Payment;
+use App\Models\Room;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class BillController extends Controller
+{
+    public function index(Request $request, User $user)
+    {
+        $bills = $user->bills()
+            ->with(['booking.room', 'bill_items', 'creator'])
+            ->filter($request->all())
+            ->paginate(10)
+            ->appends($request->query());
+
+        $totalBills = $bills->count();
+        $unpaidBills = $bills->where('status', 'unpaid')->count();
+        $paidBills = $bills->where('status', 'paid')->count();
+        $cancelledBills = $bills->where('status', 'cancelled')->count();
+
+        return view('bills.index', compact(
+            'user',
+            'bills',
+            'totalBills',
+            'unpaidBills',
+            'paidBills',
+            'cancelledBills'
+        ));
+    }
+
+    public function store(Room $room)
+    {
+        $hasBillThisMonth = Bill::whereIn('booking_id', $room->activeBookings()->pluck('id'))
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->exists();
+
+        if ($hasBillThisMonth) {
+            return redirect()->back()->with('error', __('Phòng này đã được tạo hóa đơn trong tháng này.'));
+        }
+
+        try {
+            $bill_code = $this->generateBillCode();
+
+            $activeBookings = $room->activeBookings()->get();
+            $count = $activeBookings->count();
+
+            if ($count === 0) {
+                return redirect()->back()->with('error', __('Phòng này không có sinh viên nào đang ở.'));
+            }
+
+            DB::transaction(function () use ($bill_code, $room, $activeBookings, $count) {
+                foreach ($activeBookings as $index => $booking) {
+                    $bill = Bill::create([
+                        'bill_code'    => $bill_code,
+                        'user_id'      => $booking->user_id,
+                        'booking_id'   => $booking->id,
+                        'total_amount' => 0,
+                        'due_date'     => now()->endOfMonth()->addDays(7),
+                        'created_by'   => Auth::id(),
+                    ]);
+
+                    BillItem::create([
+                        'bill_id'     => $bill->id,
+                        'description' => "Tiền Ký túc xá",
+                        'amount'      => $room->price_per_month,
+                    ]);
+
+                    $totalAmount = $room->price_per_month;
+
+                    foreach ($room->services as $service) {
+                        $usageAmount = $service->getUsageAmountForRoom($room);
+
+                        $subtotal = $service->unit_price * max(0, $usageAmount - $service->free_quota);
+                        $baseShare = intdiv($subtotal, $count);
+                        $remainder = $subtotal % $count;
+
+                        $amount = $baseShare;
+                        if ($index < $remainder) {
+                            $amount += 1;
+                        }
+
+                        BillItem::create([
+                            'bill_id'     => $bill->id,
+                            'description' => 'Tiền ' . $service->name . " ($usageAmount / $service->unit chia đều cho $count người)",
+                            'amount'      => $amount,
+                        ]);
+
+                        $totalAmount += $amount;
+                    }
+
+                    $bill->update(['total_amount' => $totalAmount]);
+                }
+            });
+
+            return redirect()->back()->with('success', __('Đã tạo hoá đơn thành công.'));
+        } catch (Exception $e) {
+            Log::error('Lỗi khi tạo hoá đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
+
+            return redirect()->back()->with('error', __('Không thể tạo hoá đơn. Vui lòng thử lại.'));
+        }
+    }
+
+    public function payBill(Bill $bill)
+    {
+        if ($bill->status === 'paid') {
+            return redirect()->back()->with('error', __('Hóa đơn này đã được thanh toán đầy đủ.'));
+        }
+
+        Payment::create([
+            'bill_id' => $bill->id,
+            'payment_type' => 'offline',
+            'amount' => $bill->total_amount,
+            'paid_at' => now(),
+            'user_id' => Auth::id(),
+        ]);
+
+        $bill->update(['status' => 'paid']);
+
+        return redirect()->back()->with('success', __('Đã ghi nhận thanh toán thành công.'));
+    }
+
+    public function export(Bill $bill)
+    {
+        $bill->load(['user.student', 'booking.room', 'bill_items', 'creator']);
+        $pdf = Pdf::loadView('bills.export', compact('bill'));
+        return $pdf->stream('bills.pdf');
+    }
+
+    protected function generateBillCode(): string
+    {
+        $date = now()->format('ymdHis');
+        $countToday = Bill::whereDate('created_at', today())->count();
+        return 'HD' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
+    }
+}
