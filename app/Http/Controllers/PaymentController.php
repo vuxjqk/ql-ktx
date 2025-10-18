@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Booking;
+use App\Models\Contract;
 use App\Models\Payment;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -28,12 +29,12 @@ class PaymentController extends Controller
 
             DB::transaction(function () use ($bill_code, $booking, $amount) {
                 $bill = Bill::create([
-                    'bill_code'     => $bill_code,
-                    'user_id'       => $booking->user_id,
-                    'booking_id'    => $booking->id,
-                    'total_amount'  => $amount,
-                    'status'        => 'paid',
-                    'created_by'    => Auth::id(),
+                    'bill_code'    => $bill_code,
+                    'user_id'      => $booking->user_id,
+                    'booking_id'   => $booking->id,
+                    'total_amount' => $amount,
+                    'status'       => 'paid',
+                    'created_by'   => Auth::id(),
                 ]);
 
                 BillItem::create([
@@ -50,9 +51,14 @@ class PaymentController extends Controller
                     'user_id'      => Auth::id(),
                 ]);
 
-                $booking->update(['status' => 'active']);
+                Contract::create([
+                    'contract_code' => $this->generateContractCode(),
+                    'booking_id' => $booking->id,
+                    'monthly_fee' => $amount,
+                    'deposit' => $amount,
+                ]);
 
-                $booking->room->increment('current_occupancy');
+                $booking->update(['status' => 'active']);
             });
 
             return redirect()->back()->with('success', __('Đã ghi nhận thanh toán đợt đầu thành công.'));
@@ -67,6 +73,13 @@ class PaymentController extends Controller
     {
         $date = now()->format('ymdHis');
         $countToday = Bill::whereDate('created_at', today())->count();
-        return 'HD' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
+        return 'Bill-' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
+    }
+
+    protected function generateContractCode()
+    {
+        $date = now()->format('ymdHis');
+        $countToday = Contract::whereDate('created_at', today())->count();
+        return 'Contract-' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
     }
 }

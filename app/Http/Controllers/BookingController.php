@@ -42,7 +42,6 @@ class BookingController extends Controller
 
         if ($validated['status'] === 'approved') {
             $status = 'phê duyệt';
-            //
         } else {
             $status = 'từ chối';
             if ($booking->room->current_occupancy > 0) {

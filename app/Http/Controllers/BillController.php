@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvoiceMail;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Payment;
@@ -12,7 +13,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BillController extends Controller
 {
@@ -62,22 +65,25 @@ class BillController extends Controller
 
             DB::transaction(function () use ($bill_code, $room, $activeBookings, $count) {
                 foreach ($activeBookings as $index => $booking) {
+                    if ($activeBookings->rental_type === 'daily') continue;
+
                     $bill = Bill::create([
                         'bill_code'    => $bill_code,
                         'user_id'      => $booking->user_id,
                         'booking_id'   => $booking->id,
                         'total_amount' => 0,
+                        'status'       => 'unpaid',
                         'due_date'     => now()->endOfMonth()->addDays(7),
                         'created_by'   => Auth::id(),
                     ]);
 
+                    $totalAmount = $booking->contract->monthly_fee;
+
                     BillItem::create([
                         'bill_id'     => $bill->id,
                         'description' => "Tiền Ký túc xá",
-                        'amount'      => $room->price_per_month,
+                        'amount'      => $totalAmount,
                     ]);
-
-                    $totalAmount = $room->price_per_month;
 
                     foreach ($room->services as $service) {
                         $usageAmount = $service->getUsageAmountForRoom($room);
@@ -101,6 +107,20 @@ class BillController extends Controller
                     }
 
                     $bill->update(['total_amount' => $totalAmount]);
+
+                    $bill->load(['user.student', 'booking.room', 'bill_items', 'creator']);
+
+                    $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
+
+                    File::ensureDirectoryExists(dirname($pdfPath));
+
+                    Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
+
+                    if ($email = $bill->user->email) {
+                        Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
+
+                        File::exists($pdfPath) && File::delete($pdfPath);
+                    }
                 }
             });
 
