@@ -105,85 +105,87 @@
                 <!-- Booking Management -->
                 <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-lg transition">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Quản Lý Đặt Phòng</h3>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('Quản Lý Đặt Phòng') }}</h3>
                         <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
                     </div>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Đơn Đặt Chờ Duyệt</span>
+                            <span class="text-gray-700">{{ __('Chờ duyệt') }}</span>
                             <span
-                                class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">12</span>
+                                class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $pendingBookings }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Đơn Đã Duyệt</span>
+                            <span class="text-gray-700">{{ __('Đã duyệt') }}</span>
                             <span
-                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">156</span>
+                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $approvedBookings }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Đơn Bị Từ Chối</span>
-                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">5</span>
+                            <span class="text-gray-700">{{ __('Bị từ chối') }}</span>
+                            <span
+                                class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $rejectedBookings }}</span>
                         </div>
-                        <button
-                            class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition">
-                            <i class="fas fa-arrow-right mr-2"></i>Xem Chi Tiết
-                        </button>
+                        <a href="{{ route('bookings.index') }}"
+                            class="inline-block text-center w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition">
+                            <i class="fas fa-arrow-right mr-2"></i>{{ __('Xem Chi Tiết') }}
+                        </a>
                     </div>
                 </div>
 
                 <!-- Maintenance -->
                 <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-lg transition">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Quản Lý Sửa Chữa</h3>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('Quản Lý Sửa Chữa') }}</h3>
                         <i class="fas fa-wrench text-orange-600 text-2xl"></i>
                     </div>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Yêu Cầu Mới</span>
-                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">8</span>
+                            <span class="text-gray-700">{{ __('Chờ xử lý') }}</span>
+                            <span
+                                class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $pendingRepairs }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Đang Xử Lý</span>
+                            <span class="text-gray-700">{{ __('Đang xử lý') }}</span>
                             <span
-                                class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">6</span>
+                                class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $inProgressRepairs }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Đã Hoàn Thành</span>
+                            <span class="text-gray-700">{{ __('Đã hoàn thành') }}</span>
                             <span
-                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">45</span>
+                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $completedRepairs }}</span>
                         </div>
-                        <button
-                            class="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium transition">
-                            <i class="fas fa-arrow-right mr-2"></i>Xem Chi Tiết
-                        </button>
+                        <a href="{{ route('repairs.index') }}"
+                            class="inline-block text-center w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg font-medium transition">
+                            <i class="fas fa-arrow-right mr-2"></i>{{ __('Xem Chi Tiết') }}
+                        </a>
                     </div>
                 </div>
 
                 <!-- Room Status -->
                 <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-lg transition">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-bold text-gray-900">Tình Trạng Phòng</h3>
+                        <h3 class="text-lg font-bold text-gray-900">{{ __('Tình Trạng Phòng') }}</h3>
                         <i class="fas fa-chart-pie text-green-600 text-2xl"></i>
                     </div>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Phòng Đã Cho Thuê</span>
+                            <span class="text-gray-700">{{ __('Phòng đầy') }}</span>
                             <span
-                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">206</span>
+                                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $fullRooms }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Phòng Trống</span>
+                            <span class="text-gray-700">{{ __('Phòng trống') }}</span>
                             <span
-                                class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">42</span>
+                                class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $emptyRooms }}</span>
                         </div>
                         <div class="flex justify-between items-center pb-2 border-b border-gray-200">
-                            <span class="text-gray-700">Phòng Bảo Trì</span>
+                            <span class="text-gray-700">{{ __('Phòng chưa đầy') }}</span>
                             <span
-                                class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">8</span>
+                                class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-semibold">{{ $missingRooms }}</span>
                         </div>
-                        <button
-                            class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition">
-                            <i class="fas fa-arrow-right mr-2"></i>Xem Chi Tiết
-                        </button>
+                        <a href="{{ route('rooms.index') }}"
+                            class="inline-block text-center w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition">
+                            <i class="fas fa-arrow-right mr-2"></i>{{ __('Xem Chi Tiết') }}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -191,116 +193,116 @@
             <!-- Management Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Student Management -->
-                <div @click="showModal = 'students'"
-                    class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-blue-200">
+                <a href="{{ route('students.index') }}"
+                    class="block bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-blue-200">
                     <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-graduation-cap text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Quản Lý Sinh Viên</h3>
-                    <p class="text-sm text-gray-700 mb-4">Thêm, sửa, xóa thông tin sinh viên</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Sinh Viên') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Thêm, sửa, xóa thông tin sinh viên') }}</p>
                     <div class="flex items-center text-blue-600 font-semibold text-sm">
-                        <span>1,856 sinh viên</span>
+                        <span>{{ number_format($totalStudents) }} {{ __('sinh viên') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
                 <!-- Staff Management -->
-                <div @click="showModal = 'staff'"
-                    class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-indigo-200">
+                <a href="{{ route('users.index') }}"
+                    class="block bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-indigo-200">
                     <div class="w-14 h-14 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-people-group text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Quản Lý Nhân Viên</h3>
-                    <p class="text-sm text-gray-700 mb-4">Quản lý đội ngũ nhân sự và phân công</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Nhân Viên') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý đội ngũ nhân sự và phân công') }}</p>
                     <div class="flex items-center text-indigo-600 font-semibold text-sm">
-                        <span>32 nhân viên</span>
+                        <span>{{ number_format($totalStaffs) }} {{ __('nhân viên') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
                 <!-- Branch Management -->
-                <div @click="showModal = 'branches'"
-                    class="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-cyan-200">
+                <a href="{{ route('branches.index') }}"
+                    class="block bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-cyan-200">
                     <div class="w-14 h-14 bg-cyan-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-sitemap text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Quản Lý Chi Nhánh</h3>
-                    <p class="text-sm text-gray-700 mb-4">Quản lý thông tin các chi nhánh ký túc xá</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Chi Nhánh') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý thông tin các chi nhánh ký túc xá') }}</p>
                     <div class="flex items-center text-cyan-600 font-semibold text-sm">
-                        <span>5 chi nhánh</span>
+                        <span>{{ number_format($totalBranches) }} {{ __('chi nhánh') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
-                <!-- Billing -->
-                <div @click="showModal = 'billing'"
-                    class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-green-200">
-                    <div class="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center mb-4">
-                        <i class="fas fa-receipt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Quản Lý Thanh Toán</h3>
-                    <p class="text-sm text-gray-700 mb-4">Quản lý hóa đơn và thanh toán phí</p>
-                    <div class="flex items-center text-green-600 font-semibold text-sm">
-                        <span>₫450M doanh thu</span>
-                        <i class="fas fa-arrow-right ml-2"></i>
-                    </div>
-                </div>
-
-                <!-- Utilities Management -->
-                <div @click="showModal = 'utilities'"
-                    class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-orange-200">
+                <!-- Services Management -->
+                <a href="{{ route('services.index') }}"
+                    class="block bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-orange-200">
                     <div class="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-water text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Quản Lý Tiện Ích</h3>
-                    <p class="text-sm text-gray-700 mb-4">Quản lý nước, điện, internet</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Dịch Vụ') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý nước, điện, internet') }}</p>
                     <div class="flex items-center text-orange-600 font-semibold text-sm">
-                        <span>Xem chi tiết</span>
+                        <span>{{ number_format($totalServices) }} {{ __('dịch vụ') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
-                <!-- Reports -->
-                <div @click="showModal = 'reports'"
-                    class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-red-200">
+                <!-- Billing -->
+                <a href="#"
+                    class="block bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-green-200">
+                    <div class="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-receipt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Thanh Toán') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý hóa đơn và thanh toán phí') }}</p>
+                    <div class="flex items-center text-green-600 font-semibold text-sm">
+                        <span>{{ number_format($totalRevenue, 0, ',', '.') }}M VND {{ __('doanh thu') }}</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </div>
+                </a>
+
+                <!-- Statistics -->
+                <a href="{{ route('statistics') }}"
+                    class="block bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-red-200">
                     <div class="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-chart-line text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Báo Cáo & Thống Kê</h3>
-                    <p class="text-sm text-gray-700 mb-4">Xem báo cáo chi tiết và xu hướng</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Báo Cáo & Thống Kê') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Xem báo cáo chi tiết và xu hướng') }}</p>
                     <div class="flex items-center text-red-600 font-semibold text-sm">
-                        <span>Tạo báo cáo</span>
+                        <span>{{ __('Tạo báo cáo') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
                 <!-- Settings -->
-                <div @click="showModal = 'settings'"
-                    class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-purple-200">
+                <a href="#"
+                    class="block bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-purple-200">
                     <div class="w-14 h-14 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-sliders text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Cài Đặt Hệ Thống</h3>
-                    <p class="text-sm text-gray-700 mb-4">Cấu hình các thông số hệ thống</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Cài Đặt Hệ Thống') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Cấu hình các thông số hệ thống') }}</p>
                     <div class="flex items-center text-purple-600 font-semibold text-sm">
-                        <span>Cấu hình</span>
+                        <span>{{ __('Cấu hình') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
 
                 <!-- Archive -->
-                <div @click="showModal = 'archive'"
-                    class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-gray-200">
+                <a href="#"
+                    class="block bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-gray-200">
                     <div class="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-box-archive text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Lưu Trữ</h3>
-                    <p class="text-sm text-gray-700 mb-4">Quản lý dữ liệu lưu trữ</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Lưu Trữ') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý dữ liệu lưu trữ') }}</p>
                     <div class="flex items-center text-gray-600 font-semibold text-sm">
-                        <span>Xem kho lưu trữ</span>
+                        <span>{{ __('Xem kho lưu trữ') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>

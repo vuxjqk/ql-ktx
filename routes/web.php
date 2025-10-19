@@ -28,7 +28,7 @@ Route::get('/', function () {
 
 Route::get('/floors-by-branch/{branchId}', [FloorController::class, 'getByBranch']);
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');

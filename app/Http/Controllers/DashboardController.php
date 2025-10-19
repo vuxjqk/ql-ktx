@@ -3,6 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StatisticsExport;
+use App\Models\Booking;
+use App\Models\Branch;
+use App\Models\Repair;
+use App\Models\Room;
+use App\Models\Service;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -21,6 +27,23 @@ class DashboardController extends Controller
         $bookingsByBranch = $this->getBookingsByBranch($year);
         $stayLeaveRatio = $this->getStayLeaveRatio($year);
 
+        $pendingBookings = Booking::where('status', 'pending')->count();
+        $approvedBookings = Booking::where('status', 'approved')->count();
+        $rejectedBookings = Booking::where('status', 'rejected')->count();
+
+        $pendingRepairs = Repair::where('status', 'pending')->count();
+        $inProgressRepairs = Repair::where('status', 'in_progress')->count();
+        $completedRepairs = Repair::where('status', 'completed')->count();
+
+        $fullRooms = Room::whereRaw('current_occupancy >= capacity')->count();
+        $emptyRooms = Room::whereRaw('current_occupancy = 0')->count();
+        $missingRooms = Room::whereRaw('current_occupancy < capacity AND current_occupancy > 0')->count();
+
+        $totalStudents = User::where('role', 'student')->count();
+        $totalStaffs = User::whereIn('role', ['admin', 'staff'])->count();
+        $totalBranches = Branch::count();
+        $totalServices = Service::count();
+
         return view('dashboard', [
             'year' => $year,
             'totalRevenue' => $totalRevenue,
@@ -30,6 +53,19 @@ class DashboardController extends Controller
             'monthlyRevenue' => $monthlyRevenue,
             'bookingsByBranch' => $bookingsByBranch,
             'stayLeaveRatio' => $stayLeaveRatio,
+            'pendingBookings' => $pendingBookings,
+            'approvedBookings' => $approvedBookings,
+            'rejectedBookings' => $rejectedBookings,
+            'pendingRepairs' => $pendingRepairs,
+            'inProgressRepairs' => $inProgressRepairs,
+            'completedRepairs' => $completedRepairs,
+            'fullRooms' => $fullRooms,
+            'emptyRooms' => $emptyRooms,
+            'missingRooms' => $missingRooms,
+            'totalStudents' => $totalStudents,
+            'totalStaffs' => $totalStaffs,
+            'totalBranches' => $totalBranches,
+            'totalServices' => $totalServices,
         ]);
     }
 
