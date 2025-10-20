@@ -86,6 +86,19 @@
             <i class="fas fa-chart-pie w-6"></i>
             {{ __('Thống kê') }}
         </x-responsive-nav-link>
+
+        <div class="px-6 py-2 mt-4">
+            <h3 class="font-semibold text-xs text-gray-300 leading-tight uppercase tracking-wide">
+                {{ __('Cài đặt') }}
+            </h3>
+        </div>
+
+        <x-responsive-nav-link :href="route('backup')" :active="request()->routeIs('backup')">
+            <i class="fas fa-rotate-right w-6"></i>
+            {{ __('Sao lưu & Phục hồi') }}
+        </x-responsive-nav-link>
+
+        <div class="mt-4"></div>
     </nav>
 </aside>
 

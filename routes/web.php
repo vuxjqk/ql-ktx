@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AmenityController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
@@ -33,6 +34,11 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup');
+    Route::post('/backup', [BackupController::class, 'store'])->name('backup.store');
+    Route::get('/backup/{filename}', [BackupController::class, 'download'])->name('backup.download');
+    Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

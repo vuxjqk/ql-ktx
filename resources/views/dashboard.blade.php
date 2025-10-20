@@ -291,7 +291,7 @@
                 </a>
 
                 <!-- Archive -->
-                <a href="#"
+                <a href="{{ route('backup') }}"
                     class="block bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-gray-200">
                     <div class="w-14 h-14 bg-gray-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-box-archive text-white text-2xl"></i>
