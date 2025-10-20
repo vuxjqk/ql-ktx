@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StatisticsExport;
+use App\Models\Amenity;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Repair;
@@ -43,6 +44,7 @@ class DashboardController extends Controller
         $totalStaffs = User::whereIn('role', ['admin', 'staff'])->count();
         $totalBranches = Branch::count();
         $totalServices = Service::count();
+        $totalAmenities = Amenity::count();
 
         return view('dashboard', [
             'year' => $year,
@@ -66,6 +68,7 @@ class DashboardController extends Controller
             'totalStaffs' => $totalStaffs,
             'totalBranches' => $totalBranches,
             'totalServices' => $totalServices,
+            'totalAmenities' => $totalAmenities,
         ]);
     }
 

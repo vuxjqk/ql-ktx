@@ -108,7 +108,7 @@ class BillController extends Controller
 
                     $bill->update(['total_amount' => $totalAmount]);
 
-                    $bill->load(['user.student', 'booking.room', 'bill_items', 'creator']);
+                    $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
 
                     $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
 
@@ -153,7 +153,7 @@ class BillController extends Controller
 
     public function export(Bill $bill)
     {
-        $bill->load(['user.student', 'booking.room', 'bill_items', 'creator']);
+        $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
         $pdf = Pdf::loadView('bills.export', compact('bill'));
         return $pdf->stream('bills.pdf');
     }

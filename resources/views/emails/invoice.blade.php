@@ -10,6 +10,7 @@
     - **Ngày lập**: {{ $bill->created_at->format('d/m/Y H:i') }}
     - **Hạn thanh toán**: {{ $bill->due_date ? $bill->due_date->format('d/m/Y') : 'N/A' }}
     - **Phòng**: {{ $bill->booking->room->room_code }}
+    - **Chi nhánh**: {{ $bill->booking->room->floor->branch->name }}
     - **Thời gian cư trú**: {{ $bill->booking->check_in_date->format('d/m/Y') }} -
     {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
     - **Trạng thái**:

@@ -128,6 +128,7 @@
                             <x-th>{{ __('Hình thức') }}</x-th>
                             <x-th>{{ __('Thời gian cư trú') }}</x-th>
                             <x-th>{{ __('Trạng thái') }}</x-th>
+                            <x-th>{{ __('Hành động') }}</x-th>
                         </x-tr>
                     </x-thead>
                     <x-tbody>
@@ -266,6 +267,10 @@
                                             </div>
                                         @break
                                     @endswitch
+                                </x-td>
+                                <x-td>
+                                    <x-icon-button :href="route('bookings.show', $booking)" icon="fas fa-eye" :title="__('Xem chi tiết')"
+                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" />
                                 </x-td>
                             </x-tr>
                         @endforeach

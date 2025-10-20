@@ -144,7 +144,7 @@
 
         .customer-details,
         .order-details {
-            height: 225px;
+            height: 255px;
             border: 1px solid #0066cc;
             padding: 12px;
             background-color: #f0f4ff;
@@ -498,19 +498,27 @@
                             <div class="info-row">
                                 <table>
                                     <tr>
-                                        <td class="info-label">{{ __('Thời gian cư trú') }}:</td>
-                                        <td class="info-value">
-                                            {{ $bill->booking->check_in_date->format('d/m/Y') }} -
-                                            {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
-                                        </td>
+                                        <td class="info-label">{{ __('Phòng') }}:</td>
+                                        <td class="info-value">{{ $bill->booking->room->room_code }}</td>
                                     </tr>
                                 </table>
                             </div>
                             <div class="info-row">
                                 <table>
                                     <tr>
-                                        <td class="info-label">{{ __('Phòng') }}:</td>
-                                        <td class="info-value">{{ $bill->booking->room->room_code }}</td>
+                                        <td class="info-label">{{ __('Chi nhánh') }}:</td>
+                                        <td class="info-value">{{ $bill->booking->room->floor->branch->name }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="info-row">
+                                <table>
+                                    <tr>
+                                        <td class="info-label">{{ __('Thời gian cư trú') }}:</td>
+                                        <td class="info-value">
+                                            {{ $bill->booking->check_in_date->format('d/m/Y') }} -
+                                            {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
+                                        </td>
                                     </tr>
                                 </table>
                             </div>

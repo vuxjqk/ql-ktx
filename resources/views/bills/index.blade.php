@@ -124,8 +124,8 @@
                         <x-tr>
                             <x-th>{{ __('STT') }}</x-th>
                             <x-th>{{ __('Mã hóa đơn') }}</x-th>
-                            <x-th>{{ __('Thời gian cư trú') }}</x-th>
                             <x-th>{{ __('Phòng') }}</x-th>
+                            <x-th>{{ __('Thời gian cư trú') }}</x-th>
                             <x-th>{{ __('Tổng tiền') }}</x-th>
                             <x-th>{{ __('Trạng thái') }}</x-th>
                             <x-th>{{ __('Hạn thanh toán') }}</x-th>
@@ -139,10 +139,6 @@
                                 <x-td>#{{ $bills->firstItem() + $index }}</x-td>
                                 <x-td>{{ $bill->bill_code }}</x-td>
                                 <x-td>
-                                    {{ $bill->booking->check_in_date->format('d/m/Y') }} -
-                                    {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
-                                </x-td>
-                                <x-td>
                                     <div class="grid">
                                         <span class="font-semibold">{{ $bill->booking->room->room_code }}</span>
                                         <span class="text-sm">
@@ -152,6 +148,10 @@
                                             {{ __('Chi nhánh: ') . $bill->booking->room->floor->branch->name }}
                                         </span>
                                     </div>
+                                </x-td>
+                                <x-td>
+                                    {{ $bill->booking->check_in_date->format('d/m/Y') }} -
+                                    {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
                                 </x-td>
                                 <x-td>{{ number_format($bill->total_amount, 0, ',', '.') }} VND</x-td>
                                 <x-td>

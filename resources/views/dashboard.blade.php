@@ -238,7 +238,7 @@
                 <a href="{{ route('services.index') }}"
                     class="block bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-orange-200">
                     <div class="w-14 h-14 bg-orange-600 rounded-lg flex items-center justify-center mb-4">
-                        <i class="fas fa-water text-white text-2xl"></i>
+                        <i class="fas fa-concierge-bell text-white text-2xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Dịch Vụ') }}</h3>
                     <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý nước, điện, internet') }}</p>
@@ -248,16 +248,16 @@
                     </div>
                 </a>
 
-                <!-- Billing -->
-                <a href="#"
+                <!-- Amenities Management -->
+                <a href="{{ route('amenities.index') }}"
                     class="block bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-green-200">
                     <div class="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center mb-4">
-                        <i class="fas fa-receipt text-white text-2xl"></i>
+                        <i class="fas fa-swimming-pool text-white text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Thanh Toán') }}</h3>
-                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý hóa đơn và thanh toán phí') }}</p>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('Quản Lý Tiện Ích') }}</h3>
+                    <p class="text-sm text-gray-700 mb-4">{{ __('Quản lý các tiện ích có trong ký túc xá') }}</p>
                     <div class="flex items-center text-green-600 font-semibold text-sm">
-                        <span>{{ number_format($totalRevenue, 0, ',', '.') }}M VND {{ __('doanh thu') }}</span>
+                        <span>{{ number_format($totalAmenities) }} {{ __('tiện ích') }}</span>
                         <i class="fas fa-arrow-right ml-2"></i>
                     </div>
                 </a>
