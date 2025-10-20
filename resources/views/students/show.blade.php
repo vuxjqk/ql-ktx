@@ -8,7 +8,7 @@
             <x-breadcrumb :items="[
                 ['label' => 'Trang chủ', 'url' => url('/')],
                 ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
-                ['label' => __('Thông tin sinh viên')],
+                ['label' => 'Thông tin sinh viên'],
             ]" />
 
             <div class="flex items-center justify-between mx-6">

@@ -308,105 +308,106 @@
     </div>
 
     @pushOnce('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-            // Monthly Revenue Chart
-            const monthlyRevenue = @json($monthlyRevenue);
-            const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
-            new Chart(monthlyRevenueCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(monthlyRevenue),
-                    datasets: [{
-                        label: '{{ __('Doanh thu (Triệu VND)') }}',
-                        data: Object.values(monthlyRevenue),
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString('vi-VN') + ' Triệu VND';
+            document.addEventListener('DOMContentLoaded', () => {
+                // Monthly Revenue Chart
+                const monthlyRevenue = @json($monthlyRevenue);
+                const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+                new Chart(monthlyRevenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(monthlyRevenue),
+                        datasets: [{
+                            label: '{{ __('Doanh thu (Triệu VND)') }}',
+                            data: Object.values(monthlyRevenue),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('vi-VN') + ' Triệu VND';
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
 
-            // Bookings by Branch Chart
-            const bookingsByBranch = @json($bookingsByBranch);
-            const bookingsByBranchCtx = document.getElementById('bookingsByBranchChart').getContext('2d');
-            new Chart(bookingsByBranchCtx, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(bookingsByBranch),
-                    datasets: [{
-                        label: '{{ __('Số lượng đặt phòng') }}',
-                        data: Object.values(bookingsByBranch),
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(75, 192, 192, 0.6)',
-                            'rgba(255, 205, 86, 0.6)',
-                            'rgba(153, 102, 255, 0.6)',
-                            'rgba(255, 159, 64, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 205, 86, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            position: 'right'
+                // Bookings by Branch Chart
+                const bookingsByBranch = @json($bookingsByBranch);
+                const bookingsByBranchCtx = document.getElementById('bookingsByBranchChart').getContext('2d');
+                new Chart(bookingsByBranchCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(bookingsByBranch),
+                        datasets: [{
+                            label: '{{ __('Số lượng đặt phòng') }}',
+                            data: Object.values(bookingsByBranch),
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 205, 86, 0.6)',
+                                'rgba(153, 102, 255, 0.6)',
+                                'rgba(255, 159, 64, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 205, 86, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            // Stay/Leave Ratio Chart
-            const stayLeaveRatio = @json($stayLeaveRatio);
-            const stayLeaveRatioCtx = document.getElementById('stayLeaveRatioChart').getContext('2d');
-            new Chart(stayLeaveRatioCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(stayLeaveRatio),
-                    datasets: [{
-                        label: '{{ __('Tỷ lệ') }}',
-                        data: Object.values(stayLeaveRatio),
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.6)',
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(255, 206, 86, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 206, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            position: 'right'
+                // Stay/Leave Ratio Chart
+                const stayLeaveRatio = @json($stayLeaveRatio);
+                const stayLeaveRatioCtx = document.getElementById('stayLeaveRatioChart').getContext('2d');
+                new Chart(stayLeaveRatioCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(stayLeaveRatio),
+                        datasets: [{
+                            label: '{{ __('Tỷ lệ') }}',
+                            data: Object.values(stayLeaveRatio),
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(255, 206, 86, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(255, 206, 86, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
                         }
                     }
-                }
+                });
             });
         </script>
     @endPushOnce

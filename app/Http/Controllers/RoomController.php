@@ -95,6 +95,15 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', __('Đã tạo thành công'));
     }
 
+    public function show(Room $room)
+    {
+        $room->load(['floor.branch', 'images', 'services', 'amenities', 'activeBookings'])
+            ->loadCount('favourites')
+            ->loadAvg('reviews', 'rating');
+
+        return view('rooms.show', compact('room'));
+    }
+
     public function edit(Room $room)
     {
         $room->load(['images', 'services']);

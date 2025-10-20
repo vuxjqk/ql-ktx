@@ -207,6 +207,9 @@
                                     @endif
                                 </x-td>
                                 <x-td>
+                                    <x-icon-button :href="route('rooms.show', $room)" icon="fas fa-eye" :title="__('Xem chi tiết')"
+                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" />
+
                                     <x-icon-button :href="route('rooms.edit', $room)" icon="fas fa-edit" :title="__('Chỉnh sửa')"
                                         class="!bg-yellow-500 !text-white !hover:bg-yellow-600" />
 
@@ -228,34 +231,36 @@
 
     @pushOnce('scripts')
         <script>
-            function roomFilter(baseUrl) {
-                return {
-                    branchId: '',
-                    floors: [],
-                    init() {
-                        this.branchId = '{{ request('branch_id') ?? '' }}';
-                        if (this.branchId) {
-                            this.loadFloors();
-                        }
-                    },
-                    loadFloors() {
-                        if (!this.branchId) {
-                            this.floors = [];
-                            return;
-                        }
+            document.addEventListener('DOMContentLoaded', () => {
+                function roomFilter(baseUrl) {
+                    return {
+                        branchId: '',
+                        floors: [],
+                        init() {
+                            this.branchId = '{{ request('branch_id') ?? '' }}';
+                            if (this.branchId) {
+                                this.loadFloors();
+                            }
+                        },
+                        loadFloors() {
+                            if (!this.branchId) {
+                                this.floors = [];
+                                return;
+                            }
 
-                        fetch(`${baseUrl}/${this.branchId}`)
-                            .then(res => res.json())
-                            .then(data => {
-                                this.floors = Object.entries(data).map(([id, floor_number]) => ({
-                                    id: id,
-                                    floor_number: floor_number
-                                }));
-                            })
-                            .catch(err => console.error('Lỗi khi load tầng:', err));
+                            fetch(`${baseUrl}/${this.branchId}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    this.floors = Object.entries(data).map(([id, floor_number]) => ({
+                                        id: id,
+                                        floor_number: floor_number
+                                    }));
+                                })
+                                .catch(err => console.error('Lỗi khi load tầng:', err));
+                        }
                     }
                 }
-            }
+            });
         </script>
     @endPushOnce
 </x-app-layout>

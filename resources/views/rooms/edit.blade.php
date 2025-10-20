@@ -146,9 +146,10 @@
                     </div>
 
                     <div class="col-span-2 flex flex-wrap gap-6">
-                        @foreach ($room->images as $image)
+                        @foreach ($room->images as $index => $image)
                             <div class="relative group">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $room->name }}"
+                                <img src="{{ asset('storage/' . $image->image_path) }}"
+                                    alt="Image {{ $index + 1 }}"
                                     class="w-32 h-32 object-cover group-hover:opacity-50 transition-opacity duration-300 ease-out">
                                 <x-icon-button :data-delete-url="route('rooms.destroyImage', $image)" icon="fas fa-trash" :title="__('Xoá')"
                                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 !bg-red-500 !text-white !hover:bg-red-600"

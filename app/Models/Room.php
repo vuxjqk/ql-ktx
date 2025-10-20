@@ -101,4 +101,29 @@ class Room extends Model
     {
         return $this->hasMany(Booking::class)->where('status', 'active')->with('user');
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function repairs()
+    {
+        return $this->hasMany(Repair::class);
+    }
+
+    public function favourites()
+    {
+        return $this->hasMany(Favourite::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function amenities()
+    {
+        return $this->belongsToMany(Amenity::class, 'room_amenities');
+    }
 }

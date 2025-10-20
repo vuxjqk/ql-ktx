@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::post('/rooms/{room}/images', [RoomController::class, 'storeImages'])->name('rooms.storeImages');
         Route::delete('/rooms/{image}/images', [RoomController::class, 'destroyImage'])->name('rooms.destroyImage');
         Route::put('/rooms/{room}/services', [RoomController::class, 'updateServices'])->name('rooms.updateServices');
-        Route::resource('/rooms', RoomController::class)->except(['show']);
+        Route::resource('/rooms', RoomController::class);
         Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
         Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
         Route::put('/bookings/{booking}/terminate', [BookingController::class, 'terminateBooking'])->name('bookings.terminateBooking');

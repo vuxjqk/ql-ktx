@@ -71,15 +71,15 @@ class PaymentController extends Controller
 
     protected function generateBillCode(): string
     {
-        $date = now()->format('ymdHis');
+        $date = now()->format('ymdHi');
         $countToday = Bill::whereDate('created_at', today())->count();
         return 'Bill-' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
     }
 
     protected function generateContractCode()
     {
-        $date = now()->format('ymdHis');
+        $date = now()->format('ymdHi');
         $countToday = Contract::whereDate('created_at', today())->count();
-        return 'Contract-' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
+        return 'Cont-' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
     }
 }
