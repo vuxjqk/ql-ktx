@@ -52,11 +52,11 @@
                     </div>
                     <div>
                         <x-input-label :value="__('Giá theo ngày')" icon="fas fa-money-bill" />
-                        <p class="mt-1 text-gray-800">{{ number_format($room->price_per_day, 0, ',', '.') }} VNĐ</p>
+                        <p class="mt-1 text-gray-800">{{ number_format($room->price_per_day, 0, ',', '.') }} VND</p>
                     </div>
                     <div>
                         <x-input-label :value="__('Giá theo tháng')" icon="fas fa-money-bill" />
-                        <p class="mt-1 text-gray-800">{{ number_format($room->price_per_month, 0, ',', '.') }} VNĐ</p>
+                        <p class="mt-1 text-gray-800">{{ number_format($room->price_per_month, 0, ',', '.') }} VND</p>
                     </div>
                     <div>
                         <x-input-label :value="__('Sức chứa')" icon="fas fa-users" />

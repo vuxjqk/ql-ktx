@@ -29,6 +29,12 @@ class BookingController extends Controller
         ));
     }
 
+    public function show(Booking $booking)
+    {
+        $booking->load(['contract', 'user', 'room.floor.branch', 'processedBy']);
+        return view('bookings.show', compact('booking'));
+    }
+
     public function update(Request $request, Booking $booking)
     {
         if ($booking->status !== 'pending') {

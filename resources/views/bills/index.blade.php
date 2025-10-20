@@ -130,7 +130,7 @@
                             <x-th>{{ __('Trạng thái') }}</x-th>
                             <x-th>{{ __('Hạn thanh toán') }}</x-th>
                             <x-th>{{ __('Người tạo') }}</x-th>
-                            <x-th></x-th>
+                            <x-th>{{ __('Hành động') }}</x-th>
                         </x-tr>
                     </x-thead>
                     <x-tbody>
@@ -142,7 +142,17 @@
                                     {{ $bill->booking->check_in_date->format('d/m/Y') }} -
                                     {{ $bill->booking->expected_check_out_date->format('d/m/Y') }}
                                 </x-td>
-                                <x-td>{{ $bill->booking->room->room_code }}</x-td>
+                                <x-td>
+                                    <div class="grid">
+                                        <span class="font-semibold">{{ $bill->booking->room->room_code }}</span>
+                                        <span class="text-sm">
+                                            {{ __('Tầng: ') . $bill->booking->room->floor->floor_number }}
+                                        </span>
+                                        <span class="text-sm">
+                                            {{ __('Chi nhánh: ') . $bill->booking->room->floor->branch->name }}
+                                        </span>
+                                    </div>
+                                </x-td>
                                 <x-td>{{ number_format($bill->total_amount, 0, ',', '.') }} VND</x-td>
                                 <x-td>
                                     @switch($bill->status)
@@ -195,7 +205,7 @@
                             </x-tr>
 
                             <tr x-show="openRow === {{ $index }}">
-                                <td colspan="8">
+                                <td colspan="9">
                                     <div class="bg-blue-50 px-12">
                                         <table class="w-full table-auto">
                                             <thead class="bg-blue-100">

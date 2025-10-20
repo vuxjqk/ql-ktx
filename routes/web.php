@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
@@ -45,6 +46,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::delete('/floors/{floor}', [FloorController::class, 'destroy'])->name('floors.destroy');
         Route::resource('/branches', BranchController::class)->except(['create', 'show', 'edit']);
         Route::resource('/services', ServiceController::class)->except(['create', 'show', 'edit']);
+        Route::resource('/amenities', AmenityController::class)->except(['create', 'show', 'edit']);
     });
 
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
@@ -58,8 +60,10 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::post('/rooms/{room}/images', [RoomController::class, 'storeImages'])->name('rooms.storeImages');
         Route::delete('/rooms/{image}/images', [RoomController::class, 'destroyImage'])->name('rooms.destroyImage');
         Route::put('/rooms/{room}/services', [RoomController::class, 'updateServices'])->name('rooms.updateServices');
+        Route::put('/rooms/{room}/amenities', [RoomController::class, 'updateAmenities'])->name('rooms.updateAmenities');
         Route::resource('/rooms', RoomController::class);
         Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
         Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
         Route::put('/bookings/{booking}/terminate', [BookingController::class, 'terminateBooking'])->name('bookings.terminateBooking');
         Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');

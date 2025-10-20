@@ -63,6 +63,12 @@
             'icon' => 'fa-concierge-bell',
             'label' => 'Dịch vụ',
         ],
+        [
+            'route' => 'amenities.index',
+            'routeMatch' => 'amenities.*',
+            'icon' => 'fa-swimming-pool',
+            'label' => 'Tiện ích',
+        ],
     ] as $item)
             <x-responsive-nav-link :href="route($item['route'])" :active="request()->routeIs($item['routeMatch'])">
                 <i class="fas {{ $item['icon'] }} w-6"></i>

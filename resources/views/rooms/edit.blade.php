@@ -200,6 +200,46 @@
                     </div>
                 </form>
             </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h3 class="font-semibold text-xl text-gray-800 leading-tight">
+                    <i class="fas fa-swimming-pool text-blue-600 me-1"></i>
+                    {{ __('Tiện ích') }}
+                </h3>
+
+                <form action="{{ route('rooms.updateAmenities', $room) }}" method="post"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    @csrf
+                    @method('put')
+
+                    <div class="col-span-2">
+                        <x-input-label for="amenities" :value="__('Tiện ích')" icon="fas fa-swimming-pool" />
+                        <div class="flex flex-wrap gap-6 mt-1">
+                            @foreach ($amenities as $id => $name)
+                                <label for="amenity_{{ $id }}" class="inline-flex items-center">
+                                    <input id="amenity_{{ $id }}" type="checkbox"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        name="amenities[]" value="{{ $id }}" @checked(in_array($id, old('amenities', $room->amenities->pluck('id')->toArray())))>
+                                    <span class="ms-2 text-sm text-gray-600">{{ $name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <x-input-error :messages="$errors->get('amenities')" class="mt-2" />
+                    </div>
+
+                    <div class="col-span-2 flex items-center justify-end gap-6">
+                        <x-secondary-button :href="route('rooms.index')">
+                            <i class="fas fa-arrow-left"></i>
+                            {{ __('Quay lại') }}
+                        </x-secondary-button>
+
+                        <x-primary-button>
+                            <i class="fas fa-save"></i>
+                            {{ __('Cập nhật') }}
+                        </x-primary-button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

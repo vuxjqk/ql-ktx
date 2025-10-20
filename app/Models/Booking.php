@@ -27,6 +27,7 @@ class Booking extends Model
             'check_in_date' => 'date',
             'expected_check_out_date' => 'date',
             'actual_check_out_date' => 'date',
+            'processed_at' => 'datetime',
         ];
     }
 
@@ -79,5 +80,10 @@ class Booking extends Model
     public function contract()
     {
         return $this->hasOne(Contract::class);
+    }
+
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
     }
 }

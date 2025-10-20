@@ -128,6 +128,21 @@
                         <x-input-error :messages="$errors->get('services')" class="mt-2" />
                     </div>
 
+                    <div class="col-span-2">
+                        <x-input-label for="amenities" :value="__('Tiện ích')" icon="fas fa-swimming-pool" />
+                        <div class="flex flex-wrap gap-6 mt-1">
+                            @foreach ($amenities as $id => $name)
+                                <label for="amenity_{{ $id }}" class="inline-flex items-center">
+                                    <input id="amenity_{{ $id }}" type="checkbox"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        name="amenities[]" value="{{ $id }}" @checked(in_array($id, old('amenities', [])))>
+                                    <span class="ms-2 text-sm text-gray-600">{{ $name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <x-input-error :messages="$errors->get('amenities')" class="mt-2" />
+                    </div>
+
                     <div class="col-span-2 flex items-center justify-end gap-6">
                         <x-secondary-button :href="route('rooms.index')">
                             <i class="fas fa-arrow-left"></i>

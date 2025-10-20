@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Amenity;
 use App\Models\Branch;
 use App\Models\Room;
 use App\Models\RoomImage;
@@ -52,8 +53,9 @@ class RoomController extends Controller
         }
 
         $services = Service::pluck('name', 'id')->toArray();
+        $amenities = Amenity::pluck('name', 'id')->toArray();
 
-        return view('rooms.create', compact('options', 'services'));
+        return view('rooms.create', compact('options', 'services', 'amenities'));
     }
 
     public function store(Request $request)
@@ -121,8 +123,9 @@ class RoomController extends Controller
         }
 
         $services = Service::pluck('name', 'id')->toArray();
+        $amenities = Amenity::pluck('name', 'id')->toArray();
 
-        return view('rooms.edit', compact('room', 'options', 'services'));
+        return view('rooms.edit', compact('room', 'options', 'services', 'amenities'));
     }
 
     public function update(Request $request, Room $room)
@@ -157,6 +160,7 @@ class RoomController extends Controller
 
             $room->images()->delete();
             $room->services()->detach();
+            $room->amenities()->detach();
             $room->delete();
 
             if ($paths) {
@@ -220,6 +224,18 @@ class RoomController extends Controller
         ]);
 
         $room->services()->sync($validated['services'] ?? []);
+
+        return redirect()->back()->with('success', __('Đã cập nhật thành công'));
+    }
+
+    public function updateAmenities(Request $request, Room $room)
+    {
+        $validated = $request->validate([
+            'amenities' => 'array',
+            'amenities.*' => 'exists:amenities,id',
+        ]);
+
+        $room->amenities()->sync($validated['amenities'] ?? []);
 
         return redirect()->back()->with('success', __('Đã cập nhật thành công'));
     }

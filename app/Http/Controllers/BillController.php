@@ -22,7 +22,7 @@ class BillController extends Controller
     public function index(Request $request, User $user)
     {
         $bills = $user->bills()
-            ->with(['booking.room', 'bill_items', 'creator'])
+            ->with(['booking.room.floor.branch', 'bill_items', 'creator'])
             ->filter($request->all())
             ->paginate(10)
             ->appends($request->query());
