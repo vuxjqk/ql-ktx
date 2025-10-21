@@ -13,6 +13,7 @@ use App\Http\Controllers\RepairController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceUsageController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,11 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::put('/settings/dormitory', [SettingController::class, 'dormitory'])->name('settings.dormitory');
+    Route::put('/settings/security', [SettingController::class, 'security'])->name('settings.security');
 
     Route::get('/backup', [BackupController::class, 'index'])->name('backup');
     Route::post('/backup', [BackupController::class, 'store'])->name('backup.store');
@@ -60,6 +66,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::post('/bills/{bill}/pay', [BillController::class, 'payBill'])->name('bills.pay');
         Route::get('/students/{user}/bills', [BillController::class, 'index'])->name('bills.index');
         Route::resource('/students', StudentController::class)->parameters(['students' => 'user']);
+        Route::post('/rooms/{room}/cancel-bills', [BillController::class, 'cancelBills'])->name('bills.cancelBills');
         Route::post('/rooms/{room}/bills', [BillController::class, 'store'])->name('bills.store');
         Route::get('/rooms/{room}/service-usages', [ServiceUsageController::class, 'edit'])->name('service-usages.edit');
         Route::put('/rooms/{room}/service-usages', [ServiceUsageController::class, 'update'])->name('service-usages.update');

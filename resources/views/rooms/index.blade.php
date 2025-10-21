@@ -15,7 +15,7 @@
                     </h1>
                     <p class="text-sm text-gray-600 mt-1">{{ __('Quản lý tất cả phòng trong hệ thống') }}</p>
                 </div>
-                <x-secondary-button :href="route('rooms.create')" class="!bg-blue-600 !text-white !hover:bg-blue-700">
+                <x-secondary-button :href="route('rooms.create')" class="!bg-blue-600 !text-white hover:!bg-blue-700">
                     <i class="fas fa-plus"></i>
                     {{ __('Thêm phòng mới') }}
                 </x-secondary-button>
@@ -208,13 +208,13 @@
                                 </x-td>
                                 <x-td>
                                     <x-icon-button :href="route('rooms.show', $room)" icon="fas fa-eye" :title="__('Xem chi tiết')"
-                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" />
+                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" />
 
                                     <x-icon-button :href="route('rooms.edit', $room)" icon="fas fa-edit" :title="__('Chỉnh sửa')"
-                                        class="!bg-yellow-500 !text-white !hover:bg-yellow-600" />
+                                        class="!bg-yellow-500 !text-white hover:!bg-yellow-600" />
 
                                     <x-icon-button :data-delete-url="route('rooms.destroy', $room)" icon="fas fa-trash" :title="__('Xoá')"
-                                        class="!bg-red-500 !text-white !hover:bg-red-600" x-data=""
+                                        class="!bg-red-500 !text-white hover:!bg-red-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
                                 </x-td>
                             </x-tr>

@@ -49,7 +49,7 @@ class RepairController extends Controller
 
         if (!$nextStatus) {
             return redirect()->back()
-                ->with('error', __('Đã ở trạng thái cuối cùng'));
+                ->with('warning', __('Đã ở trạng thái cuối cùng'));
         }
 
         $repair->update(['status' => $nextStatus]);

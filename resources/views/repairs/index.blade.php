@@ -179,7 +179,7 @@
 
                                         <div>
                                             <x-icon-button :data-status-update-url="route('repairs.update', $repair)" :data-status-value="$repair->status" title="Cập nhật"
-                                                class="!bg-yellow-500 !text-white !hover:bg-yellow-600"
+                                                class="!bg-yellow-500 !text-white hover:!bg-yellow-600"
                                                 x-data=""
                                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-status-updation')">
                                                 <i class="fas fa-edit"></i>
@@ -188,7 +188,7 @@
                                             @if ($repair->status === 'pending')
                                                 <x-icon-button :data-update-url="route('repairs.update', $repair)" data-status-value="cancelled"
                                                     data-status-label="huỷ bỏ" title="Huỷ bỏ"
-                                                    class="!bg-red-500 !text-white !hover:bg-red-600"
+                                                    class="!bg-red-500 !text-white hover:!bg-red-600"
                                                     x-data=""
                                                     x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                                     <i class="fas fa-times-circle"></i>
@@ -226,11 +226,11 @@
 
             <div class="mt-6 flex justify-end">
                 <x-secondary-button x-on:click="$dispatch('close')">
-                    Huỷ
+                    {{ __('Huỷ') }}
                 </x-secondary-button>
 
                 <x-danger-button class="ms-3">
-                    Xác nhận
+                    {{ __('Xác nhận') }}
                 </x-danger-button>
             </div>
         </form>

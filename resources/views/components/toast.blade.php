@@ -3,6 +3,10 @@
 @pushOnce('scripts')
     <script>
         window.addEventListener('load', () => {
+            @if (session('info'))
+                showToast("{{ session('info') }}");
+            @endif
+
             @if (session('success'))
                 showToast("{{ session('success') }}", "success");
             @endif

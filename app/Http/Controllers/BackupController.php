@@ -37,7 +37,7 @@ class BackupController extends Controller
         $relativePath = "{$this->backupPath}/{$filename}";
 
         if (!Storage::disk('local')->exists($relativePath)) {
-            return back()->with('error', __('Không tìm thấy file sao lưu!'));
+            return back()->with('warning', __('Không tìm thấy file sao lưu!'));
         }
 
         try {
@@ -46,7 +46,7 @@ class BackupController extends Controller
             if (file_exists($absolutePath)) {
                 return response()->download($absolutePath);
             } else {
-                return back()->with('error', __('Không tìm thấy file sao lưu!'));
+                return back()->with('warning', __('Không tìm thấy file sao lưu!'));
             }
         } catch (\Exception $e) {
             Log::error('Backup download failed: ' . $e->getMessage());
@@ -64,6 +64,6 @@ class BackupController extends Controller
             return back()->with('success', __('Đã xóa bản sao lưu!'));
         }
 
-        return back()->with('error', __('Không tìm thấy file sao lưu!'));
+        return back()->with('warning', __('Không tìm thấy file sao lưu!'));
     }
 }

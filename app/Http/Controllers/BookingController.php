@@ -38,7 +38,7 @@ class BookingController extends Controller
     public function update(Request $request, Booking $booking)
     {
         if ($booking->status !== 'pending') {
-            return redirect()->back()->with('error', __('Mục này đã được xử lý trước đó'));
+            return redirect()->back()->with('warning', __('Mục này đã được xử lý trước đó'));
         }
 
         $validated = $request->validateWithBag('bookingUpdation', [

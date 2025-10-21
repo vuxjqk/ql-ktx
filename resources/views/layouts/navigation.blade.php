@@ -98,6 +98,11 @@
             {{ __('Sao lưu & Phục hồi') }}
         </x-responsive-nav-link>
 
+        <x-responsive-nav-link :href="route('settings')" :active="request()->routeIs('settings')">
+            <i class="fas fa-sliders w-6"></i>
+            {{ __('Cấu hình') }}
+        </x-responsive-nav-link>
+
         <div class="mt-4"></div>
     </nav>
 </aside>

@@ -115,8 +115,14 @@
                     </x-tbody>
                 </x-table>
 
-                <div class="flex items-center justify-end p-6">
-                    <x-secondary-button class="!bg-blue-600 !text-white !hover:bg-blue-700" x-data=""
+                <div class="flex items-center justify-end gap-6 p-6">
+                    <x-secondary-button class="!bg-red-600 !text-white hover:!bg-red-700" x-data=""
+                        x-on:click.prevent="$dispatch('open-modal', 'confirm-cancelled')">
+                        <i class="fas fa-times-circle"></i>
+                        {{ __('Huỷ') }}
+                    </x-secondary-button>
+
+                    <x-secondary-button class="!bg-blue-600 !text-white hover:!bg-blue-700" x-data=""
                         x-on:click.prevent="$dispatch('open-modal', 'confirm-creation')">
                         <i class="fas fa-plus"></i>
                         {{ __('Tạo hoá đơn') }}
@@ -151,6 +157,35 @@
                 <x-primary-button class="ms-3">
                     {{ __('Xác nhận') }}
                 </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <x-modal name="confirm-cancelled" focusable>
+        <form method="post" action="{{ route('bills.cancelBills', $room) }}" class="p-6">
+            @csrf
+
+            <div class="flex items-center gap-6">
+                <div class="bg-red-100 shadow-sm sm:rounded-lg p-3">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Bạn có chắc chắn muốn huỷ hoá đơn không?') }}
+                </h2>
+            </div>
+
+            <p class="mt-6 text-sm text-gray-600">
+                {{ __('Ngay sau khi bạn xác nhận huỷ hoá đơn, toàn bộ hoá đơn trong phòng này sẽ bị huỷ bỏ.') }}
+            </p>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Huỷ') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ms-3">
+                    {{ __('Xác nhận') }}
+                </x-danger-button>
             </div>
         </form>
     </x-modal>

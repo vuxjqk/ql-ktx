@@ -15,7 +15,7 @@
                     </h1>
                     <p class="text-sm text-gray-600 mt-1">{{ __('Xem thống kê doanh thu và hoạt động ký túc xá') }}</p>
                 </div>
-                <x-secondary-button :href="route('reports')" class="!bg-blue-600 !text-white !hover:bg-blue-700">
+                <x-secondary-button :href="route('reports')" class="!bg-blue-600 !text-white hover:!bg-blue-700">
                     <i class="fas fa-file-excel"></i>
                     {{ __('Xuất báo cáo') }}
                 </x-secondary-button>

@@ -277,7 +277,7 @@
                 </a>
 
                 <!-- Settings -->
-                <a href="#"
+                <a href="{{ route('settings') }}"
                     class="block bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-sm p-6 hover:shadow-lg transition cursor-pointer border border-purple-200">
                     <div class="w-14 h-14 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
                         <i class="fas fa-sliders text-white text-2xl"></i>

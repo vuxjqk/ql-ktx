@@ -44,29 +44,38 @@ class BillController extends Controller
 
     public function store(Room $room)
     {
-        $hasBillThisMonth = Bill::whereIn('booking_id', $room->activeBookings()->pluck('id'))
+        $bookingIds = $room->activeBookings()
+            ->where('rental_type', 'monthly')
+            ->pluck('id');
+
+        $hasBillThisMonth = Bill::whereIn('booking_id', $bookingIds)
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
+            ->whereHas('bill_items', function ($query) {
+                $query->where('description', 'like', 'Tiền Ký túc xá%');
+            })
             ->exists();
 
         if ($hasBillThisMonth) {
-            return redirect()->back()->with('error', __('Phòng này đã được tạo hóa đơn trong tháng này.'));
+            return redirect()->back()->with('warning', __('Phòng này đã được tạo hóa đơn trong tháng này.'));
         }
 
         try {
             $bill_code = $this->generateBillCode();
 
-            $activeBookings = $room->activeBookings()->get();
+            $activeBookings = $room->activeBookings()
+                ->where('rental_type', 'monthly')
+                ->with('contract')
+                ->get();
+
             $count = $activeBookings->count();
 
             if ($count === 0) {
-                return redirect()->back()->with('error', __('Phòng này không có sinh viên nào đang ở.'));
+                return redirect()->back()->with('info', __('Phòng này không có sinh viên nào đang ở.'));
             }
 
             DB::transaction(function () use ($bill_code, $room, $activeBookings, $count) {
                 foreach ($activeBookings as $index => $booking) {
-                    if ($activeBookings->rental_type === 'daily') continue;
-
                     $bill = Bill::create([
                         'bill_code'    => $bill_code,
                         'user_id'      => $booking->user_id,
@@ -81,7 +90,7 @@ class BillController extends Controller
 
                     BillItem::create([
                         'bill_id'     => $bill->id,
-                        'description' => "Tiền Ký túc xá",
+                        'description' => 'Tiền Ký túc xá tháng ' . now()->format('m'),
                         'amount'      => $totalAmount,
                     ]);
 
@@ -99,7 +108,7 @@ class BillController extends Controller
 
                         BillItem::create([
                             'bill_id'     => $bill->id,
-                            'description' => 'Tiền ' . $service->name . " ($usageAmount / $service->unit chia đều cho $count người)",
+                            'description' => 'Tiền ' . $service->name . " ($usageAmount / $service->unit chia đều cho $count người) tháng " . now()->format('m'),
                             'amount'      => $amount,
                         ]);
 
@@ -132,10 +141,46 @@ class BillController extends Controller
         }
     }
 
+    public function cancelBills(Room $room)
+    {
+        try {
+            $bookingIds = $room->activeBookings()
+                ->where('rental_type', 'monthly')
+                ->pluck('id');
+
+            $bills = Bill::whereIn('booking_id', $bookingIds)
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', now()->month)
+                ->where('status', 'unpaid')
+                ->whereHas('bill_items', function ($query) {
+                    $query->where('description', 'like', 'Tiền Ký túc xá%');
+                })
+                ->get();
+
+            if ($bills->isEmpty()) {
+                return redirect()->back()->with('info', __('Không có hoá đơn nào cần huỷ.'));
+            }
+
+            DB::transaction(function () use ($bills) {
+                foreach ($bills as $bill) {
+                    $bill->update([
+                        'status' => 'cancelled',
+                    ]);
+                }
+            });
+
+            return redirect()->back()->with('success', __('Đã huỷ hoá đơn thành công.'));
+        } catch (Exception $e) {
+            Log::error('Lỗi khi huỷ hoá đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
+
+            return redirect()->back()->with('error', __('Không thể huỷ hoá đơn. Vui lòng thử lại.'));
+        }
+    }
+
     public function payBill(Bill $bill)
     {
-        if ($bill->status === 'paid') {
-            return redirect()->back()->with('error', __('Hóa đơn này đã được thanh toán đầy đủ.'));
+        if ($bill->status !== 'unpaid') {
+            return redirect()->back()->with('error', __('Không thể ghi nhận thanh toán cho hoá đơn này.'));
         }
 
         Payment::create([

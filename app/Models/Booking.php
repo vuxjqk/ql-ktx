@@ -86,4 +86,23 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'processed_by');
     }
+
+    public function expire()
+    {
+        if ($this->status !== 'active') {
+            return false;
+        }
+
+        $this->actual_check_out_date = now();
+        $this->status = 'expired';
+        $this->processed_at = now();
+        $this->processed_by = null;
+        $this->save();
+
+        if ($this->room->current_occupancy > 0) {
+            $this->room->decrement('current_occupancy');
+        }
+
+        return true;
+    }
 }

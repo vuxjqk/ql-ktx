@@ -15,7 +15,7 @@
                     </h1>
                     <p class="text-sm text-gray-600 mt-1">{{ __('Quản lý tất cả dịch vụ trong hệ thống') }}</p>
                 </div>
-                <x-secondary-button class="!bg-blue-600 !text-white !hover:bg-blue-700" x-data=""
+                <x-secondary-button class="!bg-blue-600 !text-white hover:!bg-blue-700" x-data=""
                     x-on:click.prevent="$dispatch('open-modal', 'confirm-creation')">
                     <i class="fas fa-plus"></i>
                     {{ __('Thêm dịch vụ mới') }}
@@ -72,12 +72,12 @@
                                 <x-td>
                                     <x-icon-button :data-update-url="route('services.update', $service)" :data-name-value="$service->name" :data-unit-value="$service->unit"
                                         :data-unit-price-value="$service->unit_price" :data-free-quota-value="$service->free_quota" :data-is-mandatory-value="$service->is_mandatory ? '1' : '0'" icon="fas fa-edit"
-                                        :title="__('Chỉnh sửa')" class="!bg-yellow-500 !text-white !hover:bg-yellow-600"
+                                        :title="__('Chỉnh sửa')" class="!bg-yellow-500 !text-white hover:!bg-yellow-600"
                                         x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')" />
 
                                     <x-icon-button :data-delete-url="route('services.destroy', $service)" icon="fas fa-trash" :title="__('Xoá')"
-                                        class="!bg-red-500 !text-white !hover:bg-red-600" x-data=""
+                                        class="!bg-red-500 !text-white hover:!bg-red-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
                                 </x-td>
                             </x-tr>

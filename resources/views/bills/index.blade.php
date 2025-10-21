@@ -178,7 +178,7 @@
                                 <x-td>
                                     <x-icon-button
                                         @click="openRow = openRow === {{ $index }} ? null : {{ $index }}"
-                                        class="!bg-green-500 !text-white !hover:bg-green-600">
+                                        class="!bg-green-500 !text-white hover:!bg-green-600">
                                         <span
                                             :class="{
                                                 'hidden': openRow === {{ $index }},
@@ -196,11 +196,11 @@
                                     </x-icon-button>
 
                                     <x-icon-button :data-pay-url="route('bills.pay', $bill)" icon="fas fa-money-check-alt" :title="__('Thanh toán')"
-                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" x-data=""
+                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-pay')" />
 
                                     <x-icon-button :href="route('bills.export', $bill)" target="_blank" icon="fas fa-file-pdf"
-                                        :title="__('Xuất hoá đơn')" class="!bg-purple-500 !text-white !hover:bg-purple-600" />
+                                        :title="__('Xuất hoá đơn')" class="!bg-purple-500 !text-white hover:!bg-purple-600" />
                                 </x-td>
                             </x-tr>
 

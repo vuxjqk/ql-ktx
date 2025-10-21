@@ -25,7 +25,7 @@
                         {{ __('Quay lại') }}
                     </x-secondary-button>
 
-                    <x-secondary-button :href="route('bills.index', $user)" class="!bg-blue-500 !text-white !hover:bg-blue-600">
+                    <x-secondary-button :href="route('bills.index', $user)" class="!bg-blue-500 !text-white hover:!bg-blue-600">
                         <i class="fas fa-file-invoice-dollar"></i>
                         {{ __('Hoá đơn') }}
                     </x-secondary-button>

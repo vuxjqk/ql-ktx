@@ -187,14 +187,14 @@
                                                 <div>
                                                     <x-icon-button :data-update-url="route('bookings.update', $booking)" data-status-value="approved"
                                                         data-status-label="phê duyệt" title="Phê duyệt"
-                                                        class="!bg-green-500 !text-white !hover:bg-green-600"
+                                                        class="!bg-green-500 !text-white hover:!bg-green-600"
                                                         x-data=""
                                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                                         <i class="fas fa-check-circle"></i>
                                                     </x-icon-button>
                                                     <x-icon-button :data-update-url="route('bookings.update', $booking)" data-status-value="rejected"
                                                         data-status-label="từ chối" title="Từ chối"
-                                                        class="!bg-orange-500 !text-white !hover:bg-orange-600"
+                                                        class="!bg-orange-500 !text-white hover:!bg-orange-600"
                                                         x-data=""
                                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                                         <i class="fas fa-times-circle"></i>
@@ -209,7 +209,7 @@
 
                                                 <div>
                                                     <x-icon-button :data-bill-create-url="route('payments.store', $booking)" title="Thanh toán"
-                                                        class="!bg-blue-500 !text-white !hover:bg-blue-600"
+                                                        class="!bg-blue-500 !text-white hover:!bg-blue-600"
                                                         x-data=""
                                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')">
                                                         <i class="fas fa-money-check-alt"></i>
@@ -236,7 +236,7 @@
                                                 <div>
                                                     <x-icon-button :data-update-url="route('bookings.terminateBooking', $booking)" data-status-value="terminate"
                                                         data-status-label="chấm dứt hợp đồng" title="Chấm dứt"
-                                                        class="!bg-red-500 !text-white !hover:bg-red-600"
+                                                        class="!bg-red-500 !text-white hover:!bg-red-600"
                                                         x-data=""
                                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
                                                         <i class="fas fa-times"></i>
@@ -270,7 +270,7 @@
                                 </x-td>
                                 <x-td>
                                     <x-icon-button :href="route('bookings.show', $booking)" icon="fas fa-eye" :title="__('Xem chi tiết')"
-                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" />
+                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" />
                                 </x-td>
                             </x-tr>
                         @endforeach
@@ -305,11 +305,11 @@
 
             <div class="mt-6 flex justify-end">
                 <x-secondary-button x-on:click="$dispatch('close')">
-                    Huỷ
+                    {{ __('Huỷ') }}
                 </x-secondary-button>
 
                 <x-primary-button class="ms-3">
-                    Xác nhận
+                    {{ __('Xác nhận') }}
                 </x-primary-button>
             </div>
         </form>

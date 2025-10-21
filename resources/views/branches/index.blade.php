@@ -15,7 +15,7 @@
                     </h1>
                     <p class="text-sm text-gray-600 mt-1">{{ __('Quản lý tất cả chi nhánh trong hệ thống') }}</p>
                 </div>
-                <x-secondary-button class="!bg-blue-600 !text-white !hover:bg-blue-700" x-data=""
+                <x-secondary-button class="!bg-blue-600 !text-white hover:!bg-blue-700" x-data=""
                     x-on:click.prevent="$dispatch('open-modal', 'confirm-creation')">
                     <i class="fas fa-plus"></i>
                     {{ __('Thêm chi nhánh mới') }}
@@ -60,7 +60,7 @@
                                 <x-td>
                                     <x-icon-button
                                         @click="openRow = openRow === {{ $index }} ? null : {{ $index }}"
-                                        class="!bg-green-500 !text-white !hover:bg-green-600">
+                                        class="!bg-green-500 !text-white hover:!bg-green-600">
                                         <span
                                             :class="{
                                                 'hidden': openRow === {{ $index }},
@@ -78,16 +78,16 @@
                                     </x-icon-button>
 
                                     <x-icon-button :data-create-floor-url="route('floors.store', $branch)" icon="fas fa-plus" :title="__('Thêm')"
-                                        class="!bg-blue-500 !text-white !hover:bg-blue-600" x-data=""
+                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-floor-creation')" />
 
                                     <x-icon-button :data-update-url="route('branches.update', $branch)" :data-name-value="$branch->name" :data-address-value="$branch->address"
                                         icon="fas fa-edit" :title="__('Chỉnh sửa')"
-                                        class="!bg-yellow-500 !text-white !hover:bg-yellow-600" x-data=""
+                                        class="!bg-yellow-500 !text-white hover:!bg-yellow-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')" />
 
                                     <x-icon-button :data-delete-url="route('branches.destroy', $branch)" icon="fas fa-trash" :title="__('Xoá')"
-                                        class="!bg-red-500 !text-white !hover:bg-red-600" x-data=""
+                                        class="!bg-red-500 !text-white hover:!bg-red-600" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
                                 </x-td>
                             </x-tr>
@@ -126,13 +126,13 @@
                                                         <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
                                                             <x-icon-button :data-update-floor-url="route('floors.update', $floor)" :data-floor-number-value="$floor->floor_number"
                                                                 :data-gender-type-value="$floor->gender_type" icon="fas fa-edit" :title="__('Chỉnh sửa')"
-                                                                class="!bg-yellow-500 !text-white !hover:bg-yellow-600"
+                                                                class="!bg-yellow-500 !text-white hover:!bg-yellow-600"
                                                                 x-data=""
                                                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-floor-updation')" />
 
                                                             <x-icon-button :data-delete-url="route('floors.destroy', $floor)" icon="fas fa-trash"
                                                                 :title="__('Xoá')"
-                                                                class="!bg-red-500 !text-white !hover:bg-red-600"
+                                                                class="!bg-red-500 !text-white hover:!bg-red-600"
                                                                 x-data=""
                                                                 x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
                                                         </td>
