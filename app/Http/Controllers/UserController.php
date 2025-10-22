@@ -16,7 +16,8 @@ class UserController extends Controller
     {
         $authRole = Auth::user()->role;
 
-        $query = User::filter($request->all());
+        $query = User::with(['branches'])
+            ->filter($request->all());
 
         if ($authRole === 'super_admin') {
             $query->whereIn('role', ['admin', 'staff']);

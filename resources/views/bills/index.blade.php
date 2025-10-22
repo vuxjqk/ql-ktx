@@ -118,7 +118,7 @@
                 </form>
             </div>
 
-            <div x-data="{ openRow: null }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div x-data="{ openRow: null, openTab: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <x-table :title="__('Danh sách hóa đơn')">
                     <x-thead>
                         <x-tr>
@@ -207,7 +207,21 @@
                             <tr x-show="openRow === {{ $index }}">
                                 <td colspan="9">
                                     <div class="bg-blue-50 px-12">
-                                        <table class="w-full table-auto">
+                                        <div class="flex items-center justify-end py-3">
+                                            <x-secondary-button @click="openTab = !openTab"
+                                                class="!bg-blue-500 !text-white hover:!bg-blue-600">
+                                                <span x-show="!openTab" class="flex items-center gap-2">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                    {{ __('Chi tiết hoá đơn') }}
+                                                </span>
+                                                <span x-show="openTab" class="flex items-center gap-2">
+                                                    <i class="fas fa-arrow-left"></i>
+                                                    {{ __('Thanh toán') }}
+                                                </span>
+                                            </x-secondary-button>
+                                        </div>
+
+                                        <table x-show="!openTab" class="w-full table-auto">
                                             <thead class="bg-blue-100">
                                                 <tr>
                                                     <th
@@ -231,6 +245,46 @@
                                                             {{ $item->description }}</td>
                                                         <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
                                                             {{ number_format($item->amount, 0, ',', '.') }} VND</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+
+                                        <table x-show="openTab" class="w-full table-auto">
+                                            <thead class="bg-blue-100">
+                                                <tr>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('STT') }}</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Loại thanh toán') }}</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Số tiền') }}</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Thời gian thanh toán') }}</th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Người thanh toán') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-blue-150">
+                                                @foreach ($bill->payments as $paymentIndex => $payment)
+                                                    <tr
+                                                        class="hover:bg-blue-100 transition-colors duration-150 ease-in-out">
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            #{{ $paymentIndex + 1 }}</td>
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $payment->payment_type === 'online' ? 'Trực tuyến' : 'Tiền mặt' }}
+                                                        </td>
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ number_format($payment->amount, 0, ',', '.') }} VND</td>
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $payment->paid_at?->format('d/m/Y H:i') }}</td>
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $payment->user->name ?? 'N/A' }}</td>
                                                     </tr>
                                                 @endforeach
                                             </tbody>

@@ -53,6 +53,11 @@ class Bill extends Model
         return $this->hasMany(BillItem::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

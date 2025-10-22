@@ -102,7 +102,7 @@
                                 <x-td>
                                     <div class="grid">
                                         <span>{{ __('Email: ') . ($user->email ?? 'N/A') }}</span>
-                                        <span>{{ __('SĐT: ') . ($user->phone ?? 'N/A') }}</span>
+                                        <span>{{ __('SĐT: ') . ($user->student->phone ?? 'N/A') }}</span>
                                     </div>
                                 </x-td>
                                 <x-td>

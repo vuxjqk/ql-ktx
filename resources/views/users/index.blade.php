@@ -87,11 +87,11 @@
                             <x-th>{{ __('STT') }}</x-th>
                             <x-th>
                                 <div class="flex items-center gap-6">
-                                    {{ __('Họ tên') }}
+                                    {{ __('Nhân viên') }}
                                     <x-sortable-column :options="['name_asc', 'name_desc']" />
                                 </div>
                             </x-th>
-                            <x-th>{{ __('Email') }}</x-th>
+                            <x-th>{{ __('Chi nhánh') }}</x-th>
                             <x-th>{{ __('Vai trò') }}</x-th>
                             <x-th>{{ __('Hành động') }}</x-th>
                         </x-tr>
@@ -111,10 +111,23 @@
                                                 {{ mb_substr($user->name, 0, 2, 'UTF-8') }}
                                             </div>
                                         @endif
-                                        {{ $user->name }}
+                                        <div class="grid">
+                                            <span class="font-semibold">{{ $user->name }}</span>
+                                            <span class="text-sm">
+                                                {{ __('Email: ') . $user->email ?? 'N/A' }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </x-td>
-                                <x-td>{{ $user->email ?? 'N/A' }}</x-td>
+                                <x-td>
+                                    <div class="grid">
+                                        @forelse ($user->branches as $branch)
+                                            <span>{{ $branch->name }}</span>
+                                        @empty
+                                            {{ __('Không có chi nhánh') }}
+                                        @endforelse
+                                    </div>
+                                </x-td>
                                 <x-td>{{ $user->role === 'admin' ? 'Quản trị viên' : 'Nhân viên' }}</x-td>
                                 <x-td>
                                     <x-icon-button :href="route('users.edit', $user)" icon="fas fa-edit" :title="__('Chỉnh sửa')"

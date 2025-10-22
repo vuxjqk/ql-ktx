@@ -22,7 +22,7 @@ class BillController extends Controller
     public function index(Request $request, User $user)
     {
         $bills = $user->bills()
-            ->with(['booking.room.floor.branch', 'bill_items', 'creator'])
+            ->with(['booking.room.floor.branch', 'bill_items', 'payments.transaction', 'payments.user', 'creator'])
             ->filter($request->all())
             ->paginate(10)
             ->appends($request->query());
@@ -166,6 +166,20 @@ class BillController extends Controller
                     $bill->update([
                         'status' => 'cancelled',
                     ]);
+
+                    $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
+
+                    $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
+
+                    File::ensureDirectoryExists(dirname($pdfPath));
+
+                    Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
+
+                    if ($email = $bill->user->email) {
+                        Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
+
+                        File::exists($pdfPath) && File::delete($pdfPath);
+                    }
                 }
             });
 
@@ -192,6 +206,20 @@ class BillController extends Controller
         ]);
 
         $bill->update(['status' => 'paid']);
+
+        $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
+
+        $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
+
+        File::ensureDirectoryExists(dirname($pdfPath));
+
+        Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
+
+        if ($email = $bill->user->email) {
+            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
+
+            File::exists($pdfPath) && File::delete($pdfPath);
+        }
 
         return redirect()->back()->with('success', __('Đã ghi nhận thanh toán thành công.'));
     }
