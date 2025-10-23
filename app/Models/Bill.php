@@ -14,6 +14,7 @@ class Bill extends Model
         'status',
         'due_date',
         'created_by',
+        'is_monthly_bill',
     ];
 
     protected function casts(): array

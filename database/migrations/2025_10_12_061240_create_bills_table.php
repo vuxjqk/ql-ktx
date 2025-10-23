@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('status', ['unpaid', 'paid', 'partial', 'cancelled'])->default('unpaid');
             $table->date('due_date')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->boolean('is_monthly_bill')->default(false);
             $table->timestamps();
         });
     }

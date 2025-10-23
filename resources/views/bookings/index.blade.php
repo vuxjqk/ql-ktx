@@ -208,7 +208,19 @@
                                                 <span class="text-blue-600">{{ __('Đã duyệt') }}</span>
 
                                                 <div>
-                                                    <x-icon-button :data-bill-create-url="route('payments.store', $booking)" title="Thanh toán"
+                                                    @php
+                                                        if ($booking->rental_type === 'daily') {
+                                                            $days =
+                                                                $booking->check_in_date->diffInDays(
+                                                                    $booking->expected_check_out_date,
+                                                                ) + 1;
+                                                            $requiredAmount = $days * $booking->room->price_per_day;
+                                                        } else {
+                                                            $requiredAmount = $booking->room->price_per_month;
+                                                        }
+                                                    @endphp
+
+                                                    <x-icon-button :data-bill-create-url="route('payments.store', $booking)" :data-amount="$requiredAmount" title="Thanh toán"
                                                         class="!bg-blue-500 !text-white hover:!bg-blue-600"
                                                         x-data=""
                                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')">
@@ -288,9 +300,9 @@
             @method('put')
 
             <h2 class="text-lg font-medium text-gray-900">
-                Bạn có chắc chắn muốn
-                <span id="status-label" class="font-semibold text-blue-500"></span>
-                không?
+                {!! __('Bạn có chắc chắn muốn :action không?', [
+                    'action' => '<span id="status-label" class="font-semibold text-blue-500"></span>',
+                ]) !!}
             </h2>
 
             <input id="status-input" type="hidden" name="status">
@@ -324,8 +336,29 @@
                     <i class="fas fa-money-check-alt text-blue-600 text-xl"></i>
                 </div>
                 <h2 class="text-lg font-medium text-gray-900">
-                    {{ __('Ghi nhận thanh toán đợt đầu cho sinh viên này?') }}
+                    {{ __('Ghi nhận thanh toán cho sinh viên này?') }}
                 </h2>
+            </div>
+
+            <div class="mt-6">
+                <p id="bill-amount" class="font-medium text-sm text-gray-700"></p>
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="amount" :value="__('Số tiền')" icon="fas fa-money-bill" />
+                <x-text-input id="amount" class="block mt-1 w-full" type="number" name="amount"
+                    :value="old('amount')" required autocomplete="off" :placeholder="__('Nhập số tiền')" />
+                <x-input-error :messages="$errors->get('amount')" class="mt-2" />
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="payment_type" :value="__('Loại thanh toán')" icon="fas fa-money-check-alt" />
+                <x-select id="payment_type" class="block mt-1 w-full" :options="[
+                    'online' => 'Trực tuyến',
+                    'offline' => 'Tiền mặt',
+                ]" name="payment_type"
+                    :selected="old('payment_type')" required :placeholder="__('Chọn loại thanh toán')" />
+                <x-input-error :messages="$errors->get('payment_type')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">
@@ -362,10 +395,15 @@
                     });
                 });
 
-                const bill_form = document.getElementById('create-bill-form');
-                document.querySelectorAll('[data-bill-create-url]').forEach(btn =>
-                    btn.addEventListener('click', () => bill_form.action = btn.dataset.billCreateUrl)
-                );
+                const billForm = document.getElementById('create-bill-form');
+                const billAmountText = document.getElementById('bill-amount');
+                document.querySelectorAll('[data-bill-create-url]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        billForm.action = btn.dataset.billCreateUrl;
+                        billAmountText.textContent =
+                            `Số tiền cần thanh toán: ${Number(btn.dataset.amount).toLocaleString()}₫`;
+                    });
+                });
             });
         </script>
     @endPushOnce

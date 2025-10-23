@@ -195,8 +195,13 @@
                                         </span>
                                     </x-icon-button>
 
-                                    <x-icon-button :data-pay-url="route('bills.pay', $bill)" icon="fas fa-money-check-alt" :title="__('Thanh toán')"
-                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" x-data=""
+                                    @php
+                                        $remainingAmount = $bill->total_amount - $bill->payments->sum('amount');
+                                    @endphp
+
+                                    <x-icon-button :data-pay-url="route('bills.pay', $bill)" :data-amount="$remainingAmount" icon="fas fa-money-check-alt"
+                                        :title="__('Thanh toán')" class="!bg-blue-500 !text-white hover:!bg-blue-600"
+                                        x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-pay')" />
 
                                     <x-icon-button :href="route('bills.export', $bill)" target="_blank" icon="fas fa-file-pdf"
@@ -314,6 +319,27 @@
                 </h2>
             </div>
 
+            <div class="mt-6">
+                <p id="bill-amount" class="font-medium text-sm text-gray-700"></p>
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="amount" :value="__('Số tiền')" icon="fas fa-money-bill" />
+                <x-text-input id="amount" class="block mt-1 w-full" type="number" name="amount"
+                    :value="old('amount')" required autocomplete="off" :placeholder="__('Nhập số tiền')" />
+                <x-input-error :messages="$errors->get('amount')" class="mt-2" />
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="payment_type" :value="__('Loại thanh toán')" icon="fas fa-money-check-alt" />
+                <x-select id="payment_type" class="block mt-1 w-full" :options="[
+                    'online' => 'Trực tuyến',
+                    'offline' => 'Tiền mặt',
+                ]" name="payment_type"
+                    :selected="old('payment_type')" required :placeholder="__('Chọn loại thanh toán')" />
+                <x-input-error :messages="$errors->get('payment_type')" class="mt-2" />
+            </div>
+
             <div class="mt-6 flex justify-end">
                 <x-secondary-button x-on:click="$dispatch('close')">
                     {{ __('Huỷ') }}
@@ -330,9 +356,14 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const form = document.getElementById('pay-form');
-                document.querySelectorAll('[data-pay-url]').forEach(btn =>
-                    btn.addEventListener('click', () => form.action = btn.dataset.payUrl)
-                );
+                const billAmountText = document.getElementById('bill-amount');
+                document.querySelectorAll('[data-pay-url]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        form.action = btn.dataset.payUrl;
+                        billAmountText.textContent =
+                            `Số tiền cần thanh toán: ${Number(btn.dataset.amount).toLocaleString()}₫`;
+                    });
+                });
             });
         </script>
     @endPushOnce

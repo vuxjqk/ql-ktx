@@ -27,7 +27,7 @@ class BillController extends Controller
             ->paginate(10)
             ->appends($request->query());
 
-        $totalBills = $bills->count();
+        $totalBills = $bills->total();
         $unpaidBills = $bills->where('status', 'unpaid')->count();
         $paidBills = $bills->where('status', 'paid')->count();
         $cancelledBills = $bills->where('status', 'cancelled')->count();
@@ -44,197 +44,180 @@ class BillController extends Controller
 
     public function store(Room $room)
     {
-        $bookingIds = $room->activeBookings()
+        $activeMonthlyBookings = $room->activeBookings()
             ->where('rental_type', 'monthly')
-            ->pluck('id');
+            ->with('contract')
+            ->get();
 
-        $hasBillThisMonth = Bill::whereIn('booking_id', $bookingIds)
+        if ($activeMonthlyBookings->isEmpty()) {
+            return redirect()->back()->with('info', __('Phòng này không có sinh viên thuê theo tháng.'));
+        }
+
+        $monthlyBillsQuery = Bill::whereIn('booking_id', $activeMonthlyBookings->pluck('id'))
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
-            ->whereHas('bill_items', function ($query) {
-                $query->where('description', 'like', 'Tiền Ký túc xá%');
-            })
-            ->exists();
+            ->where('is_monthly_bill', true);
 
-        if ($hasBillThisMonth) {
-            return redirect()->back()->with('warning', __('Phòng này đã được tạo hóa đơn trong tháng này.'));
+        $hasBillThisMonth = $monthlyBillsQuery->exists();
+        $hasCancelledBill = (clone $monthlyBillsQuery)->where('status', 'cancelled')->exists();
+
+        if ($hasBillThisMonth && !$hasCancelledBill) {
+            return redirect()->back()->with('warning', __('Hóa đơn tháng này đã được tạo hoặc đang tồn tại.'));
         }
 
         try {
-            $bill_code = $this->generateBillCode();
+            DB::transaction(function () use ($room, $activeMonthlyBookings) {
+                $occupantsCount = $activeMonthlyBookings->count();
+                $monthDescription = __('Tiền ký túc xá tháng ') . now()->format('m/Y');
 
-            $activeBookings = $room->activeBookings()
-                ->where('rental_type', 'monthly')
-                ->with('contract')
-                ->get();
+                foreach ($activeMonthlyBookings as $booking) {
+                    $billCode = $this->generateBillCode();
 
-            $count = $activeBookings->count();
-
-            if ($count === 0) {
-                return redirect()->back()->with('info', __('Phòng này không có sinh viên nào đang ở.'));
-            }
-
-            DB::transaction(function () use ($bill_code, $room, $activeBookings, $count) {
-                foreach ($activeBookings as $index => $booking) {
                     $bill = Bill::create([
-                        'bill_code'    => $bill_code,
-                        'user_id'      => $booking->user_id,
-                        'booking_id'   => $booking->id,
+                        'bill_code' => $billCode,
+                        'user_id' => $booking->user_id,
+                        'booking_id' => $booking->id,
                         'total_amount' => 0,
-                        'status'       => 'unpaid',
-                        'due_date'     => now()->endOfMonth()->addDays(7),
-                        'created_by'   => Auth::id(),
+                        'status' => 'unpaid',
+                        'due_date' => now()->endOfMonth()->addDays(7),
+                        'created_by' => Auth::id(),
+                        'is_monthly_bill' => true,
                     ]);
 
-                    $totalAmount = $booking->contract->monthly_fee;
-
+                    $rentAmount = $booking->contract->monthly_fee;
                     BillItem::create([
-                        'bill_id'     => $bill->id,
-                        'description' => 'Tiền Ký túc xá tháng ' . now()->format('m'),
-                        'amount'      => $totalAmount,
+                        'bill_id' => $bill->id,
+                        'description' => $monthDescription,
+                        'amount' => $rentAmount,
                     ]);
+                    $totalAmount = $rentAmount;
 
                     foreach ($room->services as $service) {
-                        $usageAmount = $service->getUsageAmountForRoom($room);
+                        $usageAmount = $service->getUsageAmountForRoom($room, now()->month, now()->year);
+                        $excessUsage = max(0, $usageAmount - $service->free_quota);
+                        $serviceCost = $excessUsage * $service->unit_price;
 
-                        $subtotal = $service->unit_price * max(0, $usageAmount - $service->free_quota);
-                        $baseShare = intdiv($subtotal, $count);
-                        $remainder = $subtotal % $count;
-
-                        $amount = $baseShare;
-                        if ($index < $remainder) {
-                            $amount += 1;
-                        }
+                        $baseShare = (int) ($serviceCost / $occupantsCount);
+                        $remainder = $serviceCost % $occupantsCount;
+                        $shareAmount = $baseShare + ($remainder > 0 ? 1 : 0);
 
                         BillItem::create([
-                            'bill_id'     => $bill->id,
-                            'description' => 'Tiền ' . $service->name . " ($usageAmount / $service->unit chia đều cho $count người) tháng " . now()->format('m'),
-                            'amount'      => $amount,
+                            'bill_id' => $bill->id,
+                            'description' => __('Tiền ') . $service->name . " ($usageAmount $service->unit, chia đều $occupantsCount người) tháng " . now()->format('m/Y'),
+                            'amount' => $shareAmount,
                         ]);
 
-                        $totalAmount += $amount;
+                        $totalAmount += $shareAmount;
                     }
 
                     $bill->update(['total_amount' => $totalAmount]);
 
-                    $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
-
-                    $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
-
-                    File::ensureDirectoryExists(dirname($pdfPath));
-
-                    Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
-
-                    if ($email = $bill->user->email) {
-                        Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
-
-                        File::exists($pdfPath) && File::delete($pdfPath);
-                    }
+                    $this->generateAndSendInvoice($bill);
                 }
             });
 
-            return redirect()->back()->with('success', __('Đã tạo hoá đơn thành công.'));
+            return redirect()->back()->with('success', __('Đã tạo hóa đơn hàng tháng thành công.'));
         } catch (Exception $e) {
-            Log::error('Lỗi khi tạo hoá đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-
-            return redirect()->back()->with('error', __('Không thể tạo hoá đơn. Vui lòng thử lại.'));
+            Log::error('Lỗi khi tạo hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Không thể tạo hóa đơn. Vui lòng thử lại.'));
         }
     }
 
     public function cancelBills(Room $room)
     {
+        $activeMonthlyBookings = $room->activeBookings()
+            ->where('rental_type', 'monthly')
+            ->pluck('id');
+
+        $bills = Bill::whereIn('booking_id', $activeMonthlyBookings)
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->where('status', 'unpaid')
+            ->where('is_monthly_bill', true)
+            ->get();
+
+        if ($bills->isEmpty()) {
+            return redirect()->back()->with('info', __('Không có hóa đơn nào để hủy trong tháng này.'));
+        }
+
         try {
-            $bookingIds = $room->activeBookings()
-                ->where('rental_type', 'monthly')
-                ->pluck('id');
-
-            $bills = Bill::whereIn('booking_id', $bookingIds)
-                ->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', now()->month)
-                ->where('status', 'unpaid')
-                ->whereHas('bill_items', function ($query) {
-                    $query->where('description', 'like', 'Tiền Ký túc xá%');
-                })
-                ->get();
-
-            if ($bills->isEmpty()) {
-                return redirect()->back()->with('info', __('Không có hoá đơn nào cần huỷ.'));
-            }
-
             DB::transaction(function () use ($bills) {
                 foreach ($bills as $bill) {
-                    $bill->update([
-                        'status' => 'cancelled',
-                    ]);
-
-                    $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
-
-                    $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
-
-                    File::ensureDirectoryExists(dirname($pdfPath));
-
-                    Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
-
-                    if ($email = $bill->user->email) {
-                        Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
-
-                        File::exists($pdfPath) && File::delete($pdfPath);
-                    }
+                    $bill->update(['status' => 'cancelled']);
+                    $this->generateAndSendInvoice($bill);
                 }
             });
 
-            return redirect()->back()->with('success', __('Đã huỷ hoá đơn thành công.'));
+            return redirect()->back()->with('success', __('Đã hủy hóa đơn thành công.'));
         } catch (Exception $e) {
-            Log::error('Lỗi khi huỷ hoá đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-
-            return redirect()->back()->with('error', __('Không thể huỷ hoá đơn. Vui lòng thử lại.'));
+            Log::error('Lỗi khi hủy hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Không thể hủy hóa đơn. Vui lòng thử lại.'));
         }
     }
 
-    public function payBill(Bill $bill)
+    public function payBill(Request $request, Bill $bill)
     {
-        if ($bill->status !== 'unpaid') {
-            return redirect()->back()->with('error', __('Không thể ghi nhận thanh toán cho hoá đơn này.'));
+        if (!in_array($bill->status, ['unpaid', 'partial'])) {
+            return redirect()->back()->with('error', __('Hóa đơn này không thể thanh toán.'));
         }
 
-        Payment::create([
-            'bill_id' => $bill->id,
-            'payment_type' => 'offline',
-            'amount' => $bill->total_amount,
-            'paid_at' => now(),
-            'user_id' => Auth::id(),
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:1|max:' . $bill->total_amount,
+            'payment_type' => 'required|in:offline,online',
         ]);
 
-        $bill->update(['status' => 'paid']);
+        try {
+            DB::transaction(function () use ($bill, $validated) {
+                Payment::create([
+                    'bill_id' => $bill->id,
+                    'payment_type' => $validated['payment_type'],
+                    'amount' => $validated['amount'],
+                    'paid_at' => now(),
+                    'user_id' => Auth::id(),
+                ]);
 
-        $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
+                $paidAmount = $bill->payments->sum('amount');
 
-        $pdfPath = public_path("storage/invoices/invoice_{$bill->bill_code}.pdf");
+                $status = $paidAmount >= $bill->total_amount ? 'paid' : 'partial';
+                $bill->update(['status' => $status]);
 
-        File::ensureDirectoryExists(dirname($pdfPath));
+                $this->generateAndSendInvoice($bill);
+            });
 
-        Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
-
-        if ($email = $bill->user->email) {
-            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
-
-            File::exists($pdfPath) && File::delete($pdfPath);
+            return redirect()->back()->with('success', __('Đã ghi nhận thanh toán thành công.'));
+        } catch (Exception $e) {
+            Log::error('Lỗi khi thanh toán hóa đơn ' . $bill->bill_code . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Không thể ghi nhận thanh toán. Vui lòng thử lại.'));
         }
-
-        return redirect()->back()->with('success', __('Đã ghi nhận thanh toán thành công.'));
     }
 
     public function export(Bill $bill)
     {
         $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
         $pdf = Pdf::loadView('bills.export', compact('bill'));
-        return $pdf->stream('bills.pdf');
+        return $pdf->stream("invoice_{$bill->bill_code}.pdf");
     }
 
     protected function generateBillCode(): string
     {
-        $date = now()->format('ymdHis');
-        $countToday = Bill::whereDate('created_at', today())->count();
-        return 'HD' . $date . str_pad($countToday + 1, 4, '0', STR_PAD_LEFT);
+        $date = now()->format('ymdHi');
+        $countToday = Bill::whereDate('created_at', today())->count() + 1;
+        return 'BILL-' . $date . str_pad($countToday, 4, '0', STR_PAD_LEFT);
+    }
+
+    protected function generateAndSendInvoice(Bill $bill)
+    {
+        $bill->load(['user.student', 'booking.room.floor.branch', 'bill_items', 'creator']);
+
+        $pdfPath = storage_path("app/public/invoices/invoice_{$bill->bill_code}.pdf");
+        File::ensureDirectoryExists(dirname($pdfPath));
+
+        Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
+
+        if ($email = $bill->user->email) {
+            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
+        }
+
+        File::delete($pdfPath);
     }
 }

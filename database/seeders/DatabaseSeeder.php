@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Amenity;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Floor;
 use App\Models\Room;
+use App\Models\Service;
 use App\Models\Student;
 use App\Models\User;
 use Carbon\Carbon;
@@ -28,6 +30,45 @@ class DatabaseSeeder extends Seeder
         User::factory(20)->create();
         Student::factory(20)->create();
 
+        Service::insert([
+            [
+                'name' => 'Điện',
+                'unit' => 'kWh',
+                'unit_price' => 3500,
+                'free_quota' => 0,
+                'is_mandatory' => true,
+            ],
+            [
+                'name' => 'Nước',
+                'unit' => 'm³',
+                'unit_price' => 18000,
+                'free_quota' => 0,
+                'is_mandatory' => true,
+            ],
+            [
+                'name' => 'Internet',
+                'unit' => 'Tháng',
+                'unit_price' => '250000',
+                'free_quota' => 0,
+                'is_mandatory' => false,
+            ],
+        ]);
+
+        Amenity::insert([
+            [
+                'name' => 'Wi-Fi miễn phí',
+                'description' => 'Truy cập internet không giới hạn, tốc độ cao.',
+            ],
+            [
+                'name' => 'Máy lạnh',
+                'description' => 'Điều hòa không khí, nhiệt độ có thể điều chỉnh.',
+            ],
+            [
+                'name' => 'Tivi thông minh',
+                'description' => 'Hỗ trợ YouTube, Netflix và các ứng dụng giải trí khác.',
+            ],
+        ]);
+
         $branches = collect([
             ['name' => 'Chi nhánh Hà Nội', 'address' => '123 Đường ABC, Hà Nội'],
             ['name' => 'Chi nhánh Đà Nẵng', 'address' => '456 Đường XYZ, Đà Nẵng'],
@@ -49,7 +90,7 @@ class DatabaseSeeder extends Seeder
                 $roomsCount = rand(3, 5);
 
                 for ($i = 1; $i <= $roomsCount; $i++) {
-                    Room::create([
+                    $room = Room::create([
                         'floor_id' => $floor->id,
                         'room_code' => 'R' . $floorNumber . '-' . str_pad($i, 2, '0', STR_PAD_LEFT),
                         'price_per_day' => rand(200000, 500000),
@@ -59,6 +100,8 @@ class DatabaseSeeder extends Seeder
                         'is_active' => true,
                         'description' => 'Phòng số ' . $i . ' trên tầng ' . $floorNumber,
                     ]);
+
+                    $room->services()->attach([1, 2, 3]);
                 }
             }
         }
