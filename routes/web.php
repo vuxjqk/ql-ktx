@@ -5,6 +5,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\PaymentController;
@@ -29,6 +30,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('chatbot.handle');
 Route::get('/floors-by-branch/{branchId}', [FloorController::class, 'getByBranch']);
 
 Route::middleware(['auth', 'verified', 'branch'])->group(function () {
