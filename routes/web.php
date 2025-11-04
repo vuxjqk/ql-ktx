@@ -8,6 +8,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FloorController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepairController;
@@ -84,6 +85,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');
         Route::put('/repairs/{repair}', [RepairController::class, 'update'])->name('repairs.update');
         Route::post('/payments/{booking}', [PaymentController::class, 'store'])->name('payments.store');
+        Route::resource('/notifications', NotificationController::class)->except(['create', 'show', 'edit', 'update']);
     });
 });
 
