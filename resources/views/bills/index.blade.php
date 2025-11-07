@@ -8,7 +8,7 @@
             <x-breadcrumb :items="[
                 ['label' => 'Trang chủ', 'url' => url('/')],
                 ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
-                ['label' => 'Thông tin sinh viên', 'url' => route('students.show', $user)],
+                ['label' => $user->name, 'url' => route('students.show', $user)],
                 ['label' => 'Quản lý hóa đơn'],
             ]" />
 
@@ -32,10 +32,17 @@
                         {{ __('Quản lý tất cả hóa đơn của :name trong hệ thống', ['name' => $user->name]) }}
                     </p>
                 </div>
-                <x-secondary-button :href="route('students.show', $user)">
-                    <i class="fas fa-arrow-left"></i>
-                    {{ __('Quay lại') }}
-                </x-secondary-button>
+                <div class="flex items-center gap-2">
+                    <x-secondary-button :href="route('students.show', $user)">
+                        <i class="fas fa-arrow-left"></i>
+                        {{ __('Quay lại') }}
+                    </x-secondary-button>
+
+                    <x-secondary-button :href="route('bills.create', $user)" class="!bg-blue-500 !text-white hover:!bg-blue-600">
+                        <i class="fas fa-plus"></i>
+                        {{ __('Tạo hoá đơn') }}
+                    </x-secondary-button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -204,6 +211,10 @@
                                         x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-pay')" />
 
+                                    <x-icon-button :data-cancel-url="route('bills.cancelBills', $bill)" icon="fas fa-times-circle" :title="__('Huỷ')"
+                                        class="!bg-red-600 !text-white hover:!bg-red-700" x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-cancelled')" />
+
                                     <x-icon-button :href="route('bills.export', $bill)" target="_blank" icon="fas fa-file-pdf"
                                         :title="__('Xuất hoá đơn')" class="!bg-purple-500 !text-white hover:!bg-purple-600" />
                                 </x-td>
@@ -352,6 +363,35 @@
         </form>
     </x-modal>
 
+    <x-modal name="confirm-cancelled" focusable>
+        <form id="cancelled-form" method="post" action="#" class="p-6">
+            @csrf
+
+            <div class="flex items-center gap-6">
+                <div class="bg-red-100 shadow-sm sm:rounded-lg p-3">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Bạn có chắc chắn muốn huỷ hoá đơn không?') }}
+                </h2>
+            </div>
+
+            <p class="mt-6 text-sm text-gray-600">
+                {{ __('Ngay sau khi bạn xác nhận huỷ hoá đơn, hoá đơn của sinh viên này sẽ bị huỷ bỏ.') }}
+            </p>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Huỷ') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ms-3">
+                    {{ __('Xác nhận') }}
+                </x-danger-button>
+            </div>
+        </form>
+    </x-modal>
+
     @pushOnce('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -364,6 +404,11 @@
                             `Số tiền cần thanh toán: ${Number(btn.dataset.amount).toLocaleString()}₫`;
                     });
                 });
+
+                const cancelledForm = document.getElementById('cancelled-form');
+                document.querySelectorAll('[data-cancel-url]').forEach(btn =>
+                    btn.addEventListener('click', () => cancelledForm.action = btn.dataset.cancelUrl)
+                );
             });
         </script>
     @endPushOnce

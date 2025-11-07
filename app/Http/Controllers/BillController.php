@@ -6,7 +6,7 @@ use App\Mail\InvoiceMail;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Payment;
-use App\Models\Room;
+use App\Models\ServiceUsageShare;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -42,117 +42,79 @@ class BillController extends Controller
         ));
     }
 
-    public function store(Room $room)
+    public function create(User $user)
     {
-        $activeMonthlyBookings = $room->activeBookings()
-            ->where('rental_type', 'monthly')
-            ->with('contract')
-            ->get();
+        $booking = $user->activeBooking;
 
-        if ($activeMonthlyBookings->isEmpty()) {
-            return redirect()->back()->with('info', __('Phòng này không có sinh viên thuê theo tháng.'));
+        if (!$booking) {
+            return redirect()->route('bills.index')
+                ->with('info', __('Sinh viên này hiện tại không cư trú.'));
         }
 
-        $monthlyBillsQuery = Bill::whereIn('booking_id', $activeMonthlyBookings->pluck('id'))
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('is_monthly_bill', true);
+        $now = now();
+        $periodStart = optional(Bill::where('booking_id', $booking->id)
+            ->where('is_monthly_bill', true)
+            ->latest()
+            ->first())
+            ->created_at?->addDay() ?? $booking->check_in_date;
 
-        $hasBillThisMonth = $monthlyBillsQuery->exists();
-        $hasCancelledBill = (clone $monthlyBillsQuery)->where('status', 'cancelled')->exists();
+        $periodEnd = $booking->actual_check_out_date ?? $now;
 
-        if ($hasBillThisMonth && !$hasCancelledBill) {
-            return redirect()->back()->with('warning', __('Hóa đơn tháng này đã được tạo hoặc đang tồn tại.'));
+        $totalAmount = 0;
+        $billItems = [];
+
+        if ($booking->rental_type === 'monthly' && $booking->contract) {
+            $daysStayed = $periodStart->diffInDays($periodEnd) + 1;
+            $dailyTotal = $booking->room->price_per_day * $daysStayed;
+            $rentAmount = min($booking->contract->monthly_fee, $dailyTotal);
+
+            $billItems[] = [
+                'description' => 'Tiền ký túc xá',
+                'amount' => $rentAmount,
+            ];
+
+            $totalAmount += $rentAmount;
         }
 
-        try {
-            DB::transaction(function () use ($room, $activeMonthlyBookings) {
-                $occupantsCount = $activeMonthlyBookings->count();
-                $monthDescription = __('Tiền ký túc xá tháng ') . now()->format('m/Y');
+        $services = ServiceUsageShare::with('serviceUsage.service')
+            ->where('user_id', $user->id)
+            ->whereHas('serviceUsage', function ($q) use ($booking, $periodStart, $periodEnd) {
+                $q->where('room_id', $booking->room_id)
+                    ->whereBetween('usage_date', [$periodStart, $periodEnd]);
+            })
+            ->get()
+            ->groupBy('serviceUsage.service_id')
+            ->map(function ($group) {
+                $service = $group->first()->serviceUsage->service;
 
-                foreach ($activeMonthlyBookings as $booking) {
-                    $billCode = $this->generateBillCode();
-
-                    $bill = Bill::create([
-                        'bill_code' => $billCode,
-                        'user_id' => $booking->user_id,
-                        'booking_id' => $booking->id,
-                        'total_amount' => 0,
-                        'status' => 'unpaid',
-                        'due_date' => now()->endOfMonth()->addDays(7),
-                        'created_by' => Auth::id(),
-                        'is_monthly_bill' => true,
-                    ]);
-
-                    $rentAmount = $booking->contract->monthly_fee;
-                    BillItem::create([
-                        'bill_id' => $bill->id,
-                        'description' => $monthDescription,
-                        'amount' => $rentAmount,
-                    ]);
-                    $totalAmount = $rentAmount;
-
-                    foreach ($room->services as $service) {
-                        $usageAmount = $service->getUsageAmountForRoom($room, now()->month, now()->year);
-                        $excessUsage = max(0, $usageAmount - $service->free_quota);
-                        $serviceCost = $excessUsage * $service->unit_price;
-
-                        $baseShare = (int) ($serviceCost / $occupantsCount);
-                        $remainder = $serviceCost % $occupantsCount;
-                        $shareAmount = $baseShare + ($remainder > 0 ? 1 : 0);
-
-                        BillItem::create([
-                            'bill_id' => $bill->id,
-                            'description' => __('Tiền ') . $service->name . " ($usageAmount $service->unit, chia đều $occupantsCount người) tháng " . now()->format('m/Y'),
-                            'amount' => $shareAmount,
-                        ]);
-
-                        $totalAmount += $shareAmount;
-                    }
-
-                    $bill->update(['total_amount' => $totalAmount]);
-
-                    $this->generateAndSendInvoice($bill);
-                }
+                return [
+                    'description' => $service->name,
+                    'unit' => $service->unit,
+                    'usage_amount' => $group->sum(fn($item) => $item->serviceUsage->usage_amount),
+                    'amount' => $group->sum('share_amount')
+                ];
             });
 
-            return redirect()->back()->with('success', __('Đã tạo hóa đơn hàng tháng thành công.'));
-        } catch (Exception $e) {
-            Log::error('Lỗi khi tạo hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-            return redirect()->back()->with('error', __('Không thể tạo hóa đơn. Vui lòng thử lại.'));
-        }
+        $totalAmount += $services->sum('amount');
+
+        $billItems = array_merge($billItems, $services->toArray());
+
+        return view('bills.create', compact('user', 'booking', 'billItems', 'totalAmount'));
     }
 
-    public function cancelBills(Room $room)
+    public function store(User $user)
     {
-        $activeMonthlyBookings = $room->activeBookings()
-            ->where('rental_type', 'monthly')
-            ->pluck('id');
+        return $this->createBill($user, true);
+    }
 
-        $bills = Bill::whereIn('booking_id', $activeMonthlyBookings)
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('status', 'unpaid')
-            ->where('is_monthly_bill', true)
-            ->get();
-
-        if ($bills->isEmpty()) {
-            return redirect()->back()->with('info', __('Không có hóa đơn nào để hủy trong tháng này.'));
+    public function cancelBills(Bill $bill)
+    {
+        if ($bill->status !== 'unpaid') {
+            return redirect()->back()->with('error', __('Hóa đơn này không thể hủy.'));
         }
 
-        try {
-            DB::transaction(function () use ($bills) {
-                foreach ($bills as $bill) {
-                    $bill->update(['status' => 'cancelled']);
-                    $this->generateAndSendInvoice($bill);
-                }
-            });
-
-            return redirect()->back()->with('success', __('Đã hủy hóa đơn thành công.'));
-        } catch (Exception $e) {
-            Log::error('Lỗi khi hủy hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-            return redirect()->back()->with('error', __('Không thể hủy hóa đơn. Vui lòng thử lại.'));
-        }
+        $bill->update(['status' => 'cancelled']);
+        return redirect()->back()->with('success', __('Đã hủy hóa đơn thành công.'));
     }
 
     public function payBill(Request $request, Bill $bill)
@@ -215,9 +177,137 @@ class BillController extends Controller
         Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
 
         if ($email = $bill->user->email) {
-            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
+            Mail::to($email)->queue(new InvoiceMail($bill, $pdfPath));
         }
 
         File::delete($pdfPath);
+    }
+
+    protected function createBill(User $user, bool $isMonthlyBill = false)
+    {
+        $booking = $user->activeBooking;
+
+        if (!$booking) {
+            return redirect()->back()->with('info', __('Sinh viên này hiện tại không cư trú.'));
+        }
+
+        if ($booking->rental_type === 'daily' && $isMonthlyBill) {
+            return redirect()->back()->with('warning', __('Sinh viên thuê theo ngày không tạo hóa đơn hàng tháng.'));
+        }
+
+        if ($isMonthlyBill) {
+            $exists = Bill::where('booking_id', $booking->id)
+                ->where('is_monthly_bill', true)
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', now()->month)
+                ->where('status', '!=', 'cancelled')
+                ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('warning', __('Hóa đơn tháng này đã tồn tại và chưa bị hủy.'));
+            }
+        }
+
+        try {
+            $bill = DB::transaction(function () use ($user, $booking, $isMonthlyBill) {
+                $now = now();
+                $checkInDate = $booking->check_in_date;
+                $checkOutDate = $booking->actual_check_out_date;
+
+                $lastMonthlyBill = Bill::where('booking_id', $booking->id)
+                    ->where('is_monthly_bill', true)
+                    ->latest()
+                    ->first();
+
+                $periodStart = $lastMonthlyBill?->created_at->addDay() ?? $checkInDate;
+                $periodEnd = $checkOutDate ?? $now;
+
+                if ($periodStart->gt($periodEnd)) {
+                    throw new Exception(__('Không có dữ liệu để lập hóa đơn trong khoảng thời gian này.'));
+                }
+
+                $totalAmount = 0;
+                $billItems = [];
+
+                if ($booking->rental_type === 'monthly' && $booking->contract) {
+                    $monthlyFee = $booking->contract->monthly_fee;
+                    $dailyPrice = $booking->room->price_per_day;
+
+                    if ($isMonthlyBill) {
+                        $rentAmount = $monthlyFee;
+                        $description = "Tiền ký túc xá tháng " . $periodEnd->format('m/Y');
+                    } else {
+                        $daysStayed = $periodStart->diffInDays($periodEnd) + 1;
+                        $dailyTotal = $dailyPrice * $daysStayed;
+                        $rentAmount = min($monthlyFee, $dailyTotal);
+                        $description = "Tiền ký túc xá phát sinh ({$periodStart->format('d/m')} - {$periodEnd->format('d/m/Y')})";
+                    }
+
+                    if ($rentAmount > 0) {
+                        $billItems[] = compact('description', 'rentAmount');
+                        $totalAmount += $rentAmount;
+                    }
+                }
+
+                $services = ServiceUsageShare::with('serviceUsage.service')
+                    ->where('user_id', $user->id)
+                    ->whereHas('serviceUsage', function ($q) use ($booking, $periodStart, $periodEnd) {
+                        $q->where('room_id', $booking->room_id)
+                            ->whereBetween('usage_date', [$periodStart, $periodEnd]);
+                    })
+                    ->get()
+                    ->groupBy('serviceUsage.service_id')
+                    ->map(function ($group) {
+                        return [
+                            'name' => $group->first()->serviceUsage->service->name,
+                            'amount' => $group->sum('share_amount')
+                        ];
+                    });
+
+                foreach ($services as $service) {
+                    if ($service['amount'] > 0) {
+                        $desc = "Tiền {$service['name']} ({$periodStart->format('d/m')} - {$periodEnd->format('d/m/Y')})";
+
+                        $billItems[] = [
+                            'description' => $desc,
+                            'amount' => $service['amount']
+                        ];
+                        $totalAmount += $service['amount'];
+                    }
+                }
+
+                if ($totalAmount <= 0) {
+                    throw new Exception(__('Không có khoản phí nào để lập hóa đơn.'));
+                }
+
+                $bill = Bill::create([
+                    'bill_code'       => $this->generateBillCode(),
+                    'user_id'         => $user->id,
+                    'booking_id'      => $booking->id,
+                    'total_amount'    => $totalAmount,
+                    'status'          => 'unpaid',
+                    'due_date'        => $now->addDays(7),
+                    'created_by'      => Auth::id(),
+                    'is_monthly_bill' => $isMonthlyBill,
+                ]);
+
+                foreach ($billItems as $item) {
+                    BillItem::create([
+                        'bill_id'     => $bill->id,
+                        'description' => $item['description'],
+                        'amount'      => $item['amount'] ?? $item['rentAmount'],
+                    ]);
+                }
+
+                return $bill;
+            });
+
+            $this->generateAndSendInvoice($bill);
+
+            return redirect()->back()->with('success', __('Đã tạo hóa đơn thành công.'));
+        } catch (Exception $e) {
+            Log::error('Lỗi khi tạo hóa đơn cho sinh viên ' . $user->student?->student_code . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Không thể tạo hóa đơn. Vui lòng thử lại.'));
+        }
     }
 }

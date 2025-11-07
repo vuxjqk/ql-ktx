@@ -67,11 +67,12 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
         Route::get('/bills/{bill}/export', [BillController::class, 'export'])->name('bills.export');
         Route::post('/bills/{bill}/pay', [BillController::class, 'payBill'])->name('bills.pay');
+        Route::post('/bills/{bill}/cancel-bills', [BillController::class, 'cancelBills'])->name('bills.cancelBills');
         Route::get('/students/{user}/bills', [BillController::class, 'index'])->name('bills.index');
+        Route::post('/students/{user}/bills', [BillController::class, 'store'])->name('bills.store');
+        Route::get('/students/{user}/bills/create', [BillController::class, 'create'])->name('bills.create');
         Route::resource('/students', StudentController::class)->parameters(['students' => 'user']);
-        Route::post('/rooms/{room}/cancel-bills', [BillController::class, 'cancelBills'])->name('bills.cancelBills');
-        Route::post('/rooms/{room}/bills', [BillController::class, 'store'])->name('bills.store');
-        Route::get('/rooms/{room}/service-usages', [ServiceUsageController::class, 'edit'])->name('service-usages.edit');
+        Route::get('/rooms/{room}/service-usages', [ServiceUsageController::class, 'index'])->name('service-usages.index');
         Route::put('/rooms/{room}/service-usages', [ServiceUsageController::class, 'update'])->name('service-usages.update');
         Route::post('/rooms/{room}/images', [RoomController::class, 'storeImages'])->name('rooms.storeImages');
         Route::delete('/rooms/{image}/images', [RoomController::class, 'destroyImage'])->name('rooms.destroyImage');
