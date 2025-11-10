@@ -11,6 +11,7 @@ use App\Http\Controllers\FloorController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ServiceController;
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     });
 
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
+        Route::post('/bills/{bill}/refund', [RefundController::class, 'store'])->name('bills.refund');
         Route::get('/bills/{bill}/export', [BillController::class, 'export'])->name('bills.export');
         Route::post('/bills/{bill}/pay', [BillController::class, 'payBill'])->name('bills.pay');
         Route::post('/bills/{bill}/cancel-bills', [BillController::class, 'cancelBills'])->name('bills.cancelBills');

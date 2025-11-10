@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\StatisticsExport;
 use App\Models\Amenity;
+use App\Models\Bill;
 use App\Models\Booking;
 use App\Models\Branch;
 use App\Models\Repair;
@@ -104,10 +105,16 @@ class DashboardController extends Controller
     // Tính tổng doanh thu trong năm
     public function getTotalRevenue($year)
     {
-        return round(DB::table('bills')
-            ->whereIn('status', ['paid', 'partial'])
+        $bills = Bill::withSum('refunds', 'amount')
             ->whereYear('created_at', $year)
-            ->sum('total_amount') / 1_000_000, 2);
+            ->whereIn('status', ['paid', 'partial', 'refunded'])
+            ->get();
+
+        $total = $bills->sum(function ($bill) {
+            return $bill->total_amount - ($bill->refunds_sum_amount ?? 0);
+        });
+
+        return round($total / 1_000_000, 2);
     }
 
     // Tính tổng số lượt đặt trong năm
@@ -133,10 +140,16 @@ class DashboardController extends Controller
     // Tính tỷ lệ tăng trưởng doanh thu theo năm
     public function getRevenueGrowthRate($year, $currentRevenue)
     {
-        $previousRevenue = round(DB::table('bills')
+        $previousBills = Bill::withSum('refunds', 'amount')
             ->whereYear('created_at', $year - 1)
-            ->whereIn('status', ['paid', 'partial'])
-            ->sum('total_amount') / 1_000_000, 2);
+            ->whereIn('status', ['paid', 'partial', 'refunded'])
+            ->get(['id', 'total_amount', 'created_at']);
+
+        $previousRevenue = $previousBills->sum(function ($bill) {
+            return $bill->total_amount - ($bill->refunds_sum_amount ?? 0);
+        });
+
+        $previousRevenue = round($previousRevenue / 1_000_000, 2);
 
         if ($previousRevenue == 0) {
             return null;
@@ -148,14 +161,16 @@ class DashboardController extends Controller
     // Lấy dữ liệu doanh thu theo từng tháng
     public function getMonthlyRevenue($year)
     {
-        $revenues = DB::table('bills')
-            ->selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+        $bills = Bill::withSum('refunds', 'amount')
             ->whereYear('created_at', $year)
-            ->whereIn('status', ['paid', 'partial'])
-            ->groupByRaw('MONTH(created_at)')
-            ->orderBy('month')
-            ->pluck('total', 'month')
-            ->toArray();
+            ->whereIn('status', ['paid', 'partial', 'refunded'])
+            ->get(['id', 'total_amount', 'created_at']);
+
+        $revenues = $bills->groupBy(function ($bill) {
+            return $bill->created_at->month;
+        })->map(function ($group) {
+            return $group->sum(fn($bill) => $bill->total_amount - ($bill->refunds_sum_amount ?? 0));
+        });
 
         $result = [];
         for ($i = 1; $i <= 12; $i++) {
