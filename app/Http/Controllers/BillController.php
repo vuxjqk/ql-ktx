@@ -123,8 +123,15 @@ class BillController extends Controller
             return redirect()->back()->with('error', __('Hóa đơn này không thể thanh toán.'));
         }
 
+        $alreadyPaid = $bill->payments()->sum('amount');
+        $remaining = $bill->total_amount - $alreadyPaid;
+
+        if ($remaining <= 0) {
+            return redirect()->back()->with('error', __('Hóa đơn này đã được thanh toán đầy đủ.'));
+        }
+
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:1|max:' . $bill->total_amount,
+            'amount' => 'required|numeric|min:1|max:' . $remaining,
             'payment_type' => 'required|in:offline,online',
         ]);
 
