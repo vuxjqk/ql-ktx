@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AmenityController;
+use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
@@ -29,11 +30,14 @@ Route::get('/lang/{locale}', function ($locale) {
 })->name('lang.switch');
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('chatbot.handle');
 Route::get('/floors-by-branch/{branchId}', [FloorController::class, 'getByBranch']);
+
+Route::get('/auth/{provider}', [SocialiteController::class, 'redirect']);
+Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback']);
 
 Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
