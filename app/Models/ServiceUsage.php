@@ -21,4 +21,17 @@ class ServiceUsage extends Model
             'usage_date' => 'date',
         ];
     }
+<<<<<<< HEAD
+=======
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
+
+    public function shares()
+    {
+        return $this->hasMany(ServiceUsageShare::class);
+    }
+>>>>>>> upstream-main
 }

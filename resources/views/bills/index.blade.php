@@ -8,7 +8,11 @@
             <x-breadcrumb :items="[
                 ['label' => 'Trang chủ', 'url' => url('/')],
                 ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
+<<<<<<< HEAD
                 ['label' => 'Thông tin sinh viên', 'url' => route('students.show', $user)],
+=======
+                ['label' => $user->name, 'url' => route('students.show', $user)],
+>>>>>>> upstream-main
                 ['label' => 'Quản lý hóa đơn'],
             ]" />
 
@@ -32,10 +36,24 @@
                         {{ __('Quản lý tất cả hóa đơn của :name trong hệ thống', ['name' => $user->name]) }}
                     </p>
                 </div>
+<<<<<<< HEAD
                 <x-secondary-button :href="route('students.show', $user)">
                     <i class="fas fa-arrow-left"></i>
                     {{ __('Quay lại') }}
                 </x-secondary-button>
+=======
+                <div class="flex items-center gap-2">
+                    <x-secondary-button :href="route('students.show', $user)">
+                        <i class="fas fa-arrow-left"></i>
+                        {{ __('Quay lại') }}
+                    </x-secondary-button>
+
+                    <x-secondary-button :href="route('bills.create', $user)" class="!bg-blue-500 !text-white hover:!bg-blue-600">
+                        <i class="fas fa-plus"></i>
+                        {{ __('Tạo hoá đơn') }}
+                    </x-secondary-button>
+                </div>
+>>>>>>> upstream-main
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -118,7 +136,11 @@
                 </form>
             </div>
 
+<<<<<<< HEAD
             <div x-data="{ openRow: null, openTab: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+=======
+            <div x-data="{ openRow: null, openTab: 'details' }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+>>>>>>> upstream-main
                 <x-table :title="__('Danh sách hóa đơn')">
                     <x-thead>
                         <x-tr>
@@ -197,6 +219,10 @@
 
                                     @php
                                         $remainingAmount = $bill->total_amount - $bill->payments->sum('amount');
+<<<<<<< HEAD
+=======
+                                        $refundableAmount = $bill->total_amount - $bill->refunds->sum('amount');
+>>>>>>> upstream-main
                                     @endphp
 
                                     <x-icon-button :data-pay-url="route('bills.pay', $bill)" :data-amount="$remainingAmount" icon="fas fa-money-check-alt"
@@ -204,6 +230,18 @@
                                         x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-pay')" />
 
+<<<<<<< HEAD
+=======
+                                    <x-icon-button :data-refund-url="route('bills.refund', $bill)" :data-amount="$refundableAmount" icon="fas fa-undo"
+                                        :title="__('Hoàn tiền')" class="!bg-yellow-500 !text-white hover:!bg-yellow-600"
+                                        x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-refund')" />
+
+                                    <x-icon-button :data-cancel-url="route('bills.cancelBills', $bill)" icon="fas fa-times-circle" :title="__('Huỷ')"
+                                        class="!bg-red-600 !text-white hover:!bg-red-700" x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-cancelled')" />
+
+>>>>>>> upstream-main
                                     <x-icon-button :href="route('bills.export', $bill)" target="_blank" icon="fas fa-file-pdf"
                                         :title="__('Xuất hoá đơn')" class="!bg-purple-500 !text-white hover:!bg-purple-600" />
                                 </x-td>
@@ -212,6 +250,7 @@
                             <tr x-show="openRow === {{ $index }}">
                                 <td colspan="9">
                                     <div class="bg-blue-50 px-12">
+<<<<<<< HEAD
                                         <div class="flex items-center justify-end py-3">
                                             <x-secondary-button @click="openTab = !openTab"
                                                 class="!bg-blue-500 !text-white hover:!bg-blue-600">
@@ -227,6 +266,29 @@
                                         </div>
 
                                         <table x-show="!openTab" class="w-full table-auto">
+=======
+                                        <div class="flex items-center justify-end py-3 space-x-3">
+                                            <x-secondary-button @click="openTab = 'details'"
+                                                class="!bg-green-500 !text-white hover:!bg-green-600">
+                                                <i class="fas fa-file-invoice"></i>
+                                                {{ __('Chi tiết') }}
+                                            </x-secondary-button>
+
+                                            <x-secondary-button @click="openTab = 'payments'"
+                                                class="!bg-blue-500 !text-white hover:!bg-blue-600">
+                                                <i class="fas fa-credit-card"></i>
+                                                {{ __('Thanh toán') }}
+                                            </x-secondary-button>
+
+                                            <x-secondary-button @click="openTab = 'refunds'"
+                                                class="!bg-yellow-500 !text-white hover:!bg-blue-600">
+                                                <i class="fas fa-rotate-left"></i>
+                                                {{ __('Hoàn tiền') }}
+                                            </x-secondary-button>
+                                        </div>
+
+                                        <table x-show="openTab === 'details'" class="w-full table-auto">
+>>>>>>> upstream-main
                                             <thead class="bg-blue-100">
                                                 <tr>
                                                     <th
@@ -255,7 +317,11 @@
                                             </tbody>
                                         </table>
 
+<<<<<<< HEAD
                                         <table x-show="openTab" class="w-full table-auto">
+=======
+                                        <table x-show="openTab === 'payments'" class="w-full table-auto">
+>>>>>>> upstream-main
                                             <thead class="bg-blue-100">
                                                 <tr>
                                                     <th
@@ -294,6 +360,63 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
+<<<<<<< HEAD
+=======
+
+                                        <table x-show="openTab === 'refunds'" class="w-full table-auto">
+                                            <thead class="bg-blue-100">
+                                                <tr>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('STT') }}
+                                                    </th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Số tiền hoàn') }}
+                                                    </th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Lý do hoàn tiền') }}
+                                                    </th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Ngày hoàn tiền') }}
+                                                    </th>
+                                                    <th
+                                                        class="px-6 py-3 text-left font-medium text-sm text-gray-600 leading-tight uppercase tracking-wide whitespace-nowrap">
+                                                        {{ __('Người xử lý') }}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody class="divide-y divide-blue-150">
+                                                @foreach ($bill->refunds as $refundIndex => $refund)
+                                                    <tr
+                                                        class="hover:bg-blue-100 transition-colors duration-150 ease-in-out">
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            #{{ $refundIndex + 1 }}
+                                                        </td>
+
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ number_format($refund->amount, 0, ',', '.') }} VND
+                                                        </td>
+
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $refund->reason ?? 'Không có lý do' }}
+                                                        </td>
+
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $refund->refund_date->format('d/m/Y') }}
+                                                        </td>
+
+                                                        <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                                            {{ $refund->processedBy?->name ?? 'Chưa xử lý' }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+>>>>>>> upstream-main
                                     </div>
                                 </td>
                             </tr>
@@ -352,6 +475,81 @@
         </form>
     </x-modal>
 
+<<<<<<< HEAD
+=======
+    <x-modal name="confirm-refund" focusable>
+        <form id="refund-form" method="post" action="#" class="p-6">
+            @csrf
+
+            <div class="flex items-center gap-6">
+                <div class="bg-yellow-100 shadow-sm sm:rounded-lg p-3">
+                    <i class="fas fa-undo text-yellow-600 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Xác nhận hoàn tiền cho hóa đơn này?') }}
+                </h2>
+            </div>
+
+            <div class="mt-6">
+                <p id="refund-remaining-amount" class="font-medium text-sm text-gray-700"></p>
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="amount" :value="__('Số tiền hoàn')" icon="fas fa-money-bill" />
+                <x-text-input id="amount" class="block mt-1 w-full" type="number" name="amount"
+                    :value="old('amount')" required autocomplete="off" :placeholder="__('Nhập số tiền')" />
+                <x-input-error :messages="$errors->get('amount')" class="mt-2" />
+            </div>
+
+            <div class="mt-6">
+                <x-input-label for="reason" :value="__('Lý do hoàn tiền')" icon="fas fa-comment-alt" />
+                <x-textarea id="reason" class="block mt-1 w-full" name="reason" :value="old('reason')"
+                    placeholder="{{ __('Nhập lý do hoàn tiền (tuỳ chọn)') }}" />
+                <x-input-error :messages="$errors->get('reason')" class="mt-2" />
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Huỷ') }}
+                </x-secondary-button>
+
+                <x-primary-button class="ms-3">
+                    {{ __('Xác nhận') }}
+                </x-primary-button>
+            </div>
+        </form>
+    </x-modal>
+
+    <x-modal name="confirm-cancelled" focusable>
+        <form id="cancelled-form" method="post" action="#" class="p-6">
+            @csrf
+
+            <div class="flex items-center gap-6">
+                <div class="bg-red-100 shadow-sm sm:rounded-lg p-3">
+                    <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                </div>
+                <h2 class="text-lg font-medium text-gray-900">
+                    {{ __('Bạn có chắc chắn muốn huỷ hoá đơn không?') }}
+                </h2>
+            </div>
+
+            <p class="mt-6 text-sm text-gray-600">
+                {{ __('Ngay sau khi bạn xác nhận huỷ hoá đơn, hoá đơn của sinh viên này sẽ bị huỷ bỏ.') }}
+            </p>
+
+            <div class="mt-6 flex justify-end">
+                <x-secondary-button x-on:click="$dispatch('close')">
+                    {{ __('Huỷ') }}
+                </x-secondary-button>
+
+                <x-danger-button class="ms-3">
+                    {{ __('Xác nhận') }}
+                </x-danger-button>
+            </div>
+        </form>
+    </x-modal>
+
+>>>>>>> upstream-main
     @pushOnce('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -364,6 +562,27 @@
                             `Số tiền cần thanh toán: ${Number(btn.dataset.amount).toLocaleString()}₫`;
                     });
                 });
+<<<<<<< HEAD
+=======
+
+                const refundForm = document.getElementById('refund-form');
+                const refundAmountText = document.getElementById('refund-remaining-amount');
+                document.querySelectorAll('[data-refund-url]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        refundForm.action = btn.dataset.refundUrl;
+                        refundAmountText.textContent =
+                            `Số tiền còn có thể hoàn: ${Number(btn.dataset.amount).toLocaleString()}₫`;
+                        const amountInput = refundForm.querySelector('#amount');
+                        amountInput.max = btn.dataset.amount;
+                        amountInput.value = btn.dataset.amount;
+                    });
+                });
+
+                const cancelledForm = document.getElementById('cancelled-form');
+                document.querySelectorAll('[data-cancel-url]').forEach(btn =>
+                    btn.addEventListener('click', () => cancelledForm.action = btn.dataset.cancelUrl)
+                );
+>>>>>>> upstream-main
             });
         </script>
     @endPushOnce

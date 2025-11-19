@@ -112,11 +112,19 @@ class DatabaseSeeder extends Seeder
 
             if ($rentalType == 'daily') {
                 $days = rand(1, 7);
+<<<<<<< HEAD
                 $checkInDate = Carbon::now()->addDays(rand(1, 30));
                 $expectedCheckOutDate = $checkInDate->copy()->addDays($days);
             } else {
                 $months = rand(1, 6);
                 $checkInDate = Carbon::now()->addMonths(rand(1, 12));
+=======
+                $checkInDate = Carbon::now()->subDays(rand(1, 30));
+                $expectedCheckOutDate = $checkInDate->copy()->addDays($days);
+            } else {
+                $months = rand(1, 6);
+                $checkInDate = Carbon::now()->subMonths(rand(1, 12));
+>>>>>>> upstream-main
                 $expectedCheckOutDate = $checkInDate->copy()->addMonths($months);
             }
 

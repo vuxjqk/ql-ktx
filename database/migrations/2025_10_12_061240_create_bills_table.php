@@ -17,7 +17,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('booking_id')->constrained();
             $table->decimal('total_amount', 10, 0);
+<<<<<<< HEAD
             $table->enum('status', ['unpaid', 'paid', 'partial', 'cancelled'])->default('unpaid');
+=======
+            $table->enum('status', ['unpaid', 'paid', 'partial', 'cancelled', 'refunded'])->default('unpaid');
+>>>>>>> upstream-main
             $table->date('due_date')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('is_monthly_bill')->default(false);

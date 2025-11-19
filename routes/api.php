@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\RepairController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -48,3 +49,10 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+    //
+});
+
+Route::post('/vnpay/redirect/{bill}', [PaymentController::class, 'redirect']);
+Route::get('/vnpay/callback', [PaymentController::class, 'callback']);

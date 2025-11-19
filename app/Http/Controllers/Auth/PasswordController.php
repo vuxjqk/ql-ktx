@@ -24,6 +24,10 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+<<<<<<< HEAD
         return back()->with('status', 'password-updated');
+=======
+        return back()->with('success', __('Đã cập nhật thành công'));
+>>>>>>> upstream-main
     }
 }

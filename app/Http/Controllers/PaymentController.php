@@ -84,7 +84,12 @@ class PaymentController extends Controller
             return redirect()->back()->with('success', __('Đã ghi nhận thanh toán thành công.'));
         } catch (Exception $e) {
             Log::error('Lỗi khi ghi nhận thanh toán booking ID ' . $booking->id . ': ' . $e->getMessage());
+<<<<<<< HEAD
             return redirect()->back()->with('error', __('Không thể ghi nhận thanh toán: ') . $e->getMessage());
+=======
+
+            return redirect()->back()->with('error', __('Không thể ghi nhận thanh toán. Vui lòng thử lại.'));
+>>>>>>> upstream-main
         }
     }
 

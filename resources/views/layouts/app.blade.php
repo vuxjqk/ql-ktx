@@ -54,6 +54,16 @@
 
                     <div class="flex items-center gap-2">
                         <div>
+<<<<<<< HEAD
+=======
+                            <a class="px-3 text-xl text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                href="{{ route('notifications.index') }}">
+                                <i class="fas fa-bell"></i>
+                            </a>
+                        </div>
+
+                        <div>
+>>>>>>> upstream-main
                             <x-select x-data
                                 x-on:change="window.location.href = '{{ url('lang') }}/' + $event.target.value"
                                 class="block mt-1 w-full" :options="[

@@ -17,7 +17,11 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained();
             $table->date('usage_date');
             $table->decimal('usage_amount', 10, 2);
+<<<<<<< HEAD
             $table->decimal('unit_price', 10, 2);
+=======
+            $table->decimal('unit_price', 10, 0);
+>>>>>>> upstream-main
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();
             $table->unique(['room_id', 'service_id', 'usage_date']);
