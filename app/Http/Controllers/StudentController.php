@@ -84,7 +84,7 @@ class StudentController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
-            'student_code' => 'required|string|max:20|unique:students,student_code,' . ($user->student->id ?? 'NULL'),
+            'student_code' => 'required|string|max:20|unique:students,student_code,' . ($user->student?->id ?? 'NULL'),
             'class' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female',
@@ -106,7 +106,7 @@ class StudentController extends Controller
         }
 
         $user->update($validated);
-        $user->student->fill($validated)->save();
+        $user->student?->fill($validated)->save();
 
         return redirect()->route('students.index')->with('success', __('Đã cập nhật thành công'));
     }

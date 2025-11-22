@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceMail;
 use App\Models\Bill;
+use App\Models\Contract;
 use App\Models\Payment;
 use App\Models\Transaction;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -162,6 +163,20 @@ class PaymentController extends Controller
                 $status = $paidAmount >= $bill->total_amount ? 'paid' : 'partial';
                 $bill->update(['status' => $status]);
 
+                $booking = $bill->booking;
+                if ($booking->status === 'approved') {
+                    if ($booking->rental_type === 'monthly') {
+                        Contract::create([
+                            'contract_code' => $this->generateContractCode(),
+                            'booking_id' => $booking->id,
+                            'monthly_fee' => $booking->room->price_per_month,
+                            'deposit' => $bill->total_amount,
+                        ]);
+                    }
+
+                    $booking->update(['status' => 'active']);
+                }
+
                 $this->generateAndSendInvoice($bill);
             });
 
@@ -192,5 +207,12 @@ class PaymentController extends Controller
         }
 
         File::delete($pdfPath);
+    }
+
+    protected function generateContractCode(): string
+    {
+        $date = now()->format('ymdHi');
+        $countToday = Contract::whereDate('created_at', today())->count() + 1;
+        return 'CONT-' . $date . str_pad($countToday, 4, '0', STR_PAD_LEFT);
     }
 }
