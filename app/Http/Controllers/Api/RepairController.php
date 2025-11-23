@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Repair;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class RepairController extends Controller
@@ -12,14 +14,23 @@ class RepairController extends Controller
     // student gửi yêu cầu sửa chữa
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'room_id' => 'nullable|exists:rooms,id',
             'description' => 'required|string',
-            'image_path' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'image_path' => 'nullable|string', // để tương thích API cũ
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $user = $request->user()->loadMissing('activeBooking');
-        $roomId = $data['room_id'] ?? $user->activeBooking?->room_id;
+
+        $roomId = $request->room_id ?? $user->activeBooking?->room_id;
 
         if (!$roomId) {
             throw ValidationException::withMessages([
@@ -27,13 +38,20 @@ class RepairController extends Controller
             ]);
         }
 
-        $repair = Repair::create([
+        $data = [
             'user_id' => $user->id,
             'room_id' => $roomId,
-            'description' => $data['description'],
-            'image_path' => $data['image_path'] ?? null,
+            'description' => $request->description,
             'status' => 'pending',
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('repairs', 'public');
+        } elseif ($request->image_path) {
+            $data['image_path'] = $request->image_path;
+        }
+
+        $repair = Repair::create($data);
 
         return response()->json($repair->load('room'), 201);
     }
@@ -76,5 +94,33 @@ class RepairController extends Controller
         $repair->update($data);
 
         return response()->json($repair->load(['user', 'room']));
+    }
+
+    public function destroy(Request $request, Repair $repair)
+    {
+        if ($repair->user_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn không có quyền xoá báo cáo này.',
+            ], 403);
+        }
+
+        if ($repair->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xoá báo cáo này.',
+            ], 403);
+        }
+
+        if ($repair->image_path) {
+            Storage::disk('public')->delete($repair->image_path);
+        }
+
+        $repair->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Báo cáo đã được xoá.',
+        ], 200);
     }
 }

@@ -89,6 +89,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
         Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
         Route::put('/bookings/{booking}/terminate', [BookingController::class, 'terminateBooking'])->name('bookings.terminateBooking');
+        Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
         Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');
         Route::put('/repairs/{repair}', [RepairController::class, 'update'])->name('repairs.update');
         Route::post('/payments/{booking}', [PaymentController::class, 'store'])->name('payments.store');

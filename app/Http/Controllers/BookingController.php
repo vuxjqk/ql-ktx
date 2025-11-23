@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bill;
+use App\Models\BillItem;
 use App\Models\Booking;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +51,30 @@ class BookingController extends Controller
 
         if ($validated['status'] === 'approved') {
             $status = 'phê duyệt';
+
+            if ($booking->rental_type === 'daily') {
+                $days = $booking->check_in_date->diffInDays($booking->expected_check_out_date) + 1;
+                $requiredAmount = $days * $booking->room->price_per_day;
+            } else {
+                $requiredAmount = $booking->room->price_per_month;
+            }
+
+            $bill = Bill::create([
+                'bill_code' => $this->generateBillCode(),
+                'user_id' => $booking->user_id,
+                'booking_id' => $booking->id,
+                'total_amount' => $requiredAmount,
+                'status' => 'unpaid',
+                'created_by' => Auth::id(),
+            ]);
+
+            BillItem::create([
+                'bill_id' => $bill->id,
+                'description' => $booking->rental_type === 'daily'
+                    ? __('Thanh toán thuê theo ngày')
+                    : __('Đặt cọc thuê theo tháng'),
+                'amount' => $requiredAmount,
+            ]);
         } else {
             $status = 'từ chối';
             if ($booking->room->current_occupancy > 0) {
@@ -89,5 +116,35 @@ class BookingController extends Controller
         }
 
         return redirect()->back()->with('success', __('Đã chấm dứt hợp đồng thành công'));
+    }
+
+    public function destroy(Booking $booking)
+    {
+        if (!in_array($booking->status, ['pending', 'approved'])) {
+            return redirect()->back()->with('error', __('Chỉ có thể xoá booking đang chờ hoặc đã duyệt.'));
+        }
+
+        try {
+            if ($booking->room->current_occupancy > 0) {
+                $booking->room->decrement('current_occupancy');
+            }
+
+            $booking->delete();
+
+            return redirect()->route('bookings.index')->with('success', __('Đã xoá thành công'));
+        } catch (QueryException $e) {
+            $msg = $e->getCode() === '23000'
+                ? __('Không thể xóa vì có dữ liệu liên quan')
+                : __('Đã xảy ra lỗi khi xoá');
+
+            return redirect()->back()->with('error', $msg);
+        }
+    }
+
+    protected function generateBillCode(): string
+    {
+        $date = now()->format('ymdHi');
+        $countToday = Bill::whereDate('created_at', today())->count() + 1;
+        return 'BILL-' . $date . str_pad($countToday, 4, '0', STR_PAD_LEFT);
     }
 }

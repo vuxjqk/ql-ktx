@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Room;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -46,10 +48,20 @@ class BookingController extends Controller
         $checkIn = Carbon::parse($data['check_in_date']);
         $expected = Carbon::parse($data['expected_check_out_date']);
 
+        if (
+            ($data['booking_type'] === 'registration')
+            && ($data['rental_type'] ?? null) === 'monthly'
+            && $expected->diffInMonths($checkIn) < 1
+        ) {
+            throw ValidationException::withMessages([
+                'expected_check_out_date' => __('Thời gian thuê theo tháng phải lớn hơn 1 tháng.'),
+            ]);
+        }
+
         return match ($data['booking_type']) {
             'registration' => $this->handleRegistration($user, $data, $checkIn, $expected),
-            'extension' => $this->handleExtension($user, $data, $checkIn, $expected),
-            'transfer' => $this->handleTransfer($user, $data, $checkIn, $expected),
+            'extension'    => $this->handleExtension($user, $data, $checkIn, $expected),
+            'transfer'     => $this->handleTransfer($user, $data, $checkIn, $expected),
         };
     }
 
@@ -64,7 +76,7 @@ class BookingController extends Controller
 
         $booking = Booking::findOrFail($id);
         $booking->update([
-            'status' => $data['status'],
+            'status'       => $data['status'],
             'processed_by' => $request->user()->id,
             'processed_at' => now(),
         ]);
@@ -98,17 +110,18 @@ class BookingController extends Controller
         }
 
         $this->guardPendingRequest($user->id, 'registration');
-        $room = $this->ensureRoomAvailable($data['room_id']);
+
+        $room = $this->ensureRoomAvailable($data['room_id'], $user);
 
         $booking = Booking::create([
-            'user_id' => $user->id,
-            'room_id' => $room->id,
-            'booking_type' => 'registration',
-            'rental_type' => $data['rental_type'],
-            'check_in_date' => $checkIn->toDateString(),
+            'user_id'                 => $user->id,
+            'room_id'                 => $room->id,
+            'booking_type'            => 'registration',
+            'rental_type'             => $data['rental_type'],
+            'check_in_date'           => $checkIn->toDateString(),
             'expected_check_out_date' => $expected->toDateString(),
-            'status' => 'pending',
-            'reason' => $data['reason'] ?? null,
+            'status'                  => 'pending',
+            'reason'                  => $data['reason'] ?? null,
         ]);
 
         return response()->json($booking->load(['room.floor.branch']), 201);
@@ -126,15 +139,15 @@ class BookingController extends Controller
         }
 
         $booking = Booking::create([
-            'user_id' => $user->id,
-            'room_id' => $active->room_id,
-            'booking_id' => $active->id,
-            'booking_type' => 'extension',
-            'rental_type' => $active->rental_type,
-            'check_in_date' => $checkIn->toDateString(),
+            'user_id'                 => $user->id,
+            'room_id'                 => $active->room_id,
+            'booking_id'              => $active->id,
+            'booking_type'            => 'extension',
+            'rental_type'             => $active->rental_type,
+            'check_in_date'           => $checkIn->toDateString(),
             'expected_check_out_date' => $expected->toDateString(),
-            'status' => 'pending',
-            'reason' => $data['reason'] ?? null,
+            'status'                  => 'pending',
+            'reason'                  => $data['reason'] ?? null,
         ]);
 
         return response()->json($booking->load(['room.floor.branch']), 201);
@@ -144,7 +157,8 @@ class BookingController extends Controller
     {
         $active = $this->requireActiveBooking($user);
         $this->guardPendingRequest($user->id, 'transfer');
-        $room = $this->ensureRoomAvailable($data['room_id']);
+
+        $room = $this->ensureRoomAvailable($data['room_id'], $user);
 
         if ($room->id === $active->room_id) {
             throw ValidationException::withMessages([
@@ -153,23 +167,24 @@ class BookingController extends Controller
         }
 
         $booking = Booking::create([
-            'user_id' => $user->id,
-            'room_id' => $room->id,
-            'booking_id' => $active->id,
-            'booking_type' => 'transfer',
-            'rental_type' => $active->rental_type,
-            'check_in_date' => $checkIn->toDateString(),
+            'user_id'                 => $user->id,
+            'room_id'                 => $room->id,
+            'booking_id'              => $active->id,
+            'booking_type'            => 'transfer',
+            'rental_type'             => $active->rental_type,
+            'check_in_date'           => $checkIn->toDateString(),
             'expected_check_out_date' => $expected->toDateString(),
-            'status' => 'pending',
-            'reason' => $data['reason'] ?? null,
+            'status'                  => 'pending',
+            'reason'                  => $data['reason'] ?? null,
         ]);
 
         return response()->json($booking->load(['room.floor.branch']), 201);
     }
 
-    protected function ensureRoomAvailable(?int $roomId): Room
+    protected function ensureRoomAvailable(?int $roomId, $user = null): Room
     {
-        $room = Room::where('id', $roomId ?? 0)
+        $room = Room::with('floor')
+            ->where('id', $roomId ?? 0)
             ->whereRaw('is_active = true')
             ->first();
 
@@ -183,6 +198,18 @@ class BookingController extends Controller
             throw ValidationException::withMessages([
                 'room_id' => __('Phòng đã đầy, vui lòng chọn phòng khác.'),
             ]);
+        }
+
+        if ($user && $room->relationLoaded('floor') && $room->floor) {
+            $userStudent = $user->student ?? null;
+            $userGender  = $userStudent->gender ?? null;
+            $floorGender = $room->floor->gender_type ?? 'mixed';
+
+            if ($floorGender !== 'mixed' && $userGender !== $floorGender) {
+                throw ValidationException::withMessages([
+                    'room_id' => __('Bạn không thể đặt phòng này do giới tính không phù hợp.'),
+                ]);
+            }
         }
 
         return $room;
@@ -200,9 +227,9 @@ class BookingController extends Controller
                 'booking_type' => __('Bạn đang có yêu cầu :type chờ xử lý.', [
                     'type' => match ($type) {
                         'registration' => 'đăng ký',
-                        'extension' => 'gia hạn',
-                        'transfer' => 'chuyển phòng',
-                        default => $type,
+                        'extension'    => 'gia hạn',
+                        'transfer'     => 'chuyển phòng',
+                        default        => $type,
                     },
                 ]),
             ]);

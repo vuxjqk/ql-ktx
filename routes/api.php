@@ -24,6 +24,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/me', [ProfileController::class, 'me']);
         Route::put('/profile', [ProfileController::class, 'update']);
+        Route::put('/profile/avatar', [ProfileController::class, 'updateAvatar']);
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
+        Route::delete('/profile/delete', [ProfileController::class, 'deleteAccount']);
 
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/{notification}', [NotificationController::class, 'show']);
@@ -33,6 +36,11 @@ Route::prefix('v1')->group(function () {
             // Bookings
             Route::post('/bookings', [BookingController::class, 'store']);
             Route::get('/bookings/my', [BookingController::class, 'myBookings']);
+            Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
+
+            // Rooms favourites
+            Route::post('/rooms/{room}/favourite', [RoomController::class, 'toggleFavourite']);
+            Route::get('/rooms/favourites/my', [RoomController::class, 'myFavourites']);
 
             // Bills
             Route::get('/bills/my', [BillController::class, 'myBills']);
@@ -41,6 +49,7 @@ Route::prefix('v1')->group(function () {
             // Repairs
             Route::post('/repairs', [RepairController::class, 'store']);
             Route::get('/repairs/my', [RepairController::class, 'myRepairs']);
+            Route::delete('/repairs/{repair}', [RepairController::class, 'destroy']);
 
             // Reviews
             Route::post('/rooms/{room}/reviews', [RoomController::class, 'addReview']);

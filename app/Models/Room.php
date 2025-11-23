@@ -34,38 +34,60 @@ class Room extends Model
     {
         return $query
             ->when(
-                $filters['room_code'] ?? null,
-                fn($q, $room_code) =>
-                $q->where('room_code', 'like', "%$room_code%")
+                $filters['q'] ?? null,
+                fn($q, $search) =>
+                $q->where('room_code', 'like', "%$search%")
             )
+
             ->when(
                 $filters['branch_id'] ?? null,
-                fn($q, $branch_id) =>
+                fn($q, $branchId) =>
                 $q->whereHas(
                     'floor',
-                    fn($q) =>
-                    $q->where('branch_id', $branch_id)
+                    fn($sub) => $sub->where('branch_id', $branchId)
                 )
             )
+
             ->when(
                 $filters['floor_id'] ?? null,
-                fn($q, $floor) =>
-                $q->where('floor_id', $floor)
+                fn($q, $floorId) => $q->where('floor_id', $floorId)
             )
+
             ->when(
                 $filters['gender_type'] ?? null,
-                fn($q, $gender_type) =>
+                fn($q, $gender) =>
                 $q->whereHas(
                     'floor',
-                    fn($q) =>
-                    $q->where('gender_type', $gender_type)
+                    fn($sub) => $sub->where('gender_type', $gender)
                 )
             )
+
             ->when(
-                $filters['is_status'] ?? null,
-                fn($q, $is_status) =>
-                $q->where('is_status', $is_status)
+                $filters['min_price'] ?? null,
+                fn($q, $min) => $q->where('price_per_month', '>=', $min)
             )
+
+            ->when(
+                $filters['max_price'] ?? null,
+                fn($q, $max) => $q->where('price_per_month', '<=', $max)
+            )
+
+            ->when(
+                $filters['capacity'] ?? null,
+                fn($q, $capacity) => $q->where('capacity', '>=', $capacity)
+            )
+
+            ->when(
+                isset($filters['available_only']) && $filters['available_only'],
+                fn($q) => $q->whereColumn('current_occupancy', '<', 'capacity')
+            )
+
+            ->when(
+                $filters['favourite_only'] ?? null,
+                fn($q, $userId) =>
+                $q->whereHas('favourites', fn($fav) => $fav->where('user_id', $userId))
+            )
+
             ->when(
                 $filters['sort'] ?? null,
                 fn($q, $sort) =>

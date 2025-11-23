@@ -436,7 +436,7 @@
                                 <table>
                                     <tr>
                                         <td class="info-label">{{ __('Mã sinh viên') }}:</td>
-                                        <td class="info-value">{{ $bill->user->student->student_code ?? __('N/A') }}
+                                        <td class="info-value">{{ $bill->user->student?->student_code }}
                                         </td>
                                     </tr>
                                 </table>
@@ -445,7 +445,7 @@
                                 <table>
                                     <tr>
                                         <td class="info-label">{{ __('Email') }}:</td>
-                                        <td class="info-value">{{ $bill->user->email ?? __('N/A') }}</td>
+                                        <td class="info-value">{{ $bill->user->email ?? 'N/A' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -453,7 +453,7 @@
                                 <table>
                                     <tr>
                                         <td class="info-label">{{ __('Địa chỉ') }}:</td>
-                                        <td class="info-value">{{ $bill->user->student->address ?? __('N/A') }}</td>
+                                        <td class="info-value">{{ $bill->user->student?->address ?? 'N/A' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -461,7 +461,7 @@
                                 <table>
                                     <tr>
                                         <td class="info-label">{{ __('Số điện thoại') }}:</td>
-                                        <td class="info-value">{{ $bill->user->phone ?? __('N/A') }}</td>
+                                        <td class="info-value">{{ $bill->user->phone ?? 'N/A' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -491,7 +491,7 @@
                                     <tr>
                                         <td class="info-label">{{ __('Hạn thanh toán') }}:</td>
                                         <td class="info-value">
-                                            {{ $bill->due_date ? $bill->due_date->format('d/m/Y') : __('N/A') }}</td>
+                                            {{ $bill->due_date ? $bill->due_date->format('d/m/Y') : 'N/A' }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -547,7 +547,7 @@
                                                 @break
 
                                                 @default
-                                                    {{ __('N/A') }}
+                                                    {{ 'N/A' }}
                                             @endswitch
                                         </td>
                                     </tr>

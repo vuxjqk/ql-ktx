@@ -127,10 +127,10 @@
                                         <div class="grid">
                                             <span class="font-semibold">{{ $repair->user->name }}</span>
                                             <span class="text-sm">
-                                                {{ __('MSSV: ') . $repair->user->student->student_code }}
+                                                {{ __('MSSV: ') . $repair->user->student?->student_code }}
                                             </span>
                                             <span class="text-sm">
-                                                {{ __('Giới tính: ') . ($repair->user->student->gender === 'male' ? 'Nam' : ($repair->user->student->gender === 'female' ? 'Nữ' : 'Khác')) }}
+                                                {{ __('Giới tính: ') . ($repair->user->student?->gender === 'male' ? 'Nam' : ($repair->user->student?->gender === 'female' ? 'Nữ' : 'Khác')) }}
                                             </span>
                                         </div>
                                     </div>
