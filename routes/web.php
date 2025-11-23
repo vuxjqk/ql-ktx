@@ -1,10 +1,7 @@
 <?php
 
 use App\Http\Controllers\AmenityController;
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\Auth\SocialiteController;
->>>>>>> upstream-main
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
@@ -12,15 +9,10 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FloorController;
-<<<<<<< HEAD
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ProfileController;
-=======
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RefundController;
->>>>>>> upstream-main
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ServiceController;
@@ -38,22 +30,15 @@ Route::get('/lang/{locale}', function ($locale) {
 })->name('lang.switch');
 
 Route::get('/', function () {
-<<<<<<< HEAD
-    return redirect()->route('login');
-=======
     return view('welcome');
->>>>>>> upstream-main
 });
 
 Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('chatbot.handle');
 Route::get('/floors-by-branch/{branchId}', [FloorController::class, 'getByBranch']);
 
-<<<<<<< HEAD
-=======
 Route::get('/auth/{provider}', [SocialiteController::class, 'redirect']);
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback']);
 
->>>>>>> upstream-main
 Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/statistics', [DashboardController::class, 'statistics'])->name('statistics');
@@ -85,15 +70,6 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     });
 
     Route::middleware(['role:super_admin,admin,staff'])->group(function () {
-<<<<<<< HEAD
-        Route::get('/bills/{bill}/export', [BillController::class, 'export'])->name('bills.export');
-        Route::post('/bills/{bill}/pay', [BillController::class, 'payBill'])->name('bills.pay');
-        Route::get('/students/{user}/bills', [BillController::class, 'index'])->name('bills.index');
-        Route::resource('/students', StudentController::class)->parameters(['students' => 'user']);
-        Route::post('/rooms/{room}/cancel-bills', [BillController::class, 'cancelBills'])->name('bills.cancelBills');
-        Route::post('/rooms/{room}/bills', [BillController::class, 'store'])->name('bills.store');
-        Route::get('/rooms/{room}/service-usages', [ServiceUsageController::class, 'edit'])->name('service-usages.edit');
-=======
         Route::post('/bills/{bill}/refund', [RefundController::class, 'store'])->name('bills.refund');
         Route::get('/bills/{bill}/export', [BillController::class, 'export'])->name('bills.export');
         Route::post('/bills/{bill}/pay', [BillController::class, 'payBill'])->name('bills.pay');
@@ -103,7 +79,6 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::get('/students/{user}/bills/create', [BillController::class, 'create'])->name('bills.create');
         Route::resource('/students', StudentController::class)->parameters(['students' => 'user']);
         Route::get('/rooms/{room}/service-usages', [ServiceUsageController::class, 'index'])->name('service-usages.index');
->>>>>>> upstream-main
         Route::put('/rooms/{room}/service-usages', [ServiceUsageController::class, 'update'])->name('service-usages.update');
         Route::post('/rooms/{room}/images', [RoomController::class, 'storeImages'])->name('rooms.storeImages');
         Route::delete('/rooms/{image}/images', [RoomController::class, 'destroyImage'])->name('rooms.destroyImage');
@@ -117,10 +92,7 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');
         Route::put('/repairs/{repair}', [RepairController::class, 'update'])->name('repairs.update');
         Route::post('/payments/{booking}', [PaymentController::class, 'store'])->name('payments.store');
-<<<<<<< HEAD
-=======
         Route::resource('/notifications', NotificationController::class)->except(['create', 'show', 'edit', 'update']);
->>>>>>> upstream-main
     });
 });
 

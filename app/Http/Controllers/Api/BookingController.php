@@ -4,60 +4,221 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
 {
-    // staff/admin duyệt/quan sát
+    /**
+     * Staff/Admin: browse bookings with filters
+     */
     public function index(Request $request)
     {
-        $bookings = Booking::with(['user', 'room'])
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->orderByDesc('id')->paginate(10);
+        $perPage = min($request->integer('per_page', 10) ?? 10, 50);
+
+        $bookings = Booking::with(['user.student', 'room.floor.branch'])
+            ->when($request->filled('status'), fn($q, $status) => $q->where('status', $status))
+            ->when($request->filled('booking_type'), fn($q, $type) => $q->where('booking_type', $type))
+            ->when($request->filled('user_id'), fn($q, $userId) => $q->where('user_id', $userId))
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
         return response()->json($bookings);
     }
 
-    // student tự tạo booking
+    /**
+     * Student: create booking by type (registration/extension/transfer)
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'room_id' => 'required|exists:rooms,id',
+            'room_id' => 'required_if:booking_type,registration,transfer|nullable|exists:rooms,id',
             'booking_type' => 'required|in:registration,transfer,extension',
-            'rental_type' => 'required|in:daily,monthly',
+            'rental_type' => 'required_if:booking_type,registration|in:daily,monthly',
             'check_in_date' => 'required|date',
             'expected_check_out_date' => 'required|date|after:check_in_date',
-            'reason' => 'nullable|string',
+            'reason' => 'nullable|string|max:1000',
         ]);
 
-        $booking = Booking::create([
-            'user_id' => $request->user()->id,
-            'room_id' => $data['room_id'],
-            'booking_type' => $data['booking_type'],
-            'rental_type' => $data['rental_type'],
-            'check_in_date' => $data['check_in_date'],
-            'expected_check_out_date' => $data['expected_check_out_date'],
-            'status' => 'pending',
-            'reason' => $data['reason'] ?? null,
-        ]);
+        $user = $request->user()->loadMissing('activeBooking');
+        $checkIn = Carbon::parse($data['check_in_date']);
+        $expected = Carbon::parse($data['expected_check_out_date']);
 
-        return response()->json($booking->load(['user', 'room']), 201);
+        return match ($data['booking_type']) {
+            'registration' => $this->handleRegistration($user, $data, $checkIn, $expected),
+            'extension' => $this->handleExtension($user, $data, $checkIn, $expected),
+            'transfer' => $this->handleTransfer($user, $data, $checkIn, $expected),
+        };
     }
 
-    // staff/admin cập nhật trạng thái
+    /**
+     * Staff/Admin: update booking status
+     */
     public function updateStatus(Request $request, $id)
     {
         $data = $request->validate([
             'status' => 'required|in:pending,approved,rejected,active,expired,terminated',
         ]);
+
         $booking = Booking::findOrFail($id);
-        $booking->update(['status' => $data['status'], 'processed_by' => $request->user()->id, 'processed_at' => now()]);
-        return response()->json($booking);
+        $booking->update([
+            'status' => $data['status'],
+            'processed_by' => $request->user()->id,
+            'processed_at' => now(),
+        ]);
+
+        return response()->json($booking->load(['user', 'room']));
     }
 
-    // student xem booking của mình
+    /**
+     * Student: list own bookings
+     */
     public function myBookings(Request $request)
     {
-        $list = Booking::with('room')->where('user_id', $request->user()->id)->orderByDesc('id')->paginate(10);
+        $perPage = min($request->integer('per_page', 10) ?? 10, 50);
+
+        $list = Booking::with(['room.floor.branch'])
+            ->where('user_id', $request->user()->id)
+            ->when($request->filled('status'), fn($q, $status) => $q->where('status', $status))
+            ->when($request->filled('booking_type'), fn($q, $type) => $q->where('booking_type', $type))
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
         return response()->json($list);
+    }
+
+    protected function handleRegistration($user, array $data, Carbon $checkIn, Carbon $expected)
+    {
+        if ($user->activeBooking) {
+            throw ValidationException::withMessages([
+                'booking_type' => __('Bạn đang có hợp đồng hoạt động. Không thể tạo đăng ký mới.'),
+            ]);
+        }
+
+        $this->guardPendingRequest($user->id, 'registration');
+        $room = $this->ensureRoomAvailable($data['room_id']);
+
+        $booking = Booking::create([
+            'user_id' => $user->id,
+            'room_id' => $room->id,
+            'booking_type' => 'registration',
+            'rental_type' => $data['rental_type'],
+            'check_in_date' => $checkIn->toDateString(),
+            'expected_check_out_date' => $expected->toDateString(),
+            'status' => 'pending',
+            'reason' => $data['reason'] ?? null,
+        ]);
+
+        return response()->json($booking->load(['room.floor.branch']), 201);
+    }
+
+    protected function handleExtension($user, array $data, Carbon $checkIn, Carbon $expected)
+    {
+        $active = $this->requireActiveBooking($user);
+        $this->guardPendingRequest($user->id, 'extension');
+
+        if ($checkIn->lt(Carbon::parse($active->expected_check_out_date))) {
+            throw ValidationException::withMessages([
+                'check_in_date' => __('Ngày bắt đầu gia hạn phải sau thời gian kết thúc hợp đồng hiện tại.'),
+            ]);
+        }
+
+        $booking = Booking::create([
+            'user_id' => $user->id,
+            'room_id' => $active->room_id,
+            'booking_id' => $active->id,
+            'booking_type' => 'extension',
+            'rental_type' => $active->rental_type,
+            'check_in_date' => $checkIn->toDateString(),
+            'expected_check_out_date' => $expected->toDateString(),
+            'status' => 'pending',
+            'reason' => $data['reason'] ?? null,
+        ]);
+
+        return response()->json($booking->load(['room.floor.branch']), 201);
+    }
+
+    protected function handleTransfer($user, array $data, Carbon $checkIn, Carbon $expected)
+    {
+        $active = $this->requireActiveBooking($user);
+        $this->guardPendingRequest($user->id, 'transfer');
+        $room = $this->ensureRoomAvailable($data['room_id']);
+
+        if ($room->id === $active->room_id) {
+            throw ValidationException::withMessages([
+                'room_id' => __('Vui lòng chọn phòng khác với phòng hiện tại.'),
+            ]);
+        }
+
+        $booking = Booking::create([
+            'user_id' => $user->id,
+            'room_id' => $room->id,
+            'booking_id' => $active->id,
+            'booking_type' => 'transfer',
+            'rental_type' => $active->rental_type,
+            'check_in_date' => $checkIn->toDateString(),
+            'expected_check_out_date' => $expected->toDateString(),
+            'status' => 'pending',
+            'reason' => $data['reason'] ?? null,
+        ]);
+
+        return response()->json($booking->load(['room.floor.branch']), 201);
+    }
+
+    protected function ensureRoomAvailable(?int $roomId): Room
+    {
+        $room = Room::where('id', $roomId ?? 0)
+            ->whereRaw('is_active = true')
+            ->first();
+
+        if (!$room) {
+            throw ValidationException::withMessages([
+                'room_id' => __('Phòng không khả dụng hoặc đã bị khóa.'),
+            ]);
+        }
+
+        if ($room->current_occupancy >= $room->capacity) {
+            throw ValidationException::withMessages([
+                'room_id' => __('Phòng đã đầy, vui lòng chọn phòng khác.'),
+            ]);
+        }
+
+        return $room;
+    }
+
+    protected function guardPendingRequest(int $userId, string $type): void
+    {
+        $exists = Booking::where('user_id', $userId)
+            ->where('booking_type', $type)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($exists) {
+            throw ValidationException::withMessages([
+                'booking_type' => __('Bạn đang có yêu cầu :type chờ xử lý.', [
+                    'type' => match ($type) {
+                        'registration' => 'đăng ký',
+                        'extension' => 'gia hạn',
+                        'transfer' => 'chuyển phòng',
+                        default => $type,
+                    },
+                ]),
+            ]);
+        }
+    }
+
+    protected function requireActiveBooking($user)
+    {
+        $active = $user->activeBooking;
+
+        if (!$active) {
+            throw ValidationException::withMessages([
+                'booking' => __('Bạn chưa có hợp đồng hoạt động nào.'),
+            ]);
+        }
+
+        return $active;
     }
 }

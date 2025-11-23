@@ -22,21 +22,22 @@ return Application::configure(basePath: dirname(__DIR__))
             'branch' => CheckUserBranch::class,
             'cors' => Cors::class,
         ]);
+
+        // Web-only middleware
         $middleware->web(append: [
             SetLocale::class,
         ]);
 
-        $middleware->append(\App\Http\Middleware\CorsMiddleware::class);
+        // CORS cho API
+        $middleware->api(prepend: [
+            Cors::class,
+        ]);
 
         $middleware->validateCsrfTokens(except: ['api/*'])
             ->trustProxies(at: ['*']);
 
         $middleware->group('api', [
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        $middleware->api(prepend: [
-            Cors::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+    ->withExceptions(function (Exceptions $exceptions): void {})->create();

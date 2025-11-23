@@ -87,14 +87,11 @@ class Booking extends Model
         return $this->belongsTo(User::class, 'processed_by');
     }
 
-<<<<<<< HEAD
-=======
     public function bills()
     {
         return $this->hasMany(Bill::class);
     }
 
->>>>>>> upstream-main
     public function expire()
     {
         if ($this->status !== 'active') {

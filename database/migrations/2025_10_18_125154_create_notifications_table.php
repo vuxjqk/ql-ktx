@@ -15,13 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('content')->nullable();
-<<<<<<< HEAD
-            $table->boolean('is_read')->default(false);
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-=======
             $table->string('attachment')->nullable();
             $table->foreignId('sender_id')->nullable()->constrained('users')->nullOnDelete();
->>>>>>> upstream-main
             $table->timestamps();
         });
     }

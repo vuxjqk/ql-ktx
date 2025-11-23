@@ -6,11 +6,7 @@ use App\Mail\InvoiceMail;
 use App\Models\Bill;
 use App\Models\BillItem;
 use App\Models\Payment;
-<<<<<<< HEAD
-use App\Models\Room;
-=======
 use App\Models\ServiceUsageShare;
->>>>>>> upstream-main
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -46,131 +42,18 @@ class BillController extends Controller
         ));
     }
 
-<<<<<<< HEAD
-    public function store(Room $room)
-    {
-        $activeMonthlyBookings = $room->activeBookings()
-            ->where('rental_type', 'monthly')
-            ->with('contract')
-            ->get();
-
-        if ($activeMonthlyBookings->isEmpty()) {
-            return redirect()->back()->with('info', __('Phòng này không có sinh viên thuê theo tháng.'));
-        }
-
-        $monthlyBillsQuery = Bill::whereIn('booking_id', $activeMonthlyBookings->pluck('id'))
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('is_monthly_bill', true);
-
-        $hasBillThisMonth = $monthlyBillsQuery->exists();
-        $hasCancelledBill = (clone $monthlyBillsQuery)->where('status', 'cancelled')->exists();
-
-        if ($hasBillThisMonth && !$hasCancelledBill) {
-            return redirect()->back()->with('warning', __('Hóa đơn tháng này đã được tạo hoặc đang tồn tại.'));
-        }
-
-        try {
-            DB::transaction(function () use ($room, $activeMonthlyBookings) {
-                $occupantsCount = $activeMonthlyBookings->count();
-                $monthDescription = __('Tiền ký túc xá tháng ') . now()->format('m/Y');
-
-                foreach ($activeMonthlyBookings as $booking) {
-                    $billCode = $this->generateBillCode();
-
-                    $bill = Bill::create([
-                        'bill_code' => $billCode,
-                        'user_id' => $booking->user_id,
-                        'booking_id' => $booking->id,
-                        'total_amount' => 0,
-                        'status' => 'unpaid',
-                        'due_date' => now()->endOfMonth()->addDays(7),
-                        'created_by' => Auth::id(),
-                        'is_monthly_bill' => true,
-                    ]);
-
-                    $rentAmount = $booking->contract->monthly_fee;
-                    BillItem::create([
-                        'bill_id' => $bill->id,
-                        'description' => $monthDescription,
-                        'amount' => $rentAmount,
-                    ]);
-                    $totalAmount = $rentAmount;
-
-                    foreach ($room->services as $service) {
-                        $usageAmount = $service->getUsageAmountForRoom($room, now()->month, now()->year);
-                        $excessUsage = max(0, $usageAmount - $service->free_quota);
-                        $serviceCost = $excessUsage * $service->unit_price;
-
-                        $baseShare = (int) ($serviceCost / $occupantsCount);
-                        $remainder = $serviceCost % $occupantsCount;
-                        $shareAmount = $baseShare + ($remainder > 0 ? 1 : 0);
-
-                        BillItem::create([
-                            'bill_id' => $bill->id,
-                            'description' => __('Tiền ') . $service->name . " ($usageAmount $service->unit, chia đều $occupantsCount người) tháng " . now()->format('m/Y'),
-                            'amount' => $shareAmount,
-                        ]);
-
-                        $totalAmount += $shareAmount;
-                    }
-
-                    $bill->update(['total_amount' => $totalAmount]);
-
-                    $this->generateAndSendInvoice($bill);
-                }
-            });
-
-            return redirect()->back()->with('success', __('Đã tạo hóa đơn hàng tháng thành công.'));
-        } catch (Exception $e) {
-            Log::error('Lỗi khi tạo hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-            return redirect()->back()->with('error', __('Không thể tạo hóa đơn. Vui lòng thử lại.'));
-        }
-    }
-
-    public function cancelBills(Room $room)
-    {
-        $activeMonthlyBookings = $room->activeBookings()
-            ->where('rental_type', 'monthly')
-            ->pluck('id');
-
-        $bills = Bill::whereIn('booking_id', $activeMonthlyBookings)
-            ->whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('status', 'unpaid')
-            ->where('is_monthly_bill', true)
-            ->get();
-
-        if ($bills->isEmpty()) {
-            return redirect()->back()->with('info', __('Không có hóa đơn nào để hủy trong tháng này.'));
-        }
-
-        try {
-            DB::transaction(function () use ($bills) {
-                foreach ($bills as $bill) {
-                    $bill->update(['status' => 'cancelled']);
-                    $this->generateAndSendInvoice($bill);
-                }
-            });
-
-            return redirect()->back()->with('success', __('Đã hủy hóa đơn thành công.'));
-        } catch (Exception $e) {
-            Log::error('Lỗi khi hủy hóa đơn cho phòng ' . $room->room_code . ': ' . $e->getMessage());
-            return redirect()->back()->with('error', __('Không thể hủy hóa đơn. Vui lòng thử lại.'));
-        }
-=======
     public function create(User $user)
     {
         $booking = $user->activeBooking;
 
         if (!$booking) {
-            return redirect()->route('bills.index')
+            return redirect()->route('bills.index', $user)
                 ->with('info', __('Sinh viên này hiện tại không cư trú.'));
         }
 
         $now = now();
         $periodStart = optional(Bill::where('booking_id', $booking->id)
-            ->where('is_monthly_bill', true)
+            ->whereRaw("is_monthly_bill = true")
             ->latest()
             ->first())
             ->created_at?->addDay() ?? $booking->check_in_date;
@@ -232,7 +115,6 @@ class BillController extends Controller
 
         $bill->update(['status' => 'cancelled']);
         return redirect()->back()->with('success', __('Đã hủy hóa đơn thành công.'));
->>>>>>> upstream-main
     }
 
     public function payBill(Request $request, Bill $bill)
@@ -241,10 +123,6 @@ class BillController extends Controller
             return redirect()->back()->with('error', __('Hóa đơn này không thể thanh toán.'));
         }
 
-<<<<<<< HEAD
-        $validated = $request->validate([
-            'amount' => 'required|numeric|min:1|max:' . $bill->total_amount,
-=======
         $alreadyPaid = $bill->payments()->sum('amount');
         $remaining = $bill->total_amount - $alreadyPaid;
 
@@ -254,7 +132,6 @@ class BillController extends Controller
 
         $validated = $request->validate([
             'amount' => 'required|numeric|min:1|max:' . $remaining,
->>>>>>> upstream-main
             'payment_type' => 'required|in:offline,online',
         ]);
 
@@ -307,17 +184,11 @@ class BillController extends Controller
         Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
 
         if ($email = $bill->user->email) {
-<<<<<<< HEAD
-            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
-=======
             Mail::to($email)->queue(new InvoiceMail($bill, $pdfPath));
->>>>>>> upstream-main
         }
 
         File::delete($pdfPath);
     }
-<<<<<<< HEAD
-=======
 
     protected function createBill(User $user, bool $isMonthlyBill = false)
     {
@@ -333,7 +204,7 @@ class BillController extends Controller
 
         if ($isMonthlyBill) {
             $exists = Bill::where('booking_id', $booking->id)
-                ->where('is_monthly_bill', true)
+                ->whereRaw("is_monthly_bill = true")
                 ->whereYear('created_at', now()->year)
                 ->whereMonth('created_at', now()->month)
                 ->where('status', '!=', 'cancelled')
@@ -351,7 +222,7 @@ class BillController extends Controller
                 $checkOutDate = $booking->actual_check_out_date;
 
                 $lastMonthlyBill = Bill::where('booking_id', $booking->id)
-                    ->where('is_monthly_bill', true)
+                    ->whereRaw("is_monthly_bill = true")
                     ->latest()
                     ->first();
 
@@ -446,5 +317,4 @@ class BillController extends Controller
             return redirect()->back()->with('error', __('Không thể tạo hóa đơn. Vui lòng thử lại.'));
         }
     }
->>>>>>> upstream-main
 }

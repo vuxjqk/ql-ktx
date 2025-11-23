@@ -17,6 +17,10 @@ class Room extends Model
         'description',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     protected const SORT_OPTIONS = [
         'room_code_asc' => ['room_code', 'asc'],
         'room_code_desc' => ['room_code', 'desc'],
@@ -84,7 +88,7 @@ class Room extends Model
 
     public function image()
     {
-        return $this->hasOne(RoomImage::class)->latest();
+        return $this->hasOne(RoomImage::class)->latestOfMany();
     }
 
     public function services()

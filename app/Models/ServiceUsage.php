@@ -21,8 +21,6 @@ class ServiceUsage extends Model
             'usage_date' => 'date',
         ];
     }
-<<<<<<< HEAD
-=======
 
     public function service()
     {
@@ -33,5 +31,4 @@ class ServiceUsage extends Model
     {
         return $this->hasMany(ServiceUsageShare::class);
     }
->>>>>>> upstream-main
 }

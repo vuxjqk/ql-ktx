@@ -63,12 +63,9 @@ class Bill extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-<<<<<<< HEAD
-=======
 
     public function refunds()
     {
         return $this->hasMany(Refund::class);
     }
->>>>>>> upstream-main
 }

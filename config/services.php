@@ -35,8 +35,6 @@ return [
         ],
     ],
 
-<<<<<<< HEAD
-=======
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
@@ -61,5 +59,4 @@ return [
         'url' => env('VNPAY_URL'),
         'return_url' => env('VNPAY_RETURN_URL'),
     ],
->>>>>>> upstream-main
 ];

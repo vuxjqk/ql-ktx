@@ -1,10 +1,7 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-<<<<<<< HEAD
-=======
             <i class="fas fa-key text-yellow-600 me-1"></i>
->>>>>>> upstream-main
             {{ __('Update Password') }}
         </h2>
 
@@ -18,60 +15,31 @@
         @method('put')
 
         <div>
-<<<<<<< HEAD
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-=======
             <x-input-label for="update_password_current_password" :value="__('Current Password')" icon="fas fa-lock" />
             <x-text-input id="update_password_current_password" name="current_password" type="password"
                 class="mt-1 block w-full" autocomplete="current-password" />
->>>>>>> upstream-main
             <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
         </div>
 
         <div>
-<<<<<<< HEAD
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-=======
             <x-input-label for="update_password_password" :value="__('New Password')" icon="fas fa-lock-open" />
             <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full"
                 autocomplete="new-password" />
->>>>>>> upstream-main
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
         </div>
 
         <div>
-<<<<<<< HEAD
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-=======
             <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" icon="fas fa-check-double" />
             <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password"
                 class="mt-1 block w-full" autocomplete="new-password" />
->>>>>>> upstream-main
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center gap-4">
-<<<<<<< HEAD
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-=======
             <x-primary-button>
                 <i class="fas fa-save"></i>
                 {{ __('Cập nhật') }}
             </x-primary-button>
->>>>>>> upstream-main
         </div>
     </form>
 </section>

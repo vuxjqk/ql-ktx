@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\RoomController;
-use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\BillController;
-use App\Http\Controllers\Api\RepairController;
-use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\RepairController;
+use App\Http\Controllers\Api\RoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -20,19 +21,32 @@ Route::prefix('v1')->group(function () {
 
     // Protected
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/me', [ProfileController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::get('/me', [ProfileController::class, 'me']);
+        Route::put('/profile', [ProfileController::class, 'update']);
 
-        // Student: bookings, bills, repairs (self)
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/{notification}', [NotificationController::class, 'show']);
+
+        // Student + staff access
         Route::middleware('api.role:student,staff,admin,super_admin')->group(function () {
+            // Bookings
             Route::post('/bookings', [BookingController::class, 'store']);
             Route::get('/bookings/my', [BookingController::class, 'myBookings']);
+
+            // Bills
             Route::get('/bills/my', [BillController::class, 'myBills']);
+            Route::get('/bills/{bill}', [BillController::class, 'show']);
+
+            // Repairs
             Route::post('/repairs', [RepairController::class, 'store']);
             Route::get('/repairs/my', [RepairController::class, 'myRepairs']);
+
+            // Reviews
+            Route::post('/rooms/{room}/reviews', [RoomController::class, 'addReview']);
         });
 
-        // Staff/Admin: manage rooms/bookings/bills/repairs
+        // Staff/Admin tools
         Route::middleware('api.role:staff,admin,super_admin')->group(function () {
             Route::post('/rooms', [RoomController::class, 'store']);
             Route::put('/rooms/{id}', [RoomController::class, 'update']);
@@ -48,10 +62,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/repairs/{id}', [RepairController::class, 'update']);
         });
     });
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    //
 });
 
 Route::post('/vnpay/redirect/{bill}', [PaymentController::class, 'redirect']);

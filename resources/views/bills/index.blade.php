@@ -8,11 +8,7 @@
             <x-breadcrumb :items="[
                 ['label' => 'Trang chủ', 'url' => url('/')],
                 ['label' => 'Quản lý sinh viên', 'url' => route('students.index')],
-<<<<<<< HEAD
-                ['label' => 'Thông tin sinh viên', 'url' => route('students.show', $user)],
-=======
                 ['label' => $user->name, 'url' => route('students.show', $user)],
->>>>>>> upstream-main
                 ['label' => 'Quản lý hóa đơn'],
             ]" />
 
@@ -36,12 +32,6 @@
                         {{ __('Quản lý tất cả hóa đơn của :name trong hệ thống', ['name' => $user->name]) }}
                     </p>
                 </div>
-<<<<<<< HEAD
-                <x-secondary-button :href="route('students.show', $user)">
-                    <i class="fas fa-arrow-left"></i>
-                    {{ __('Quay lại') }}
-                </x-secondary-button>
-=======
                 <div class="flex items-center gap-2">
                     <x-secondary-button :href="route('students.show', $user)">
                         <i class="fas fa-arrow-left"></i>
@@ -53,7 +43,6 @@
                         {{ __('Tạo hoá đơn') }}
                     </x-secondary-button>
                 </div>
->>>>>>> upstream-main
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -136,11 +125,7 @@
                 </form>
             </div>
 
-<<<<<<< HEAD
-            <div x-data="{ openRow: null, openTab: false }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-=======
             <div x-data="{ openRow: null, openTab: 'details' }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
->>>>>>> upstream-main
                 <x-table :title="__('Danh sách hóa đơn')">
                     <x-thead>
                         <x-tr>
@@ -219,10 +204,7 @@
 
                                     @php
                                         $remainingAmount = $bill->total_amount - $bill->payments->sum('amount');
-<<<<<<< HEAD
-=======
                                         $refundableAmount = $bill->total_amount - $bill->refunds->sum('amount');
->>>>>>> upstream-main
                                     @endphp
 
                                     <x-icon-button :data-pay-url="route('bills.pay', $bill)" :data-amount="$remainingAmount" icon="fas fa-money-check-alt"
@@ -230,8 +212,6 @@
                                         x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-pay')" />
 
-<<<<<<< HEAD
-=======
                                     <x-icon-button :data-refund-url="route('bills.refund', $bill)" :data-amount="$refundableAmount" icon="fas fa-undo"
                                         :title="__('Hoàn tiền')" class="!bg-yellow-500 !text-white hover:!bg-yellow-600"
                                         x-data=""
@@ -241,7 +221,6 @@
                                         class="!bg-red-600 !text-white hover:!bg-red-700" x-data=""
                                         x-on:click.prevent="$dispatch('open-modal', 'confirm-cancelled')" />
 
->>>>>>> upstream-main
                                     <x-icon-button :href="route('bills.export', $bill)" target="_blank" icon="fas fa-file-pdf"
                                         :title="__('Xuất hoá đơn')" class="!bg-purple-500 !text-white hover:!bg-purple-600" />
                                 </x-td>
@@ -250,23 +229,6 @@
                             <tr x-show="openRow === {{ $index }}">
                                 <td colspan="9">
                                     <div class="bg-blue-50 px-12">
-<<<<<<< HEAD
-                                        <div class="flex items-center justify-end py-3">
-                                            <x-secondary-button @click="openTab = !openTab"
-                                                class="!bg-blue-500 !text-white hover:!bg-blue-600">
-                                                <span x-show="!openTab" class="flex items-center gap-2">
-                                                    <i class="fas fa-arrow-right"></i>
-                                                    {{ __('Chi tiết hoá đơn') }}
-                                                </span>
-                                                <span x-show="openTab" class="flex items-center gap-2">
-                                                    <i class="fas fa-arrow-left"></i>
-                                                    {{ __('Thanh toán') }}
-                                                </span>
-                                            </x-secondary-button>
-                                        </div>
-
-                                        <table x-show="!openTab" class="w-full table-auto">
-=======
                                         <div class="flex items-center justify-end py-3 space-x-3">
                                             <x-secondary-button @click="openTab = 'details'"
                                                 class="!bg-green-500 !text-white hover:!bg-green-600">
@@ -288,7 +250,6 @@
                                         </div>
 
                                         <table x-show="openTab === 'details'" class="w-full table-auto">
->>>>>>> upstream-main
                                             <thead class="bg-blue-100">
                                                 <tr>
                                                     <th
@@ -317,11 +278,7 @@
                                             </tbody>
                                         </table>
 
-<<<<<<< HEAD
-                                        <table x-show="openTab" class="w-full table-auto">
-=======
                                         <table x-show="openTab === 'payments'" class="w-full table-auto">
->>>>>>> upstream-main
                                             <thead class="bg-blue-100">
                                                 <tr>
                                                     <th
@@ -360,8 +317,6 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
-<<<<<<< HEAD
-=======
 
                                         <table x-show="openTab === 'refunds'" class="w-full table-auto">
                                             <thead class="bg-blue-100">
@@ -416,7 +371,6 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
->>>>>>> upstream-main
                                     </div>
                                 </td>
                             </tr>
@@ -475,8 +429,6 @@
         </form>
     </x-modal>
 
-<<<<<<< HEAD
-=======
     <x-modal name="confirm-refund" focusable>
         <form id="refund-form" method="post" action="#" class="p-6">
             @csrf
@@ -549,7 +501,6 @@
         </form>
     </x-modal>
 
->>>>>>> upstream-main
     @pushOnce('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -562,8 +513,6 @@
                             `Số tiền cần thanh toán: ${Number(btn.dataset.amount).toLocaleString()}₫`;
                     });
                 });
-<<<<<<< HEAD
-=======
 
                 const refundForm = document.getElementById('refund-form');
                 const refundAmountText = document.getElementById('refund-remaining-amount');
@@ -582,7 +531,6 @@
                 document.querySelectorAll('[data-cancel-url]').forEach(btn =>
                     btn.addEventListener('click', () => cancelledForm.action = btn.dataset.cancelUrl)
                 );
->>>>>>> upstream-main
             });
         </script>
     @endPushOnce

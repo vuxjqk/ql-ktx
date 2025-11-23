@@ -3,13 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use Illuminate\Http\Request;
-
-class SocialiteController extends Controller
-{
-    //
-=======
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -75,5 +68,4 @@ class SocialiteController extends Controller
         Auth::login($user);
         return redirect('/dashboard');
     }
->>>>>>> upstream-main
 }

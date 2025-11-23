@@ -10,16 +10,46 @@ use Illuminate\Support\Facades\DB;
 
 class BillController extends Controller
 {
-    // student xem bill của mình
+    // student: xem bill của mình
     public function myBills(Request $request)
     {
-        $bills = Bill::with(['bill_items', 'payments', 'booking'])
+        $perPage = min($request->integer('per_page', 10) ?? 10, 50);
+
+        $bills = Bill::with([
+            'bill_items',
+            'payments.transaction',
+            'refunds',
+            'booking.room.floor.branch',
+        ])
             ->where('user_id', $request->user()->id)
-            ->orderByDesc('id')->paginate(10);
+            ->when($request->filled('status'), fn($q, $status) => $q->where('status', $status))
+            ->when($request->filled('bill_code'), fn($q, $code) => $q->where('bill_code', 'like', "%{$code}%"))
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
         return response()->json($bills);
     }
 
-    // staff/admin tạo bill
+    public function show(Request $request, Bill $bill)
+    {
+        $user = $request->user();
+
+        if ($user->role === 'student' && $bill->user_id !== $user->id) {
+            abort(403, __('Bạn không có quyền xem hoá đơn này.'));
+        }
+
+        return response()->json(
+            $bill->load([
+                'bill_items',
+                'payments.transaction',
+                'refunds',
+                'booking.room.floor.branch',
+                'creator',
+            ])
+        );
+    }
+
+    // staff/admin: tạo bill
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -44,6 +74,7 @@ class BillController extends Controller
                 'created_by' => $request->user()->id,
                 'is_monthly_bill' => $data['is_monthly_bill'] ?? false,
             ]);
+
             foreach ($data['items'] as $it) {
                 BillItem::create([
                     'bill_id' => $bill->id,
@@ -51,18 +82,24 @@ class BillController extends Controller
                     'amount' => $it['amount'],
                 ]);
             }
-            return response()->json($bill->load('bill_items'), 201);
+
+            return response()->json(
+                $bill->load(['bill_items', 'booking.room.floor.branch']),
+                201
+            );
         });
     }
 
-    // staff/admin cập nhật trạng thái (paid/partial/cancelled)
+    // staff/admin: cập nhật trạng thái
     public function updateStatus(Request $request, $id)
     {
         $data = $request->validate([
             'status' => 'required|in:unpaid,paid,partial,cancelled',
         ]);
+
         $bill = Bill::findOrFail($id);
         $bill->update(['status' => $data['status']]);
+
         return response()->json($bill);
     }
 }
