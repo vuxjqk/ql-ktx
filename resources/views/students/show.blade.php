@@ -52,7 +52,7 @@
                         <div>
                             <h4 class="font-semibold text-lg text-gray-800">{{ $user->name }}</h4>
                             <p class="text-sm text-gray-600">{{ __('Mã sinh viên') }}:
-                                {{ $user->student->student_code ?? 'N/A' }}</p>
+                                {{ $user->student?->student_code }}</p>
                         </div>
                     </div>
                 </div>
@@ -64,27 +64,27 @@
                     </div>
                     <div>
                         <x-input-label :value="__('Lớp')" icon="fas fa-chalkboard-teacher" />
-                        <p class="mt-1 text-gray-800">{{ $user->student->class ?? 'N/A' }}</p>
+                        <p class="mt-1 text-gray-800">{{ $user->student?->class ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <x-input-label :value="__('Ngày sinh')" icon="fas fa-calendar-alt" />
                         <p class="mt-1 text-gray-800">
-                            {{ $user->student->date_of_birth ? $user->student->date_of_birth->format('d/m/Y') : 'N/A' }}
+                            {{ $user->student?->date_of_birth ? $user->student?->date_of_birth->format('d/m/Y') : 'N/A' }}
                         </p>
                     </div>
                     <div>
                         <x-input-label :value="__('Giới tính')" icon="fas fa-venus-mars" />
                         <p class="mt-1 text-gray-800">
-                            {{ $user->student->gender === 'male' ? 'Nam' : ($user->student->gender === 'female' ? 'Nữ' : 'Khác') }}
+                            {{ $user->student?->gender === 'male' ? 'Nam' : ($user->student?->gender === 'female' ? 'Nữ' : 'Khác') }}
                         </p>
                     </div>
                     <div>
                         <x-input-label :value="__('Số điện thoại')" icon="fas fa-phone" />
-                        <p class="mt-1 text-gray-800">{{ $user->student->phone ?? 'N/A' }}</p>
+                        <p class="mt-1 text-gray-800">{{ $user->student?->phone ?? 'N/A' }}</p>
                     </div>
                     <div>
                         <x-input-label :value="__('Địa chỉ')" icon="fas fa-map-marker-alt" />
-                        <p class="mt-1 text-gray-800">{{ $user->student->address ?? 'N/A' }}</p>
+                        <p class="mt-1 text-gray-800">{{ $user->student?->address ?? 'N/A' }}</p>
                     </div>
                 </div>
             </div>

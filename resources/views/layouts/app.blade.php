@@ -69,6 +69,48 @@
                                 ]" :selected="app()->getLocale()" />
                         </div>
 
+                        <div x-data="themeDropdown()" class="flex items-center">
+                            <x-dropdown align="right" width="48">
+                                <x-slot name="trigger">
+                                    <button
+                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                        <i :class="currentIcon" class="text-2xl"></i>
+
+                                        <div class="ms-2" x-text="currentLabel"></div>
+
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+
+                                <x-slot name="content">
+                                    <x-dropdown-link href="#" onclick="event.preventDefault();"
+                                        @click="setTheme('light')">
+                                        <i class="fas fa-sun me-1"></i>
+                                        {{ __('Light') }}
+                                    </x-dropdown-link>
+
+                                    <x-dropdown-link href="#" onclick="event.preventDefault();"
+                                        @click="setTheme('dark')">
+                                        <i class="fas fa-moon me-1"></i>
+                                        {{ __('Dark') }}
+                                    </x-dropdown-link>
+
+                                    <x-dropdown-link href="#" onclick="event.preventDefault();"
+                                        @click="setTheme('auto')">
+                                        <i class="fas fa-circle-half-stroke me-1"></i>
+                                        {{ __('Auto') }}
+                                    </x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+
                         <!-- Settings Dropdown -->
                         <div class="flex items-center">
                             <x-dropdown align="right" width="48">
@@ -227,7 +269,8 @@
                         <i :class="minimized ? 'fas fa-window-maximize' : 'fas fa-window-minimize'"></i>
                     </button>
                     <button @click="open = false"
-                        class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Đóng">
+                        class="p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        aria-label="Đóng">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -240,7 +283,7 @@
                         <div class="flex" :class="m.from === 'user' ? 'justify-end' : 'justify-start'">
                             <div class="max-w-[80%]">
                                 <div class="px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm text-gray-800 dark:text-gray-100"
-                                    :class="m.from === 'user' ? 'bg-blue-600 text-white' : ''" x-text="m.text">
+                                    :class="m.from === 'user' ? '!bg-blue-600 text-white' : ''" x-text="m.text">
                                 </div>
                                 <div class="text-xs text-gray-400 mt-1 text-right" x-text="m.time"></div>
                             </div>
@@ -280,6 +323,63 @@
     </div>
 
     @stack('scripts')
+
+    <script>
+        function themeDropdown() {
+            return {
+                theme: 'auto', // light, dark, auto
+
+                init() {
+                    const saved = localStorage.getItem('theme') || 'auto';
+                    this.setTheme(saved);
+
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                        if (this.theme === 'auto') this.applyTheme(e.matches ? 'dark' : 'light');
+                    });
+                },
+
+                setTheme(value) {
+                    this.theme = value;
+
+                    if (value === 'auto') {
+                        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        this.applyTheme(isDark ? 'dark' : 'light');
+                    } else {
+                        this.applyTheme(value);
+                    }
+
+                    localStorage.setItem('theme', value);
+                },
+
+                applyTheme(value) {
+                    if (value === 'dark') document.documentElement.classList.add('dark');
+                    else document.documentElement.classList.remove('dark');
+                },
+
+                get currentIcon() {
+                    switch (this.theme) {
+                        case 'light':
+                            return 'fas fa-sun';
+                        case 'dark':
+                            return 'fas fa-moon';
+                        default:
+                            return 'fas fa-circle-half-stroke';
+                    }
+                },
+
+                get currentLabel() {
+                    switch (this.theme) {
+                        case 'light':
+                            return 'Light';
+                        case 'dark':
+                            return 'Dark';
+                        default:
+                            return 'Auto';
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -91,7 +91,7 @@
                                         <div class="grid">
                                             <span class="font-semibold">{{ $user->name }}</span>
                                             <span class="text-sm">
-                                                {{ __('MSSV: ') . ($user->student->student_code ?? 'N/A') }}
+                                                {{ __('MSSV: ') . $user->student?->student_code }}
                                             </span>
                                             <span class="text-sm">
                                                 {{ __('Giới tính: ') .
@@ -103,7 +103,7 @@
                                 <x-td>
                                     <div class="grid">
                                         <span>{{ __('Email: ') . ($user->email ?? 'N/A') }}</span>
-                                        <span>{{ __('SĐT: ') . ($user->student->phone ?? 'N/A') }}</span>
+                                        <span>{{ __('SĐT: ') . ($user->student?->phone ?? 'N/A') }}</span>
                                     </div>
                                 </x-td>
                                 <x-td>

@@ -149,10 +149,10 @@
                                         <div class="grid">
                                             <span class="font-semibold">{{ $booking->user->name }}</span>
                                             <span class="text-sm">
-                                                {{ __('MSSV: ') . $booking->user->student->student_code }}
+                                                {{ __('MSSV: ') . $booking->user->student?->student_code }}
                                             </span>
                                             <span class="text-sm">
-                                                {{ __('Giới tính: ') . ($booking->user->student->gender === 'male' ? 'Nam' : ($booking->user->student->gender === 'female' ? 'Nữ' : 'Khác')) }}
+                                                {{ __('Giới tính: ') . ($booking->user->student?->gender === 'male' ? 'Nam' : ($booking->user->student?->gender === 'female' ? 'Nữ' : 'Khác')) }}
                                             </span>
                                         </div>
                                     </div>
@@ -283,6 +283,10 @@
                                 <x-td>
                                     <x-icon-button :href="route('bookings.show', $booking)" icon="fas fa-eye" :title="__('Xem chi tiết')"
                                         class="!bg-blue-500 !text-white hover:!bg-blue-600" />
+
+                                    <x-icon-button :data-delete-url="route('bookings.destroy', $booking)" icon="fas fa-trash" :title="__('Xoá')"
+                                        class="!bg-red-500 !text-white hover:!bg-red-600" x-data=""
+                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
                                 </x-td>
                             </x-tr>
                         @endforeach
@@ -372,6 +376,8 @@
             </div>
         </form>
     </x-modal>
+
+    <x-delete-modal />
 
     @pushOnce('scripts')
         <script>

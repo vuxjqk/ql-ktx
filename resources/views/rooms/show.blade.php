@@ -173,10 +173,10 @@
                                         <div class="grid">
                                             <span class="font-semibold">{{ $booking->user->name }}</span>
                                             <span class="text-sm">
-                                                {{ __('MSSV: ') . $booking->user->student->student_code }}
+                                                {{ __('MSSV: ') . $booking->user->student?->student_code }}
                                             </span>
                                             <span class="text-sm">
-                                                {{ __('Giới tính: ') . ($booking->user->student->gender === 'male' ? 'Nam' : ($booking->user->student->gender === 'female' ? 'Nữ' : 'Khác')) }}
+                                                {{ __('Giới tính: ') . ($booking->user->student?->gender === 'male' ? 'Nam' : ($booking->user->student?->gender === 'female' ? 'Nữ' : 'Khác')) }}
                                             </span>
                                         </div>
                                     </div>

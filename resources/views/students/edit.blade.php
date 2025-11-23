@@ -72,14 +72,14 @@
                     <div>
                         <x-input-label for="student_code" :value="__('Mã sinh viên')" icon="fas fa-id-card" />
                         <x-text-input id="student_code" class="block mt-1 w-full" type="text" name="student_code"
-                            :value="old('student_code', $user->student->student_code)" required autocomplete="student_code" :placeholder="__('Nhập mã sinh viên')" />
+                            :value="old('student_code', $user->student?->student_code)" required autocomplete="student_code" :placeholder="__('Nhập mã sinh viên')" />
                         <x-input-error :messages="$errors->get('student_code')" class="mt-2" />
                     </div>
 
                     <div>
                         <x-input-label for="class" :value="__('Lớp')" icon="fas fa-chalkboard-teacher" />
                         <x-text-input id="class" class="block mt-1 w-full" type="text" name="class"
-                            :value="old('class', $user->student->class)" autocomplete="class" :placeholder="__('Nhập lớp (nếu có)')" />
+                            :value="old('class', $user->student?->class)" autocomplete="class" :placeholder="__('Nhập lớp (nếu có)')" />
                         <x-input-error :messages="$errors->get('class')" class="mt-2" />
                     </div>
 
