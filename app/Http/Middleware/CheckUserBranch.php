@@ -19,11 +19,11 @@ class CheckUserBranch
         /** @var User $user */
         $user = Auth::user();
 
-        if ($user->role === 'super_admin') {
+        if ($user->role === 'super_admin' || $user->role === 'student') {
             return $next($request);
         }
 
-        if ($request->route()->hasParameter('room')) {
+        if (!$request->isMethod('get') && $request->route()->hasParameter('room')) {
             $room = $request->route('room');
 
             if (!$room) {

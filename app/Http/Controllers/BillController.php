@@ -47,7 +47,7 @@ class BillController extends Controller
         $booking = $user->activeBooking;
 
         if (!$booking) {
-            return redirect()->route('bills.index')
+            return redirect()->route('bills.index', $user)
                 ->with('info', __('Sinh viên này hiện tại không cư trú.'));
         }
 

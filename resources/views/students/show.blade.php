@@ -52,7 +52,7 @@
                         <div>
                             <h4 class="font-semibold text-lg text-gray-800">{{ $user->name }}</h4>
                             <p class="text-sm text-gray-600">{{ __('Mã sinh viên') }}:
-                                {{ $user->student?->student_code }}</p>
+                                {{ $user->student?->student_code ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>

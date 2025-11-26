@@ -18,6 +18,13 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceUsageController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\Student\BookingController as StudentBookingController;
+use App\Http\Controllers\Student\FavouriteController;
+use App\Http\Controllers\Student\HomeController;
+use App\Http\Controllers\Student\PaymentController as StudentPaymentController;
+use App\Http\Controllers\Student\RepairController as StudentRepairController;
+use App\Http\Controllers\Student\RoomController as StudentRoomController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -92,8 +99,32 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
         Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
         Route::get('/repairs', [RepairController::class, 'index'])->name('repairs.index');
         Route::put('/repairs/{repair}', [RepairController::class, 'update'])->name('repairs.update');
-        Route::post('/payments/{booking}', [PaymentController::class, 'store'])->name('payments.store');
+        Route::post('/payments/{bill}', [PaymentController::class, 'store'])->name('payments.store');
         Route::resource('/notifications', NotificationController::class)->except(['create', 'show', 'edit', 'update']);
+    });
+
+    Route::middleware(['role:student'])->prefix('student')->name('student.')->group(function () {
+        Route::get('/', [HomeController::class, 'index'])->name('home');
+
+        Route::get('/rooms', [StudentRoomController::class, 'index'])->name('rooms.index');
+        Route::get('/rooms/{room}', [StudentRoomController::class, 'show'])->name('rooms.show');
+
+        Route::post('/bookings/{room}', [StudentBookingController::class, 'store'])->name('bookings.store');
+        Route::get('/bookings', [StudentBookingController::class, 'index'])->name('bookings.index');
+        Route::patch('/bookings/{booking}', [StudentBookingController::class, 'terminate'])->name('bookings.terminate');
+
+        Route::post('/repairs', [StudentRepairController::class, 'store'])->name('repairs.store');
+
+        Route::get('/favourites', [FavouriteController::class, 'index'])->name('favourites.index');
+        Route::delete('/favourites/{favourite}', [FavouriteController::class, 'destroy'])->name('favourites.destroy');
+
+        Route::post('/vnpay/redirect/{bill}', [StudentPaymentController::class, 'redirect'])->name('vnpay.redirect');
+        Route::get('/vnpay/callback', [StudentPaymentController::class, 'callback'])->name('vnpay.callback');
+
+        Route::get('/profile', [StudentProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/password', [StudentProfileController::class, 'updatePassword'])->name('password.update');
+        Route::delete('/profile', [StudentProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
 

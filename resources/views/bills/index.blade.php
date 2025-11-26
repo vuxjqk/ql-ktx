@@ -243,7 +243,7 @@
                                             </x-secondary-button>
 
                                             <x-secondary-button @click="openTab = 'refunds'"
-                                                class="!bg-yellow-500 !text-white hover:!bg-blue-600">
+                                                class="!bg-yellow-500 !text-white hover:!bg-yellow-600">
                                                 <i class="fas fa-rotate-left"></i>
                                                 {{ __('Hoàn tiền') }}
                                             </x-secondary-button>

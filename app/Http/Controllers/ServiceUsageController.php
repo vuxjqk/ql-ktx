@@ -8,7 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ServiceUsageController extends Controller
 {
@@ -40,14 +40,19 @@ class ServiceUsageController extends Controller
         $validated = $request->validate([
             'usage_date'              => 'required|date|after_or_equal:' . now()->subDay()->toDateString() . '|before_or_equal:' . now()->toDateString(),
             'services'                => 'required|array|min:1',
-            'services.*.service_id'   => [
-                'required',
-                'exists:services,id',
-                'distinct',
-                Rule::in(Service::where('is_mandatory', true)->pluck('id')->toArray())
-            ],
+            'services.*.service_id'   => 'required|exists:services,id|distinct',
             'services.*.usage_amount' => 'required|numeric|min:0',
         ]);
+
+        $mandatoryIds = Service::where('is_mandatory', true)->pluck('id')->toArray();
+
+        foreach ($validated['services'] as $service) {
+            if (in_array($service['service_id'], $mandatoryIds) && $service['usage_amount'] <= 0) {
+                throw ValidationException::withMessages([
+                    'services.' . $service['service_id'] . '.usage_amount' => 'Dịch vụ bắt buộc phải có giá trị sử dụng lớn hơn 0.'
+                ]);
+            }
+        }
 
         $validated['services'] = collect($validated['services'])
             ->filter(fn($service) => $service['usage_amount'] > 0)

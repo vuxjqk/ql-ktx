@@ -91,7 +91,7 @@
                                         <div class="grid">
                                             <span class="font-semibold">{{ $user->name }}</span>
                                             <span class="text-sm">
-                                                {{ __('MSSV: ') . $user->student?->student_code }}
+                                                {{ __('MSSV: ') . ($user->student?->student_code ?? 'N/A') }}
                                             </span>
                                             <span class="text-sm">
                                                 {{ __('Giới tính: ') .

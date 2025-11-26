@@ -8,6 +8,8 @@ use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -42,7 +44,7 @@ class BookingController extends Controller
                 $checkIn = Carbon::parse($request->check_in_date);
                 $checkOut = Carbon::parse($request->expected_check_out_date);
 
-                if ($checkOut->diffInMonths($checkIn) < 1) {
+                if ($checkOut->diffInMonths($checkIn) < 0) {
                     $validator->errors()->add(
                         'expected_check_out_date',
                         'Thời gian thuê theo tháng phải lớn hơn 1 tháng.'
@@ -190,5 +192,82 @@ class BookingController extends Controller
                 'message' => $msg
             ], 500);
         }
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'room_id'     => 'required|exists:rooms,id',
+            'rental_type' => 'required|in:monthly,daily',
+            'start_date'  => 'required|date|after_or_equal:today',
+            'duration'    => 'required|integer|min:1',
+            'note'        => 'nullable|string|max:500',
+        ]);
+
+        $user = Room::findOrFail($request->user_id);
+        $room = Room::findOrFail($request->room_id);
+
+        if ($user->bookings()->whereIn('status', ['pending', 'approved'])->exists()) {
+            return response()->json(['success' => false, 'message' => 'Bạn đã có yêu cầu đặt phòng khác'], 409);
+        }
+
+        if ($room->current_occupancy >= $room->capacity) {
+            return response()->json(['success' => false, 'message' => 'Phòng đã đầy'], 422);
+        }
+
+        if ($room->floor->gender_type !== 'mixed' && optional($user->student)->gender !== $room->floor->gender_type) {
+            return response()->json(['success' => false, 'message' => 'Giới tính không phù hợp với khu'], 403);
+        }
+
+        $startDate = Carbon::parse($request->start_date);
+        $expectedCheckOut = $request->rental_type === 'daily'
+            ? $startDate->clone()->addDays($request->duration)
+            : $startDate->clone()->addMonthsNoOverflow($request->duration);
+
+        return DB::transaction(function () use ($request, $user, $room, $startDate, $expectedCheckOut) {
+            $activeBooking = $user->bookings()->where('status', 'active')->first();
+
+            $booking = Booking::create([
+                'user_id'                 => $user->id,
+                'room_id'                 => $room->id,
+                'booking_id'              => $activeBooking?->id,
+                'booking_type'            => $activeBooking ? 'transfer' : 'registration',
+                'rental_type'             => $request->rental_type,
+                'check_in_date'           => $startDate,
+                'expected_check_out_date' => $expectedCheckOut,
+                'status'                  => 'pending',
+                'reason'                  => $request->note,
+            ]);
+
+            $room->increment('current_occupancy');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đăng ký phòng thành công',
+                'booking' => $booking->load('room.floor.branch'),
+            ]);
+        });
+    }
+
+    public function index()
+    {
+        $bookings = DB::table('bookings')
+            ->join('rooms', 'bookings.room_id', '=', 'rooms.id')
+            ->join('floors', 'rooms.floor_id', '=', 'floors.id')
+            ->join('branches', 'floors.branch_id', '=', 'branches.id')
+            ->where('bookings.user_id', Auth::id())
+            ->select(
+                'bookings.*',
+                'rooms.room_code',
+                'branches.name as branch_name',
+                'floors.floor_number'
+            )
+            ->orderBy('bookings.created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bookings
+        ]);
     }
 }

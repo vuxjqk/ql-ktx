@@ -15,7 +15,7 @@ class RoomController extends Controller
             ->withCount('favourites')
             ->withAvg('reviews', 'rating')
             ->filter($request->all())
-            ->paginate(10)
+            ->paginate(12)
             ->appends($request->query());
 
         $totalRooms = Room::count();
@@ -50,6 +50,7 @@ class RoomController extends Controller
     {
         $room->load(['floor.branch', 'images', 'services', 'amenities'])
             ->loadCount('favourites')
+            ->loadCount('reviews')
             ->loadAvg('reviews', 'rating');
 
         return response()->json([

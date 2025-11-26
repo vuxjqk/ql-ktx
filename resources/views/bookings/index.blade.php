@@ -218,14 +218,18 @@
                                                         } else {
                                                             $requiredAmount = $booking->room->price_per_month;
                                                         }
+
+                                                        $bill = $booking->bills()->oldest()->first();
                                                     @endphp
 
-                                                    <x-icon-button :data-bill-create-url="route('payments.store', $booking)" :data-amount="$requiredAmount" title="Thanh toán"
-                                                        class="!bg-blue-500 !text-white hover:!bg-blue-600"
-                                                        x-data=""
-                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')">
-                                                        <i class="fas fa-money-check-alt"></i>
-                                                    </x-icon-button>
+                                                    @if ($bill)
+                                                        <x-icon-button :data-bill-create-url="route('payments.store', $bill)" :data-amount="$requiredAmount" title="Thanh toán"
+                                                            class="!bg-blue-500 !text-white hover:!bg-blue-600"
+                                                            x-data=""
+                                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')">
+                                                            <i class="fas fa-money-check-alt"></i>
+                                                        </x-icon-button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @break

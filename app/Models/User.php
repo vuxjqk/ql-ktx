@@ -113,4 +113,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
+
+    public function repairs()
+    {
+        return $this->hasMany(Repair::class);
+    }
+
+    public function favouriteRooms()
+    {
+        return $this->belongsToMany(Room::class, 'favourites', 'user_id', 'room_id')
+            ->withTimestamps(); // nếu bảng favourites có created_at, updated_at
+    }
 }

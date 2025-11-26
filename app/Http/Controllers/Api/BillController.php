@@ -14,13 +14,11 @@ class BillController extends Controller
 
         $bills = Bill::where('user_id', $user->id)
             ->latest()
-            ->filter($request->all())
-            ->paginate(10)
-            ->appends($request->query());
+            ->get();
 
         return response()->json([
             'success' => true,
-            'data' => $bills
+            'bills' => $bills
         ]);
     }
 }
