@@ -37,9 +37,40 @@ class RoomController extends Controller
         );
     }
 
+    public function myRoom(Request $request)
+    {
+        $user = $request->user()->loadMissing('activeBooking');
+        $booking = $user->activeBooking;
+
+        if (!$booking) {
+            return response()->json(['message' => __('Bạn chưa có phòng đang ở')], 404);
+        }
+
+        $room = Room::with([
+            'floor.branch',
+            'images',
+            'amenities',
+            'services',
+            'activeBookings.user.student',
+        ])->findOrFail($booking->room_id);
+
+        $room->available_slots = max($room->capacity - $room->current_occupancy, 0);
+        $room->roommates = $room->activeBookings->map(function ($b) {
+            return [
+                'id' => $b->user->id,
+                'name' => $b->user->name,
+                'email' => $b->user->email,
+                'avatar' => $b->user->avatar,
+                'student_code' => $b->user->student->student_code ?? null,
+            ];
+        })->values();
+
+        return response()->json($room);
+    }
+
     public function show($id)
     {
-        $room = Room::with(['floor.branch', 'images', 'amenities', 'services', 'reviews'])
+        $room = Room::with(['floor.branch', 'images', 'amenities', 'services', 'reviews.user'])
             ->findOrFail($id);
         return response()->json($room);
     }
@@ -88,7 +119,7 @@ class RoomController extends Controller
             'message' => $review->wasRecentlyCreated
                 ? 'Đã tạo đánh giá mới.'
                 : 'Đã cập nhật đánh giá.',
-            'data' => $review,
+            'data' => $review->load('user'),
         ], $status);
     }
 

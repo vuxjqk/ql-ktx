@@ -6,71 +6,69 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'errors' => __('Thông tin tài khoản không tìm thấy trong hệ thống.'),
-            ], 422);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => __('Đăng nhập thành công.'),
-            'user' => $user->makeHidden(['password']),
-            'token' => $token,
-        ]);
-    }
-
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email:filter|unique:users,email',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $data['name'],
+            'email' => strtolower($data['email']),
+            'password' => Hash::make($data['password']),
+            'role' => 'student',
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => __('Đăng ký tài khoản thành công.'),
-            'user' => $user->makeHidden(['password']),
+            'user' => [
+                'id'     => $user->id,
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role,
+                'avatar' => $user->avatar,
+            ],
+            'token' => $token,
+        ], 201);
+    }
+
+    public function login(Request $request)
+    {
+        $data = $request->validate([
+            'email' => 'required|email:filter',
+            'password' => 'required|string',
+        ]);
+
+        $user = User::where('email', strtolower($data['email']))->first();
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sai mật khẩu.',
+            ], 422);
+        }
+
+        $token = $user->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Đăng nhập thành công.'),
+            'user' => [
+                'id'     => $user->id,
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role,
+                'avatar' => $user->avatar,
+            ],
             'token' => $token,
         ]);
     }

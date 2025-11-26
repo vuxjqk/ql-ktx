@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
@@ -35,6 +36,14 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('DEBUG BOOKING:', [
+            'check_in_raw' => $request->input('check_in_date'),
+            'check_out_raw' => $request->input('expected_check_out_date'),
+            'parsed_check_in' => Carbon::parse($request->input('check_in_date'))->toDateTimeString(),
+            'parsed_check_out' => Carbon::parse($request->input('expected_check_out_date'))->toDateTimeString(),
+            'diff' => Carbon::parse($request->input('expected_check_out_date'))->diffInMonths(Carbon::parse($request->input('check_in_date')))
+        ]);
+
         $data = $request->validate([
             'room_id' => 'required_if:booking_type,registration,transfer|nullable|exists:rooms,id',
             'booking_type' => 'required|in:registration,transfer,extension',
@@ -45,13 +54,13 @@ class BookingController extends Controller
         ]);
 
         $user = $request->user()->loadMissing('activeBooking');
-        $checkIn = Carbon::parse($data['check_in_date']);
-        $expected = Carbon::parse($data['expected_check_out_date']);
+        $checkIn = Carbon::parse($data['check_in_date'])->startOfDay();
+        $expected = Carbon::parse($data['expected_check_out_date'])->startOfDay();
 
         if (
             ($data['booking_type'] === 'registration')
             && ($data['rental_type'] ?? null) === 'monthly'
-            && $expected->diffInMonths($checkIn) < 1
+            && $checkIn->diffInMonths($expected) < 1
         ) {
             throw ValidationException::withMessages([
                 'expected_check_out_date' => __('Thời gian thuê theo tháng phải lớn hơn 1 tháng.'),
@@ -215,6 +224,68 @@ class BookingController extends Controller
         return $room;
     }
 
+    public function requestReturn(Request $request)
+    {
+        $user = $request->user()->loadMissing('activeBooking');
+        $active = $this->requireActiveBooking($user);
+
+        // Nếu đã gửi yêu cầu trả phòng rồi (actual_check_out_date != null) thì không cho gửi nữa
+        if (!is_null($active->actual_check_out_date)) {
+            throw ValidationException::withMessages([
+                'booking' => __('Bạn đã gửi yêu cầu trả phòng. Vui lòng chờ quản lý xử lý.'),
+            ]);
+        }
+
+        $data = $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        // Ở phiên bản đơn giản: dùng ngày hôm nay làm ngày yêu cầu trả phòng
+        $checkoutDate = now()->toDateString();
+
+        $active->update([
+            'actual_check_out_date' => $checkoutDate,
+            // ghi đè hoặc giữ reason cũ tuỳ bạn, ở đây mình cho ghi đè
+            'reason'                => $data['reason'] ?? $active->reason,
+        ]);
+
+        return response()->json($active->load(['room.floor.branch']), 200);
+    }
+
+    public function destroy(Request $request, Booking $booking)
+    {
+        if ($booking->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Bạn không có quyền thao tác với yêu cầu này.',
+            ], 403);
+        }
+
+        if ($booking->status !== 'pending') {
+            return response()->json([
+                'message' => 'Yêu cầu này đã được xử lý. Không thể xoá.',
+            ], 422);
+        }
+
+        // Chỉ cho xoá các loại yêu cầu: đăng ký / gia hạn / chuyển phòng
+        if (!in_array($booking->booking_type, ['registration', 'extension', 'transfer'])) {
+            return response()->json([
+                'message' => 'Không thể xoá loại yêu cầu này.',
+            ], 422);
+        }
+
+        try {
+            $booking->delete();
+
+            return response()->json([
+                'message' => 'Xoá yêu cầu thành công.',
+            ]);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Không thể xoá yêu cầu.',
+            ], 500);
+        }
+    }
+
     protected function guardPendingRequest(int $userId, string $type): void
     {
         $exists = Booking::where('user_id', $userId)
@@ -223,15 +294,15 @@ class BookingController extends Controller
             ->exists();
 
         if ($exists) {
+            $typeName = match ($type) {
+                'registration' => 'đăng ký',
+                'extension'    => 'gia hạn',
+                'transfer'     => 'chuyển phòng',
+                default        => $type
+            };
+
             throw ValidationException::withMessages([
-                'booking_type' => __('Bạn đang có yêu cầu :type chờ xử lý.', [
-                    'type' => match ($type) {
-                        'registration' => 'đăng ký',
-                        'extension'    => 'gia hạn',
-                        'transfer'     => 'chuyển phòng',
-                        default        => $type,
-                    },
-                ]),
+                'booking_type' => __("Bạn đang có yêu cầu :type đang chờ xử lý.", ['type' => $typeName]),
             ]);
         }
     }

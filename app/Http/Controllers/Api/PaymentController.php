@@ -93,6 +93,8 @@ class PaymentController extends Controller
         $vnp_SecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
         $paymentUrl = $vnp_Url . "?" . $query . "vnp_SecureHash=" . $vnp_SecureHash;
 
+        Log::info('VNPAY DEBUG URL: ' . $paymentUrl);
+
         return response()->json([
             'success' => true,
             'payment_url' => $paymentUrl

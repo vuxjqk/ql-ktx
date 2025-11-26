@@ -17,7 +17,7 @@ Route::prefix('v1')->group(function () {
 
     // Public browse
     Route::get('/rooms', [RoomController::class, 'index']);
-    Route::get('/rooms/{id}', [RoomController::class, 'show']);
+    Route::get('/rooms/{id}', [RoomController::class, 'show'])->whereNumber('id');
 
     // Protected
     Route::middleware('auth:sanctum')->group(function () {
@@ -28,6 +28,9 @@ Route::prefix('v1')->group(function () {
         Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
         Route::delete('/profile/delete', [ProfileController::class, 'deleteAccount']);
 
+        // My room (placed before /rooms/{id} to avoid collisions)
+        Route::get('/rooms/my', [RoomController::class, 'myRoom']);
+
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/{notification}', [NotificationController::class, 'show']);
 
@@ -35,6 +38,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('api.role:student,staff,admin,super_admin')->group(function () {
             // Bookings
             Route::post('/bookings', [BookingController::class, 'store']);
+            Route::post('/bookings/return', [BookingController::class, 'requestReturn']);
             Route::get('/bookings/my', [BookingController::class, 'myBookings']);
             Route::delete('/bookings/{booking}', [BookingController::class, 'destroy']);
 
@@ -71,7 +75,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/repairs/{id}', [RepairController::class, 'update']);
         });
     });
+    Route::post('/vnpay/redirect/{bill}', [PaymentController::class, 'redirect']);
+    Route::get('/vnpay/callback', [PaymentController::class, 'callback']);
 });
-
-Route::post('/vnpay/redirect/{bill}', [PaymentController::class, 'redirect']);
-Route::get('/vnpay/callback', [PaymentController::class, 'callback']);
