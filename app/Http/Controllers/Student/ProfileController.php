@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -17,73 +20,101 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = auth()->user();
-        $student = $user->student;
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        $request->validate([
-            'student_code' => 'required|string|max:255',
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
+            'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $user->id,
+            'student_code' => 'required|string|max:20|unique:students,student_code,' . ($user->student?->id ?? 'NULL'),
+            'class' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female',
-            'class' => 'nullable|string|max:50',
-            'address' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
         ]);
 
-        // Cập nhật user
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
+        $user->update($validated);
 
-        // Cập nhật avatar
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::delete('public/' . $user->avatar);
-            }
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->update(['avatar' => $path]);
+        $studentData = [
+            'student_code' => $validated['student_code'],
+            'class' => $validated['class'] ?? null,
+            'date_of_birth' => $validated['date_of_birth'] ?? null,
+            'gender' => $validated['gender'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+        ];
+
+        if ($user->student) {
+            $user->student->update($studentData);
+        } else {
+            $user->student()->create($studentData);
         }
 
-        // Cập nhật student
-        $student = Student::updateOrCreate(
-            ['id' => $request->id],
-            array_merge(
-                $request->only(['phone', 'date_of_birth', 'gender', 'class', 'address']),
-                [
-                    'user_id' => auth()->id(),
-                    'student_code' => $request->student_code
-                ]
-            )
-        );
-        return back();
+        return redirect()->back()->with('success', __('Đã cập nhật thành công'));
     }
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'current_password' => 'required|current_password',
-            'password' => 'required|confirmed|min:8',
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        auth()->user()->update([
-            'password' => Hash::make($request->password)
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return back();
+        return redirect()->back()->with('success', __('Đã cập nhật mật khẩu thành công'));
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($validated);
+
+        return redirect()->back()->with('success', __('Đã cập nhật ảnh đại diện thành công'));
     }
 
     public function destroy(Request $request)
     {
-        $request->validate([
-            'password' => 'required|current_password',
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
         ]);
 
-        $user = auth()->user();
-        $user->delete();
+        $user = $request->user();
 
-        return redirect('/')->with('status', 'Tài khoản đã được xóa vĩnh viễn.');
+        try {
+            $user->delete();
+
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('student.home')->with('success', __('Tài khoản đã được xoá thành công'));
+        } catch (QueryException $e) {
+            $msg = $e->getCode() === '23000'
+                ? __('Không thể xóa vì có dữ liệu liên quan')
+                : __('Đã xảy ra lỗi khi xoá');
+
+            return redirect()->back()->with('error', $msg);
+        }
     }
 }

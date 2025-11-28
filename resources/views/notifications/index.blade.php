@@ -59,16 +59,16 @@
                                 <x-td>{{ Str::limit($notification->content, 50) ?? 'N/A' }}</x-td>
                                 <x-td>
                                     <div class="flex items-center gap-2">
-                                        @if ($notification->sender->avatar)
-                                            <img src="{{ asset('storage/' . $notification->sender->avatar) }}"
+                                        @if ($notification->user->avatar)
+                                            <img src="{{ asset('storage/' . $notification->user->avatar) }}"
                                                 alt="Avatar" class="w-6 h-6 rounded-full object-cover">
                                         @else
                                             <div
                                                 class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                                {{ mb_substr($notification->sender->name, 0, 2, 'UTF-8') }}
+                                                {{ mb_substr($notification->user->name, 0, 2, 'UTF-8') }}
                                             </div>
                                         @endif
-                                        {{ $notification->sender->name }}
+                                        {{ $notification->user->name }}
                                     </div>
                                 </x-td>
                                 <x-td>{{ $notification->created_at->format('d/m/Y H:i') }}</x-td>

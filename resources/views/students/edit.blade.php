@@ -88,7 +88,7 @@
                         <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth"
                             :value="old(
                                 'date_of_birth',
-                                $user->student->date_of_birth ? $user->student->date_of_birth->format('Y-m-d') : '',
+                                $user->student?->date_of_birth ? $user->student?->date_of_birth->format('Y-m-d') : '',
                             )" autocomplete="date_of_birth" />
                         <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
                     </div>
@@ -99,20 +99,20 @@
                             'male' => 'Nam',
                             'female' => 'Nữ',
                         ]" name="gender"
-                            :selected="old('gender', $user->student->gender)" :placeholder="__('Chọn giới tính')" />
+                            :selected="old('gender', $user->student?->gender)" :placeholder="__('Chọn giới tính')" />
                         <x-input-error :messages="$errors->get('gender')" class="mt-2" />
                     </div>
 
                     <div>
                         <x-input-label for="phone" :value="__('Số điện thoại')" icon="fas fa-phone" />
                         <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone"
-                            :value="old('phone', $user->student->phone)" autocomplete="phone" :placeholder="__('Nhập số điện thoại (nếu có)')" />
+                            :value="old('phone', $user->student?->phone)" autocomplete="phone" :placeholder="__('Nhập số điện thoại (nếu có)')" />
                         <x-input-error :messages="$errors->get('phone')" class="mt-2" />
                     </div>
 
                     <div class="col-span-2">
                         <x-input-label for="address" :value="__('Địa chỉ')" icon="fas fa-map-marker-alt" />
-                        <x-textarea id="address" class="block mt-1 w-full" name="address" :value="old('address', $user->student->address)"
+                        <x-textarea id="address" class="block mt-1 w-full" name="address" :value="old('address', $user->student?->address)"
                             :placeholder="__('Nhập địa chỉ (nếu có)')" />
                         <x-input-error :messages="$errors->get('address')" class="mt-2" />
                     </div>

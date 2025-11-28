@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Repair;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RepairController extends Controller
 {
@@ -52,7 +53,17 @@ class RepairController extends Controller
                 ->with('warning', __('Đã ở trạng thái cuối cùng'));
         }
 
-        $repair->update(['status' => $nextStatus]);
+        $data = ['status' => $nextStatus];
+
+        if ($nextStatus === 'in_progress') {
+            $data['assigned_to'] = Auth::id();
+        }
+
+        if ($nextStatus === 'completed') {
+            $data['completed_at'] = now();
+        }
+
+        $repair->update($data);
 
         return redirect()->back()
             ->with('success', __('Trạng thái đã được cập nhật thành: :status', ['status' => $statusLabels[$nextStatus]]));

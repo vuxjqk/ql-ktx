@@ -30,7 +30,7 @@ class NotificationController extends Controller
             $validated['attachment'] = $request->file('attachment')->store('notifications', 'public');
         }
 
-        $validated['sender_id'] = Auth::id();
+        $validated['user_id'] = Auth::id();
 
         Notification::create($validated);
 

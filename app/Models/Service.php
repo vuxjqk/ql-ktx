@@ -32,14 +32,14 @@ class Service extends Model
             );
     }
 
-    public function serviceUsages()
+    public function usages()
     {
         return $this->hasMany(ServiceUsage::class);
     }
 
     public function getUsageAmountForRoom(Room $room)
     {
-        return $this->serviceUsages()
+        return $this->usages()
             ->where('room_id', $room->id)
             ->latest()
             ->first()

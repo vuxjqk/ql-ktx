@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Room extends Model
 {
@@ -24,6 +25,10 @@ class Room extends Model
         'capacity_desc' => ['capacity', 'desc'],
         'current_occupancy_asc' => ['current_occupancy', 'asc'],
         'current_occupancy_desc' => ['current_occupancy', 'desc'],
+        'latest' => ['created_at', 'desc'],
+        'price_asc' => ['price_per_month', 'asc'],
+        'price_desc' => ['price_per_month', 'desc'],
+        'rating' => ['favourites_count', 'desc'],
     ];
 
     public function scopeFilter($query, array $filters)
@@ -33,6 +38,25 @@ class Room extends Model
                 $filters['room_code'] ?? null,
                 fn($q, $room_code) =>
                 $q->where('room_code', 'like', "%$room_code%")
+            )
+            ->when(
+                $filters['capacity'] ?? null,
+                fn($q, $capacity) =>
+                $q->where('capacity', $capacity)
+            )
+            ->when(
+                $filters['available_only'] ?? null,
+                fn($q) => $q->whereColumn('current_occupancy', '<', 'capacity')
+            )
+            ->when(
+                $filters['min_price'] ?? null,
+                fn($q, $min_price) =>
+                $q->where('price_per_month', '>=', $min_price)
+            )
+            ->when(
+                $filters['max_price'] ?? null,
+                fn($q, $max_price) =>
+                $q->where('price_per_month', '<=', $max_price)
             )
             ->when(
                 $filters['branch_id'] ?? null,
@@ -92,7 +116,7 @@ class Room extends Model
         return $this->belongsToMany(Service::class, 'room_services');
     }
 
-    public function serviceUsages()
+    public function usages()
     {
         return $this->hasMany(ServiceUsage::class);
     }
@@ -125,5 +149,17 @@ class Room extends Model
     public function amenities()
     {
         return $this->belongsToMany(Amenity::class, 'room_amenities');
+    }
+
+    public function getIsFavouritedAttribute()
+    {
+        $user = Auth::user();
+        if (!$user) return false;
+
+        if ($this->relationLoaded('favourites')) {
+            return $this->favourites->contains('user_id', $user->id);
+        }
+
+        return $this->favourites()->where('user_id', $user->id)->exists();
     }
 }

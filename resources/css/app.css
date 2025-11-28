@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.status-badge {
+    @apply inline-block px-4 py-1.5 text-xs font-bold rounded-full;
+}
+
+.status-pending {
+    @apply bg-yellow-100 text-yellow-800 border-yellow-300;
+}
+
+.status-approved {
+    @apply bg-blue-100 text-blue-800 border-blue-300;
+}
+
+.status-active {
+    @apply bg-green-100 text-green-800 border-green-300;
+}
+
+.status-rejected {
+    @apply bg-red-100 text-red-800 border-red-300;
+}
+
+.status-expired,
+.status-terminated {
+    @apply bg-gray-100 text-gray-700 border-gray-300;
+}
+
+.stat-card {
+    @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-xl;
+}
+
+.chart-container {
+    @apply bg-white rounded-xl shadow-md p-6 mb-8;
+}
+
+.trend-up {
+    @apply text-red-600;
+}
+
+.trend-down {
+    @apply text-green-600;
+}
+
+.exceed-quota {
+    @apply bg-red-50 border-l-4 border-red-500;
+}

@@ -15,7 +15,7 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                    Chào mừng đến với <span class="text-yellow-300">Ký túc xá UNI</span>
+                    Chào mừng đến với <span class="text-yellow-300">Ký túc xá HUIT</span>
                 </h1>
                 <p class="text-xl md:text-2xl text-blue-100 mb-10 max-w-3xl mx-auto">
                     Nơi ở tiện nghi, an toàn và hiện đại dành riêng cho sinh viên.
@@ -62,7 +62,7 @@
                     <p class="text-gray-600 mt-2">Sinh viên đang ở</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-md p-6 transform hover:scale-105 transition-transform duration-300">
-                    <div class="text-4xl font-bold text-orange-600">{{ $branches->count() }}</div>
+                    <div class="text-4xl font-bold text-orange-600">{{ $totalBranches ?? 0 }}</div>
                     <p class="text-gray-600 mt-2">Chi nhánh KTX</p>
                 </div>
             </div>
@@ -74,7 +74,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
-                    Tại sao chọn <span class="text-blue-600">Ký túc xá UNI</span>?
+                    Tại sao chọn <span class="text-blue-600">Ký túc xá HUIT</span>?
                 </h2>
                 <p class="text-lg text-gray-600 mt-4">Chúng tôi mang đến không gian sống lý tưởng cho sinh viên</p>
             </div>
@@ -155,7 +155,7 @@
                             </div>
 
                             <div class="p-5">
-                                <h3 class="text-lg font-bold text-gray-900">{{ $room->room_code }}</h3>
+                                <h3 class="text-lg font-bold text-gray-900">Phòng {{ $room->room_code }}</h3>
                                 <p class="text-sm text-gray-600 mt-1">
                                     <i class="fas fa-map-marker-alt text-blue-500 mr-1"></i>
                                     {{ $room->floor->branch->name }}
@@ -163,14 +163,18 @@
 
                                 <div class="flex items-center justify-between mt-4">
                                     <div>
-                                        <p class="text-2xl font-bold text-blue-600">
+                                        <p class="text-lg font-bold text-blue-600">
                                             {{ number_format($room->price_per_month) }}đ
                                             <span class="text-sm text-gray-500 font-normal">/tháng</span>
+                                        </p>
+                                        <p class="text-base font-semibold text-gray-700">
+                                            {{ number_format($room->price_per_day) }}đ
+                                            <span class="text-sm text-gray-500 font-normal">/ngày</span>
                                         </p>
                                     </div>
                                     <a href="{{ route('student.rooms.show', $room) }}"
                                         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold">
-                                        Xem chi tiết
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                 </div>
                             </div>
@@ -200,7 +204,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @foreach ($recentNotifications->take(4) as $notification)
+                    @foreach ($recentNotifications as $notification)
                         <div
                             class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-r-lg p-6 hover:shadow-lg transition-shadow">
                             <div class="flex items-start space-x-4">
@@ -212,7 +216,7 @@
                                 <div class="flex-1">
                                     <h4 class="font-bold text-gray-900">{{ $notification->title }}</h4>
                                     <p class="text-gray-600 mt-1 text-sm">
-                                        {{ Str::limit($notification->message ?? 'Xem chi tiết để biết thêm thông tin', 100) }}
+                                        {{ Str::limit($notification->content ?? 'Xem chi tiết để biết thêm thông tin', 100) }}
                                     </p>
                                     <p class="text-xs text-gray-500 mt-3">
                                         <i class="fas fa-clock mr-1"></i>

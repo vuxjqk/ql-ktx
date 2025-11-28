@@ -21,17 +21,47 @@
             <!-- Sidebar: Avatar + Info Summary -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-lg p-8 text-center sticky top-24">
-                    <div class="relative inline-block">
-                        <img src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('images/default-avatar.png') }}"
-                            alt="{{ auth()->user()->name }}"
-                            class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-blue-100 shadow-xl">
+                    <form action="{{ route('student.avatar.update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
 
-                        <label for="avatar-upload"
-                            class="absolute bottom-2 right-2 bg-blue-600 text-white p-3 rounded-full cursor-pointer hover:bg-blue-700 transition-all shadow-lg">
-                            <i class="fas fa-camera"></i>
-                        </label>
-                        <input type="file" id="avatar-upload" class="hidden" accept="image/*">
-                    </div>
+                        <div x-data="avatarPreview()" class="relative inline-block">
+
+                            <!-- Preview -->
+                            <template x-if="preview">
+                                <img :src="preview"
+                                    class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-blue-100 shadow-xl">
+                            </template>
+
+                            <template x-if="!preview">
+                                @if (auth()->user()->avatar)
+                                    <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                                        class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-blue-100 shadow-xl">
+                                @else
+                                    <div
+                                        class="h-40 w-40 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 
+                                            flex items-center justify-center text-white font-bold text-5xl mx-auto border-4 border-blue-100 shadow-xl">
+                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                    </div>
+                                @endif
+                            </template>
+
+                            <!-- Chọn ảnh -->
+                            <label for="avatar-upload"
+                                class="absolute bottom-2 right-2 bg-blue-600 text-white p-3 rounded-full cursor-pointer hover:bg-blue-700 transition-all shadow-lg">
+                                <i class="fas fa-camera"></i>
+                            </label>
+
+                            <input type="file" id="avatar-upload" name="avatar" accept="image/*"
+                                @change="showPreview; $refs.submitBtn.classList.remove('hidden')" class="hidden">
+
+                            <!-- Nút submit icon -->
+                            <button type="submit" x-ref="submitBtn"
+                                class="hidden absolute top-2 right-2 bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition-all shadow-lg">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </form>
 
                     <h3 class="text-2xl font-bold text-gray-900 mt-6">{{ auth()->user()->name }}</h3>
                     <p class="text-gray-600">{{ auth()->user()->student?->student_code ?? 'N/A' }}</p>
@@ -89,6 +119,9 @@
                                 <input type="text" name="student_code"
                                     value="{{ auth()->user()->student?->student_code ?? '' }}"
                                     class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg">
+                                @error('student_code')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -121,6 +154,9 @@
                                 <input type="date" name="date_of_birth"
                                     value="{{ old('date_of_birth', auth()->user()->student?->date_of_birth?->format('Y-m-d')) }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                @error('date_of_birth')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -137,6 +173,9 @@
                                         {{ (auth()->user()->student?->gender ?? old('gender')) === 'female' ? 'selected' : '' }}>
                                         Nữ</option>
                                 </select>
+                                @error('gender')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -146,6 +185,9 @@
                                 <input type="text" name="class"
                                     value="{{ old('class', auth()->user()->student?->class) }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                @error('class')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="md:col-span-2">
@@ -154,15 +196,7 @@
                                 </label>
                                 <textarea name="address" rows="3"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">{{ old('address', auth()->user()->student?->address) }}</textarea>
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-image mr-1"></i> Ảnh đại diện mới
-                                </label>
-                                <input type="file" name="avatar" accept="image/*"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                @error('avatar')
+                                @error('address')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -187,13 +221,14 @@
 
                     <form action="{{ route('student.password.update') }}" method="POST">
                         @csrf
+                        @method('PATCH')
 
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Mật khẩu hiện tại</label>
                                 <input type="password" name="current_password" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
-                                @error('current_password')
+                                @error('current_password', 'updatePassword')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -202,7 +237,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Mật khẩu mới</label>
                                 <input type="password" name="password" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
-                                @error('password')
+                                @error('password', 'updatePassword')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -237,7 +272,8 @@
                         <p class="mt-2 text-sm">Hành động này <strong>không thể hoàn tác</strong>.</p>
                     </div>
 
-                    <button type="button" onclick="confirmDelete()"
+                    <button type="button" x-data=""
+                        x-on:click="$dispatch('open-modal', 'confirm-delete-account')"
                         class="px-8 py-4 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl flex items-center">
                         <i class="fas fa-trash-alt mr-2"></i>
                         Xóa tài khoản vĩnh viễn
@@ -247,45 +283,67 @@
         </div>
     </div>
 
-    <!-- Modal xác nhận xóa tài khoản -->
-    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
-            <div class="text-center">
-                <i class="fas fa-exclamation-triangle text-red-600 text-6xl mb-4"></i>
-                <h3 class="text-2xl font-bold text-gray-900 mb-4">Xác nhận xóa tài khoản?</h3>
-                <p class="text-gray-600 mb-8">Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác!
-                </p>
-
-                <form action="{{ route('student.profile.destroy') }}" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <div class="space-y-4">
-                        <input type="password" name="password" placeholder="Nhập mật khẩu để xác nhận" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center">
-                        <div class="flex gap-4 justify-center">
-                            <button type="button" onclick="closeModal()"
-                                class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">
-                                Hủy bỏ
-                            </button>
-                            <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                                Có, xóa tài khoản
-                            </button>
-                        </div>
-                    </div>
-                </form>
+    {{-- Modal xác nhận xóa tài khoản – dùng Alpine.js (x-modal) --}}
+    <x-modal name="confirm-delete-account" :show="$errors->userDeletion->isNotEmpty()" focusable>
+        <div class="p-8 text-center">
+            <!-- Icon cảnh báo -->
+            <div class="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-exclamation-triangle text-red-600 text-5xl"></i>
             </div>
+
+            <!-- Tiêu đề & mô tả -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">
+                Xác nhận xóa tài khoản?
+            </h3>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Bạn có chắc chắn muốn xóa tài khoản này?<br>
+                <strong class="text-red-600">Hành động này không thể hoàn tác!</strong><br>
+                Tất cả dữ liệu sẽ bị xóa vĩnh viễn.
+            </p>
+
+            <!-- Form xác nhận bằng mật khẩu -->
+            <form action="{{ route('student.profile.destroy') }}" method="POST" class="space-y-6">
+                @csrf
+                @method('DELETE')
+
+                <div>
+                    <input type="password" name="password" required autocomplete="current-password"
+                        placeholder="Nhập mật khẩu để xác nhận xóa"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition">
+                    @error('password', 'userDeletion')
+                        <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="flex gap-4 justify-center">
+                    <button type="button" x-on:click="$dispatch('close')"
+                        class="px-6 py-3 bg-gray-300 text-gray-800 font-medium rounded-lg hover:bg-gray-400 transition">
+                        Hủy bỏ
+                    </button>
+
+                    <button type="submit"
+                        class="px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg">
+                        Có, xóa tài khoản
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
+    </x-modal>
 @endsection
 
-@push('scripts')
-    <script>
-        function confirmDelete() {
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
 
-        function closeModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
+@pushOnce('scripts')
+    <script>
+        function avatarPreview() {
+            return {
+                preview: null,
+                showPreview(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.preview = URL.createObjectURL(file);
+                }
+            }
         }
     </script>
-@endpush
+@endPushOnce

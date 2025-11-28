@@ -2,14 +2,14 @@
 
 @section('title', 'Danh sách phòng')
 
-@push('styles')
+@pushOnce('styles')
     <style>
         .filter-card {
             position: sticky;
             top: 5rem;
         }
     </style>
-@endpush
+@endPushOnce
 
 @section('content')
     <div class="bg-gradient-to-br from-blue-600 to-indigo-700 py-12">
@@ -43,8 +43,8 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i class="fas fa-search mr-1"></i>Tìm kiếm
                             </label>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Mã phòng, chi nhánh..."
+                            <input type="text" name="room_code" value="{{ request('room_code') }}"
+                                placeholder="Mã phòng..."
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                         </div>
 
@@ -196,7 +196,9 @@
                                     Cao đến thấp</option>
                                 <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>Đánh giá cao
                                 </option>
-                                <option value="capacity" {{ request('sort') == 'capacity' ? 'selected' : '' }}>Số người
+                                <option value="capacity_desc" {{ request('sort') == 'capacity_desc' ? 'selected' : '' }}>
+                                    Số
+                                    người
                                 </option>
                             </select>
                         </div>
@@ -207,7 +209,7 @@
                                 class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold text-sm">
                                 <i class="fas fa-search mr-2"></i>Tìm kiếm
                             </button>
-                            <a href="#"
+                            <a href="{{ route('student.rooms.index') }}"
                                 class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold text-sm">
                                 <i class="fas fa-redo"></i>
                             </a>
@@ -274,21 +276,18 @@
                                 @endif
 
                                 <!-- Favourite Button -->
-                                <form action="#" method="POST" class="inline-block">
-                                    @csrf
-                                    <button type="submit"
-                                        class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors duration-200">
-                                        <i
-                                            class="fas fa-heart {{ $room->is_favourited ?? false ? 'text-red-500' : 'text-gray-400' }}"></i>
-                                    </button>
-                                </form>
+                                <button data-favourite-url="{{ route('student.favourites.toggleFavourite', $room) }}"
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors duration-200 favourite-btn">
+                                    <i
+                                        class="fas fa-heart {{ $room->is_favourited ? 'text-red-500' : 'text-gray-400' }}"></i>
+                                </button>
                             </div>
 
                             <!-- Room Info -->
                             <div class="p-5">
                                 <div class="flex items-start justify-between mb-3">
                                     <div>
-                                        <h3 class="text-lg font-bold text-gray-900">{{ $room->room_code }}</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">Phòng {{ $room->room_code }}</h3>
                                         <p class="text-sm text-gray-600 mt-1">
                                             <i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>
                                             {{ $room->floor->branch->name ?? 'N/A' }} - Tầng
@@ -338,10 +337,14 @@
                                             {{ number_format($room->price_per_month) }}đ
                                             <span class="text-sm text-gray-500 font-normal">/tháng</span>
                                         </p>
+                                        <p class="text-xl font-semibold text-gray-700">
+                                            {{ number_format($room->price_per_day) }}đ
+                                            <span class="text-sm text-gray-500 font-normal">/ngày</span>
+                                        </p>
                                     </div>
                                     <a href="{{ route('student.rooms.show', $room) }}"
                                         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-semibold">
-                                        Chi tiết
+                                        Xem chi tiết
                                     </a>
                                 </div>
                             </div>
@@ -351,7 +354,7 @@
                             <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
                             <h3 class="text-xl font-bold text-gray-900 mb-2">Không tìm thấy phòng</h3>
                             <p class="text-gray-600 mb-6">Vui lòng thử lại với các tiêu chí khác</p>
-                            <a href="#"
+                            <a href="{{ route('student.rooms.index') }}"
                                 class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
                                 <i class="fas fa-redo mr-2"></i>
                                 Xóa bộ lọc
@@ -380,21 +383,18 @@
                                     @endif
 
                                     <!-- Favourite Button -->
-                                    <form action="#" method="POST" class="inline-block">
-                                        @csrf
-                                        <button type="submit"
-                                            class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors duration-200">
-                                            <i
-                                                class="fas fa-heart {{ $room->is_favourited ?? false ? 'text-red-500' : 'text-gray-400' }}"></i>
-                                        </button>
-                                    </form>
+                                    <button data-favourite-url="{{ route('student.favourites.toggleFavourite', $room) }}"
+                                        class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors duration-200 favourite-btn">
+                                        <i
+                                            class="fas fa-heart {{ $room->is_favourited ? 'text-red-500' : 'text-gray-400' }}"></i>
+                                    </button>
                                 </div>
 
                                 <!-- Content -->
                                 <div class="flex-1 p-6">
                                     <div class="flex items-start justify-between mb-3">
                                         <div>
-                                            <h3 class="text-xl font-bold text-gray-900">{{ $room->room_code }}</h3>
+                                            <h3 class="text-xl font-bold text-gray-900">Phòng {{ $room->room_code }}</h3>
                                             <p class="text-sm text-gray-600 mt-1">
                                                 <i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>
                                                 {{ $room->floor->branch->name ?? 'N/A' }} - Tầng
@@ -447,8 +447,12 @@
                                                 {{ number_format($room->price_per_month) }}đ
                                                 <span class="text-sm text-gray-500 font-normal">/tháng</span>
                                             </p>
+                                            <p class="text-2xl font-semibold text-gray-700">
+                                                {{ number_format($room->price_per_day) }}đ
+                                                <span class="text-sm text-gray-500 font-normal">/ngày</span>
+                                            </p>
                                         </div>
-                                        <a href="#"
+                                        <a href="{{ route('student.rooms.show', $room) }}"
                                             class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold">
                                             Xem chi tiết
                                         </a>
@@ -461,11 +465,98 @@
 
                 <!-- Pagination -->
                 @if ($rooms->hasPages())
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        {{ $rooms->links() }}
+                    <div class="flex justify-center items-center space-x-1 mt-6 text-sm">
+
+                        {{-- Previous --}}
+                        @if ($rooms->onFirstPage())
+                            <span class="px-3 py-1 bg-gray-200 rounded">Prev</span>
+                        @else
+                            <a href="{{ $rooms->previousPageUrl() }}"
+                                class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Prev</a>
+                        @endif
+
+                        {{-- Page numbers --}}
+                        @php
+                            $total = $rooms->lastPage();
+                            $current = $rooms->currentPage();
+                            $start = max($current - 2, 1);
+                            $end = min($current + 2, $total);
+                        @endphp
+
+                        {{-- First page + ellipsis --}}
+                        @if ($start > 1)
+                            <a href="{{ $rooms->url(1) }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">1</a>
+                            @if ($start > 2)
+                                <span class="px-2">…</span>
+                            @endif
+                        @endif
+
+                        {{-- Pages around current --}}
+                        @for ($i = $start; $i <= $end; $i++)
+                            @if ($i == $current)
+                                <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ $i }}</span>
+                            @else
+                                <a href="{{ $rooms->url($i) }}"
+                                    class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ $i }}</a>
+                            @endif
+                        @endfor
+
+                        {{-- Last page + ellipsis --}}
+                        @if ($end < $total)
+                            @if ($end < $total - 1)
+                                <span class="px-2">…</span>
+                            @endif
+                            <a href="{{ $rooms->url($total) }}"
+                                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">{{ $total }}</a>
+                        @endif
+
+                        {{-- Next --}}
+                        @if ($rooms->hasMorePages())
+                            <a href="{{ $rooms->nextPageUrl() }}"
+                                class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Next</a>
+                        @else
+                            <span class="px-3 py-1 bg-gray-200 rounded">Next</span>
+                        @endif
+
                     </div>
                 @endif
             </div>
         </div>
     </div>
+
+    @pushOnce('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                document.querySelectorAll('.favourite-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const url = this.dataset.favouriteUrl;
+                        const icon = this.querySelector('i');
+
+                        axios.post(url, {}, {
+                                headers: {
+                                    'X-CSRF-TOKEN': token
+                                }
+                            })
+                            .then(response => {
+                                const status = response.data.status;
+
+                                if (status === 'added') {
+                                    icon.classList.remove('far', 'text-gray-400');
+                                    icon.classList.add('fas', 'text-red-500');
+                                } else {
+                                    icon.classList.remove('fas', 'text-red-500');
+                                    icon.classList.add('far', 'text-gray-400');
+                                }
+                            })
+                            .catch(error => {
+                                console.error(error);
+                                alert('Có lỗi xảy ra, vui lòng thử lại');
+                            });
+                    });
+                });
+            });
+        </script>
+    @endPushOnce
 @endsection

@@ -12,38 +12,45 @@ class RoomController extends Controller
 {
     public function index(Request $request)
     {
-        $rooms = Room::with('floor.branch')
+        $rooms = Room::with([
+            'floor.branch',
+            'images' => fn($q) => $q->limit(1),
+            'favourites',
+            'amenities'
+        ])
+            ->withAvg('reviews', 'rating')
             ->filter($request->all())
             ->paginate(10)
             ->appends($request->query());
 
-        $totalRooms = Room::count();
-        $fullRooms = Room::whereRaw('current_occupancy >= capacity')->count();
-        $emptyRooms = Room::whereRaw('current_occupancy = 0')->count();
-        $missingRooms = Room::whereRaw('current_occupancy < capacity AND current_occupancy > 0')->count();
-
         $branches = Branch::pluck('name', 'id')->toArray();
 
-        return view('student.rooms.index', compact(
-            'rooms',
-            'totalRooms',
-            'fullRooms',
-            'emptyRooms',
-            'missingRooms',
-            'branches'
-        ));
+        return view('student.rooms.index', compact('rooms', 'branches'));
     }
 
     public function show(Room $room)
     {
-        $room->load(['floor.branch', 'images', 'services', 'amenities', 'activeBookings'])
-            ->loadCount('favourites')
+        $room->load(['floor.branch', 'images', 'favourites', 'services', 'amenities'])
+            ->loadCount(['favourites', 'reviews'])
             ->loadAvg('reviews', 'rating');
 
-        $userReview = Auth::user()->review;
-        $reviews = $room->reviews()->paginate(10);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        $similarRooms = $room->floor->rooms()->where('id', '!=', $room->id)->take(3)->get();
+        $userReview = $user?->reviews()->where('room_id', $room->id)->first();
+        $reviews = $room->reviews()->with(['user'])->paginate(10);
+
+        $similarRooms = $room->floor->rooms()
+            ->with([
+                'floor.branch',
+                'images' => fn($q) => $q->limit(1),
+                'favourites',
+                'amenities',
+            ])
+            ->withAvg('reviews', 'rating')
+            ->where('id', '!=', $room->id)
+            ->take(3)
+            ->get();
 
         return view('student.rooms.show', compact('room', 'userReview', 'reviews', 'similarRooms'));
     }

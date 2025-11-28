@@ -2,7 +2,7 @@
 
 @section('title', 'Phòng yêu thích')
 
-@push('styles')
+@pushOnce('styles')
     <style>
         .empty-state {
             min-height: 60vh;
@@ -17,7 +17,7 @@
             transition: opacity 0.2s;
         }
     </style>
-@endpush
+@endPushOnce
 
 @section('content')
     <!-- Hero Section -->
@@ -38,27 +38,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach ($favourites as $room)
                     <div
-                        class="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group room-card relative">
-                        <!-- Remove from favourite button -->
-                        <form action="{{ route('student.favourites.destroy', $room) }}" method="POST"
-                            class="absolute top-3 right-3 z-10">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" onclick="return confirm('Xóa phòng này khỏi danh sách yêu thích?')"
-                                class="remove-favourite bg-white/90 backdrop-blur p-2 rounded-full shadow-lg hover:bg-red-50 transition-all">
-                                <i class="fas fa-heart-broken text-red-500"></i>
-                            </button>
-                        </form>
-
-                        <!-- Favourite indicator -->
-                        <div class="absolute top-3 left-3 z-10">
-                            <span class="bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
-                                <i class="fas fa-heart mr-1"></i>Yêu thích
-                            </span>
-                        </div>
-
-                        <!-- Image -->
-                        <div class="relative h-52 overflow-hidden">
+                        class="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+                        <div class="relative h-48 overflow-hidden">
                             @if ($room->images->count() > 0)
                                 <img src="{{ asset('storage/' . $room->images->first()->image_path) }}"
                                     alt="{{ $room->room_code }}"
@@ -70,62 +51,41 @@
                                 </div>
                             @endif
 
-                            <!-- Availability Badge -->
                             @if ($room->current_occupancy < $room->capacity)
                                 <span
-                                    class="absolute bottom-3 left-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                                    class="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
                                     Còn {{ $room->capacity - $room->current_occupancy }} chỗ
                                 </span>
-                            @else
-                                <span
-                                    class="absolute bottom-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
-                                    Đã đầy
-                                </span>
                             @endif
+
+                            <div class="absolute top-3 left-3 z-10">
+                                <span class="bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                                    <i class="fas fa-heart mr-1"></i>Yêu thích
+                                </span>
+                            </div>
                         </div>
 
-                        <!-- Content -->
                         <div class="p-5">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $room->room_code }}</h3>
-
+                            <h3 class="text-lg font-bold text-gray-900">Phòng {{ $room->room_code }}</h3>
                             <p class="text-sm text-gray-600 mb-3 flex items-center">
                                 <i class="fas fa-map-marker-alt text-rose-500 mr-2"></i>
                                 {{ $room->floor->branch->name ?? 'N/A' }} - Tầng {{ $room->floor->floor_number ?? '?' }}
                             </p>
 
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                <span
-                                    class="inline-flex items-center text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                                    <i class="fas fa-users mr-1"></i>
-                                    {{ $room->current_occupancy }}/{{ $room->capacity }}
-                                </span>
-                                <span
-                                    class="inline-flex items-center text-xs bg-purple-50 text-purple-700 px-3 py-1 rounded-full">
-                                    <i class="fas fa-venus-mars mr-1"></i>
-                                    {{ $room->floor->gender_type === 'male' ? 'Nam' : ($room->floor->gender_type === 'female' ? 'Nữ' : 'Hỗn hợp') }}
-                                </span>
-                            </div>
-
-                            @if ($room->reviews_avg_rating)
-                                <div class="flex items-center mb-3">
-                                    <i class="fas fa-star text-yellow-400 text-sm"></i>
-                                    <span class="ml-1 text-sm font-semibold text-gray-900">
-                                        {{ number_format($room->reviews_avg_rating, 1) }}
-                                    </span>
-                                    <span class="text-xs text-gray-500 ml-1">({{ $room->reviews_count }} đánh giá)</span>
-                                </div>
-                            @endif
-
                             <div class="flex items-center justify-between mt-4">
                                 <div>
-                                    <p class="text-2xl font-bold text-rose-600">
+                                    <p class="text-lg font-bold text-rose-600">
                                         {{ number_format($room->price_per_month) }}đ
                                         <span class="text-sm text-gray-500 font-normal">/tháng</span>
                                     </p>
+                                    <p class="text-base font-semibold text-gray-600">
+                                        {{ number_format($room->price_per_day) }}đ
+                                        <span class="text-sm text-gray-500 font-normal">/ngày</span>
+                                    </p>
                                 </div>
                                 <a href="{{ route('student.rooms.show', $room) }}"
-                                    class="bg-rose-600 text-white px-5 py-2.5 rounded-lg hover:bg-rose-700 transition-colors font-semibold text-sm">
-                                    Xem chi tiết
+                                    class="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700 transition-colors text-sm font-semibold">
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </div>
                         </div>
@@ -153,11 +113,11 @@
     </div>
 @endsection
 
-@push('scripts')
+@pushOnce('scripts')
     <script>
         // Toast khi xóa thành công (nếu bạn dùng <x-toast />)
         document.addEventListener('livewire:load', function() {
             // Nếu dùng @livewireScripts, có thể bắt sự kiện xóa thành công
         });
     </script>
-@endpush
+@endPushOnce

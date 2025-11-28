@@ -31,4 +31,9 @@ class ServiceUsage extends Model
     {
         return $this->hasMany(ServiceUsageShare::class);
     }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
 }

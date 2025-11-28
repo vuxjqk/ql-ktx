@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content')->nullable();
             $table->string('attachment')->nullable();
-            $table->foreignId('sender_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

@@ -118,187 +118,235 @@
                 </form>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <x-table :title="__('Danh sách đặt phòng')">
-                    <x-thead>
-                        <x-tr>
-                            <x-th>{{ __('STT') }}</x-th>
-                            <x-th>{{ __('Người đặt phòng') }}</x-th>
-                            <x-th>{{ __('Phòng') }}</x-th>
-                            <x-th>{{ __('Hình thức') }}</x-th>
-                            <x-th>{{ __('Thời gian cư trú') }}</x-th>
-                            <x-th>{{ __('Trạng thái') }}</x-th>
-                            <x-th>{{ __('Hành động') }}</x-th>
-                        </x-tr>
-                    </x-thead>
-                    <x-tbody>
-                        @foreach ($bookings as $index => $booking)
-                            <x-tr>
-                                <x-td>#{{ $bookings->firstItem() + $index }}</x-td>
-                                <x-td>
-                                    <div class="flex items-center gap-2">
-                                        @if ($booking->user->avatar)
-                                            <img src="{{ asset('storage/' . $booking->user->avatar) }}" alt="Avatar"
-                                                class="w-8 h-8 rounded-full object-cover">
-                                        @else
-                                            <div
-                                                class="w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                                {{ mb_substr($booking->user->name, 0, 2, 'UTF-8') }}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h3 class="text-lg font-semibold text-gray-800">Danh sách đặt phòng</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    STT</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Sinh viên</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Phòng</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Hình thức</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Thời gian</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Trạng thái</th>
+                                <th
+                                    class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($bookings as $index => $booking)
+                                @php
+                                    $isCheckoutRequested =
+                                        $booking->status === 'active' && $booking->actual_check_out_date !== null;
+                                    $statusClass = match ($booking->status) {
+                                        'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                                        'approved' => 'bg-blue-100 text-blue-800 border-blue-300',
+                                        'rejected' => 'bg-red-100 text-red-800 border-red-300',
+                                        'active' => $isCheckoutRequested
+                                            ? 'bg-orange-100 text-orange-800 border-orange-300'
+                                            : 'bg-green-100 text-green-800 border-green-300',
+                                        'expired', 'terminated' => 'bg-gray-100 text-gray-700 border-gray-300',
+                                        default => 'bg-gray-100 text-gray-600',
+                                    };
+
+                                    $statusText = match (true) {
+                                        $booking->status === 'pending' => 'Chờ duyệt',
+                                        $booking->status === 'approved' => 'Đã duyệt',
+                                        $booking->status === 'rejected' => 'Bị từ chối',
+                                        $isCheckoutRequested => 'Yêu cầu trả phòng',
+                                        $booking->status === 'active' => 'Đang hoạt động',
+                                        $booking->status === 'expired' => 'Hết hạn',
+                                        $booking->status === 'terminated' => 'Đã chấm dứt',
+                                        default => 'Không xác định',
+                                    };
+                                @endphp
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-4 text-sm text-gray-600">#{{ $bookings->firstItem() + $index }}
+                                    </td>
+
+                                    <!-- Sinh viên -->
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3">
+                                            @if ($booking->user->avatar)
+                                                <img src="{{ asset('storage/' . $booking->user->avatar) }}"
+                                                    alt="Avatar" class="w-10 h-10 rounded-full object-cover border">
+                                            @else
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+                                                    {{ mb_substr($booking->user->name, 0, 2, 'UTF-8') }}
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <p class="font-medium text-gray-900">{{ $booking->user->name }}</p>
+                                                <p class="text-xs text-gray-500">MSSV:
+                                                    {{ $booking->user->student?->student_code }}</p>
+                                                <p class="text-xs text-gray-500">
+                                                    {{ $booking->user->student?->gender === 'male' ? 'Nam' : ($booking->user->student?->gender === 'female' ? 'Nữ' : 'Khác') }}
+                                                </p>
                                             </div>
-                                        @endif
-                                        <div class="grid">
-                                            <span class="font-semibold">{{ $booking->user->name }}</span>
-                                            <span class="text-sm">
-                                                {{ __('MSSV: ') . $booking->user->student?->student_code }}
+                                        </div>
+                                    </td>
+
+                                    <!-- Phòng -->
+                                    <td class="px-4 py-4 text-sm">
+                                        <p class="font-medium">{{ $booking->room->room_code }}</p>
+                                        <p class="text-xs text-gray-500">Tầng {{ $booking->room->floor->floor_number }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ $booking->room->floor->branch->name }}</p>
+                                    </td>
+
+                                    <!-- Hình thức -->
+                                    <td class="px-4 py-4 text-sm">
+                                        <div class="space-y-1">
+                                            <span class="block text-xs">
+                                                {{ $booking->booking_type === 'registration' ? 'Đăng ký mới' : ($booking->booking_type === 'transfer' ? 'Chuyển phòng' : 'Gia hạn') }}
                                             </span>
-                                            <span class="text-sm">
-                                                {{ __('Giới tính: ') . ($booking->user->student?->gender === 'male' ? 'Nam' : ($booking->user->student?->gender === 'female' ? 'Nữ' : 'Khác')) }}
+                                            <span
+                                                class="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+                                                {{ $booking->rental_type === 'daily' ? 'Theo ngày' : 'Theo tháng' }}
                                             </span>
                                         </div>
-                                    </div>
-                                </x-td>
-                                <x-td>
-                                    <div class="grid">
-                                        <span class="font-semibold">{{ $booking->room->room_code }}</span>
-                                        <span class="text-sm">
-                                            {{ __('Tầng: ') . $booking->room->floor->floor_number }}
-                                        </span>
-                                        <span class="text-sm">
-                                            {{ __('Chi nhánh: ') . $booking->room->floor->branch->name }}
-                                        </span>
-                                    </div>
-                                </x-td>
-                                <x-td>
-                                    <div class="grid">
-                                        <span>{{ __('Hình thức đăng ký: ') . ($booking->booking_type === 'registration' ? 'Đăng ký mới' : ($booking->booking_type === 'transfer' ? 'Chuyển phòng' : 'Gia hạn')) }}</span>
-                                        <span>{{ __('Hình thức thuê: ') . ($booking->rental_type === 'daily' ? 'Theo ngày' : 'Theo tháng') }}</span>
-                                    </div>
-                                </x-td>
-                                <x-td>
-                                    {{ $booking->check_in_date->format('d/m/Y') }} -
-                                    {{ $booking->expected_check_out_date->format('d/m/Y') }}
-                                </x-td>
-                                <x-td>
-                                    @switch($booking->status)
-                                        @case('pending')
-                                            <div class="grid">
-                                                <span class="text-yellow-600">{{ __('Chờ duyệt') }}</span>
+                                    </td>
 
-                                                <div>
-                                                    <x-icon-button :data-update-url="route('bookings.update', $booking)" data-status-value="approved"
-                                                        data-status-label="phê duyệt" title="Phê duyệt"
-                                                        class="!bg-green-500 !text-white hover:!bg-green-600"
-                                                        x-data=""
-                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </x-icon-button>
-                                                    <x-icon-button :data-update-url="route('bookings.update', $booking)" data-status-value="rejected"
-                                                        data-status-label="từ chối" title="Từ chối"
-                                                        class="!bg-orange-500 !text-white hover:!bg-orange-600"
-                                                        x-data=""
-                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
-                                                        <i class="fas fa-times-circle"></i>
-                                                    </x-icon-button>
-                                                </div>
-                                            </div>
-                                        @break
+                                    <!-- Thời gian -->
+                                    <td class="px-4 py-4 text-sm text-gray-600">
+                                        {{ $booking->check_in_date->format('d/m/Y') }}
+                                        <span class="text-gray-400">→</span>
+                                        {{ $booking->expected_check_out_date->format('d/m/Y') }}
+                                        @if ($booking->actual_check_out_date)
+                                            <br><span class="text-xs text-red-600">Trả thực tế:
+                                                {{ $booking->actual_check_out_date->format('d/m/Y') }}</span>
+                                        @endif
+                                    </td>
 
-                                        @case('approved')
-                                            <div class="grid">
-                                                <span class="text-blue-600">{{ __('Đã duyệt') }}</span>
+                                    <!-- Trạng thái + Hành động theo trạng thái -->
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <span
+                                                class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border {{ $statusClass }}">
+                                                <i class="fas fa-circle text-[8px] mr-1"></i>
+                                                {{ $statusText }}
+                                            </span>
 
-                                                <div>
+                                            <!-- Hành động nhỏ ngay tại cột trạng thái -->
+                                            <div class="flex items-center gap-1">
+                                                @if ($booking->status === 'pending')
+                                                    <button title="Phê duyệt"
+                                                        data-update-url="{{ route('bookings.update', $booking) }}"
+                                                        data-status-value="approved" data-status-label="phê duyệt"
+                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')"
+                                                        class="p-1.5 text-green-600 hover:bg-green-100 rounded-lg transition">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button title="Từ chối"
+                                                        data-update-url="{{ route('bookings.update', $booking) }}"
+                                                        data-status-value="rejected" data-status-label="từ chối"
+                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')"
+                                                        class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                @elseif($booking->status === 'approved')
                                                     @php
-                                                        if ($booking->rental_type === 'daily') {
-                                                            $days =
-                                                                $booking->check_in_date->diffInDays(
-                                                                    $booking->expected_check_out_date,
-                                                                ) + 1;
-                                                            $requiredAmount = $days * $booking->room->price_per_day;
-                                                        } else {
-                                                            $requiredAmount = $booking->room->price_per_month;
-                                                        }
-
+                                                        $amount =
+                                                            $booking->rental_type === 'daily'
+                                                                ? ($booking->check_in_date->diffInDays(
+                                                                        $booking->expected_check_out_date,
+                                                                    ) +
+                                                                        1) *
+                                                                    $booking->room->price_per_day
+                                                                : $booking->room->price_per_month;
                                                         $bill = $booking->bills()->oldest()->first();
                                                     @endphp
-
                                                     @if ($bill)
-                                                        <x-icon-button :data-bill-create-url="route('payments.store', $bill)" :data-amount="$requiredAmount" title="Thanh toán"
-                                                            class="!bg-blue-500 !text-white hover:!bg-blue-600"
-                                                            x-data=""
-                                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')">
-                                                            <i class="fas fa-money-check-alt"></i>
-                                                        </x-icon-button>
+                                                        <button title="Ghi nhận thanh toán trực tiếp"
+                                                            data-bill-create-url="{{ route('payments.store', $bill) }}"
+                                                            data-amount="{{ $amount }}"
+                                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-bill-creation')"
+                                                            class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition">
+                                                            <i class="fas fa-money-bill-wave"></i>
+                                                        </button>
                                                     @endif
-                                                </div>
+                                                @elseif($booking->status === 'active')
+                                                    @if (!$isCheckoutRequested)
+                                                        <button title="Chấm dứt sớm"
+                                                            data-update-url="{{ route('bookings.terminateBooking', $booking) }}"
+                                                            data-status-value="terminate"
+                                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')"
+                                                            class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                                            <i class="fas fa-stop"></i>
+                                                        </button>
+                                                    @endif
+                                                @elseif(in_array($booking->status, ['rejected', 'expired', 'terminated']))
+                                                    <span class="text-xs text-gray-500">Hoàn tất</span>
+                                                @endif
                                             </div>
-                                        @break
+                                        </div>
 
-                                        @case('rejected')
-                                            <div class="grid">
-                                                <span class="text-red-600">{{ __('Bị từ chối') }}</span>
-                                                <span class="text-sm">
-                                                    {{ __('Lý do:') }}
-                                                    <br>
-                                                    {{ $booking->reason ?? __('Không có lý do') }}
-                                                </span>
-                                            </div>
-                                        @break
+                                        @if ($booking->reason)
+                                            <p class="text-xs text-red-600 mt-1">Lý do:
+                                                {{ Str::limit($booking->reason, 50) }}</p>
+                                        @endif
+                                    </td>
 
-                                        @case('active')
-                                            <div class="grid">
-                                                <span class="text-green-600">{{ __('Đang hoạt động') }}</span>
+                                    <!-- Cột hành động chính -->
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <!-- Xem chi tiết -->
+                                            <a href="{{ route('bookings.show', $booking) }}"
+                                                class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
 
-                                                <div>
-                                                    <x-icon-button :data-update-url="route('bookings.terminateBooking', $booking)" data-status-value="terminate"
-                                                        data-status-label="chấm dứt hợp đồng" title="Chấm dứt"
-                                                        class="!bg-red-500 !text-white hover:!bg-red-600"
-                                                        x-data=""
-                                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-updation')">
-                                                        <i class="fas fa-times"></i>
-                                                    </x-icon-button>
-                                                </div>
-                                            </div>
-                                        @break
+                                            <!-- Tạo hóa đơn (hàng tháng hoặc kết thúc) -->
+                                            @if ($booking->status === 'active' && ($booking->rental_type === 'monthly' || $isCheckoutRequested))
+                                                <a href="{{ route('bills.create', $booking->user) }}"
+                                                    class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                                                    title="{{ $isCheckoutRequested ? 'Tạo hóa đơn kết thúc' : 'Tạo hóa đơn hàng tháng' }}">
+                                                    <i class="fas fa-file-invoice-dollar"></i>
+                                                </a>
+                                            @endif
 
-                                        @case('expired')
-                                            <div class="grid">
-                                                <span class="text-gray-600">{{ __('Hết hạn') }}</span>
-                                                <span class="text-sm">
-                                                    {{ __('Ngày trả phòng:') }}
-                                                    <br>
-                                                    {{ $booking->actual_check_out_date->format('d/m/Y') }}
-                                                </span>
-                                            </div>
-                                        @break
+                                            <!-- Xóa -->
+                                            @if ($booking->status === 'active')
+                                                <button data-delete-url="{{ route('bookings.destroy', $booking) }}"
+                                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')"
+                                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                    title="Xóa vĩnh viễn">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-                                        @case('terminated')
-                                            <div class="grid">
-                                                <span class="text-red-600">{{ __('Đã chấm dứt') }}</span>
-                                                <span class="text-sm">
-                                                    {{ __('Ngày trả phòng:') }}
-                                                    <br>
-                                                    {{ $booking->actual_check_out_date->format('d/m/Y') }}
-                                                </span>
-                                            </div>
-                                        @break
-                                    @endswitch
-                                </x-td>
-                                <x-td>
-                                    <x-icon-button :href="route('bookings.show', $booking)" icon="fas fa-eye" :title="__('Xem chi tiết')"
-                                        class="!bg-blue-500 !text-white hover:!bg-blue-600" />
-
-                                    <x-icon-button :data-delete-url="route('bookings.destroy', $booking)" icon="fas fa-trash" :title="__('Xoá')"
-                                        class="!bg-red-500 !text-white hover:!bg-red-600" x-data=""
-                                        x-on:click.prevent="$dispatch('open-modal', 'confirm-deletion')" />
-                                </x-td>
-                            </x-tr>
-                        @endforeach
-                    </x-tbody>
-                </x-table>
+                <!-- Phân trang -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    {{ $bookings->links() }}
+                </div>
             </div>
-
-            {{ $bookings->links() }}
         </div>
     </div>
 

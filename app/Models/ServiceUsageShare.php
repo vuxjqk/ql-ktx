@@ -16,4 +16,9 @@ class ServiceUsageShare extends Model
     {
         return $this->belongsTo(ServiceUsage::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

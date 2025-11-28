@@ -18,6 +18,55 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
+    public function store(Bill $bill)
+    {
+        if (!in_array($bill->status, ['unpaid', 'partial'])) {
+            return redirect()->back()->with('error', __('Hóa đơn này không thể thanh toán.'));
+        }
+
+        $alreadyPaid = $bill->payments()->sum('amount');
+        $remaining = $bill->total_amount - $alreadyPaid;
+
+        if ($remaining <= 0) {
+            return redirect()->back()->with('error', __('Hóa đơn này đã được thanh toán đầy đủ.'));
+        }
+
+        $amount = $remaining;
+
+        try {
+            DB::transaction(function () use ($bill, $amount) {
+                Payment::create([
+                    'bill_id' => $bill->id,
+                    'payment_type' => 'online',
+                    'amount' => $amount,
+                    'paid_at' => now(),
+                    'user_id' => $bill->user_id,
+                ]);
+
+                $paidAmount = $bill->payments()->sum('amount');
+
+                $status = $paidAmount >= $bill->total_amount ? 'paid' : 'partial';
+                $bill->update(['status' => $status]);
+
+                $booking = $bill->booking;
+                if ($booking->status === 'approved') {
+                    $booking->update(['status' => 'active']);
+                } else if ($booking->status === 'active' && $booking->actual_check_out_date) {
+                    $booking->update(['status' => 'terminated']);
+
+                    if ($booking->room->current_occupancy > 0) {
+                        $booking->room->decrement('current_occupancy');
+                    }
+                }
+            });
+
+            return redirect()->route('student.bookings.index')->with('success', __('Thanh toán thành công.'));
+        } catch (Exception $e) {
+            Log::error('Lỗi khi thanh toán hóa đơn ' . $bill->bill_code . ': ' . $e->getMessage());
+            return redirect()->route('student.bookings.index')->with('error', __('Không thể thanh toán. Vui lòng thử lại.'));
+        }
+    }
+
     public function redirect(Request $request, Bill $bill)
     {
         if (!in_array($bill->status, ['unpaid', 'partial'])) {
@@ -31,9 +80,7 @@ class PaymentController extends Controller
             return redirect()->back()->with('error', __('Hóa đơn này đã được thanh toán đầy đủ.'));
         }
 
-        $request->validate([
-            'amount' => 'required|numeric|min:1|max:' . $remaining,
-        ]);
+        $amount = $remaining;
 
         $vnp_TmnCode = config('services.vnpay.tmn_code');
         $vnp_HashSecret = config('services.vnpay.hash_secret');
@@ -43,7 +90,7 @@ class PaymentController extends Controller
         $vnp_TxnRef = $bill->bill_code . '_' . uniqid();
         $vnp_OrderInfo = "Thanh toan hoa don #" . $bill->bill_code;
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $request->amount * 100;
+        $vnp_Amount = $amount * 100;
         $vnp_Locale = 'vn';
         $vnp_IpAddr = $request->ip();
 
@@ -143,6 +190,12 @@ class PaymentController extends Controller
                 $booking = $bill->booking;
                 if ($booking->status === 'approved') {
                     $booking->update(['status' => 'active']);
+                } else if ($booking->status === 'active' && $booking->actual_check_out_date) {
+                    $booking->update(['status' => 'terminated']);
+
+                    if ($booking->room->current_occupancy > 0) {
+                        $booking->room->decrement('current_occupancy');
+                    }
                 }
 
                 $this->generateAndSendInvoice($bill);

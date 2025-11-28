@@ -106,7 +106,21 @@ class StudentController extends Controller
         }
 
         $user->update($validated);
-        $user->student?->fill($validated)->save();
+
+        $studentData = [
+            'student_code' => $validated['student_code'],
+            'class' => $validated['class'] ?? null,
+            'date_of_birth' => $validated['date_of_birth'] ?? null,
+            'gender' => $validated['gender'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+        ];
+
+        if ($user->student) {
+            $user->student->update($studentData);
+        } else {
+            $user->student()->create($studentData);
+        }
 
         return redirect()->route('students.index')->with('success', __('Đã cập nhật thành công'));
     }

@@ -137,7 +137,7 @@
                                 @break
 
                                 @case('terminated')
-                                    <span class="text-red-600">{{ __('Đã hủy') }}</span>
+                                    <span class="text-red-600">{{ __('Đã chấm dứt') }}</span>
                                 @break
                             @endswitch
                         </p>
@@ -191,17 +191,19 @@
                                 VND</p>
                         </div>
 
-                        @if ($booking->contract->contract_file)
-                            <div>
-                                <x-input-label :value="__('Tệp hợp đồng')" icon="fas fa-file-pdf" />
+                        <div>
+                            <x-input-label :value="__('Tệp hợp đồng')" icon="fas fa-file-pdf" />
+                            @if ($booking->contract->contract_file)
                                 <p class="mt-1">
                                     <a href="{{ asset('storage/' . $booking->contract->contract_file) }}"
                                         target="_blank" class="text-blue-600 hover:underline">
                                         <i class="fas fa-download"></i> {{ __('Tải xuống') }}
                                     </a>
                                 </p>
-                            </div>
-                        @endif
+                            @else
+                                <p class="mt-1 text-gray-800">{{ __('Không có file') }}</p>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endif

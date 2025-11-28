@@ -5,27 +5,38 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavouriteController extends Controller
 {
     public function index()
     {
-        $favourites = auth()->user()->favouriteRooms()
-            ->with(['images', 'floor.branch'])
-            ->withCount('reviews')
-            ->withAvg('reviews', 'rating')
-            ->latest('favourites.created_at')
-            ->paginate(12);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $favourites = $user->favouriteRooms()
+            ->with([
+                'images' => fn($q) => $q->limit(1),
+                'floor.branch'
+            ])
+            ->paginate(10);
 
         return view('student.favourites.index', compact('favourites'));
     }
 
-    public function destroy(Room $room)
+    public function toggleFavourite(Room $room)
     {
-        auth()->user()->favouriteRooms()->detach($room->id);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        // toast('Đã xóa khỏi danh sách yêu thích', 'success');
+        if ($user->favouriteRooms()->where('room_id', $room->id)->exists()) {
+            $user->favouriteRooms()->detach($room->id);
+            $status = 'removed';
+        } else {
+            $user->favouriteRooms()->attach($room->id);
+            $status = 'added';
+        }
 
-        return back();
+        return response()->json(['status' => $status]);
     }
 }

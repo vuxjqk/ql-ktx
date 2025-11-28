@@ -114,9 +114,9 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
-    public function review()
+    public function reviews()
     {
-        return $this->hasOne(Review::class);
+        return $this->hasMany(Review::class);
     }
 
     public function repairs()
@@ -126,7 +126,11 @@ class User extends Authenticatable
 
     public function favouriteRooms()
     {
-        return $this->belongsToMany(Room::class, 'favourites', 'user_id', 'room_id')
-            ->withTimestamps(); // nếu bảng favourites có created_at, updated_at
+        return $this->belongsToMany(Room::class, 'favourites')->withTimestamps();
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,17 +59,24 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        try {
+            $user->delete();
 
-        if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('student.home')->with('success', __('Tài khoản đã được xoá thành công'));
+        } catch (QueryException $e) {
+            $msg = $e->getCode() === '23000'
+                ? __('Không thể xóa vì có dữ liệu liên quan')
+                : __('Đã xảy ra lỗi khi xoá');
+
+            return redirect()->back()->with('error', $msg);
         }
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
     }
 }

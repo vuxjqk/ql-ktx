@@ -8,6 +8,7 @@ use App\Models\Booking;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BookingController extends Controller
 {
@@ -15,6 +16,7 @@ class BookingController extends Controller
     {
         $bookings = Booking::with(['user.student', 'room.floor.branch'])
             ->filter($request->all())
+            ->latest('updated_at')
             ->paginate(10)
             ->appends($request->query());
 
@@ -103,30 +105,47 @@ class BookingController extends Controller
                 ->with('error', __('Trạng thái hiện tại không hợp lệ: :status', ['status' => $booking->status]));
         }
 
-        $booking->update([
+        $data = [
             'actual_check_out_date' => now(),
             'status' => 'terminated',
-            'reason' => $validated['reason'],
             'processed_at' => now(),
             'processed_by' => Auth::id(),
-        ]);
+        ];
+
+        if (!is_null($validated['reason'] ?? null)) {
+            $data['reason'] = $validated['reason'];
+        }
+
+        $booking->update($data);
 
         if ($booking->room->current_occupancy > 0) {
             $booking->room->decrement('current_occupancy');
         }
 
-        return redirect()->back()->with('success', __('Đã chấm dứt hợp đồng thành công'));
+        return redirect()->route('bookings.show', $booking)->with('success', __('Đã chấm dứt thành công'));
     }
 
     public function destroy(Booking $booking)
     {
-        if (!in_array($booking->status, ['pending', 'approved'])) {
-            return redirect()->back()->with('error', __('Chỉ có thể xoá booking đang chờ hoặc đã duyệt.'));
+        if ($booking->status === 'active') {
+            return redirect()->back()->with('error', __('Không thể xoá booking đang hoạt động'));
         }
 
         try {
             if ($booking->room->current_occupancy > 0) {
                 $booking->room->decrement('current_occupancy');
+            }
+
+            $contract = $booking->contract;
+            if ($contract) {
+                if ($contract->contract_file && Storage::disk('public')->exists($contract->contract_file)) {
+                    Storage::disk('public')->delete($contract->contract_file);
+                }
+                $contract->delete();
+            }
+
+            if ($booking->bills && $booking->bills->count()) {
+                $booking->bills->each->delete();
             }
 
             $booking->delete();

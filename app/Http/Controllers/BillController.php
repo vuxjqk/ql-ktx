@@ -190,13 +190,15 @@ class BillController extends Controller
         File::delete($pdfPath);
     }
 
-    protected function createBill(User $user, bool $isMonthlyBill = false)
+    protected function createBill(User $user)
     {
         $booking = $user->activeBooking;
 
         if (!$booking) {
             return redirect()->back()->with('info', __('Sinh viên này hiện tại không cư trú.'));
         }
+
+        $isMonthlyBill = $booking->actual_check_out_date ? false : true;
 
         if ($booking->rental_type === 'daily' && $isMonthlyBill) {
             return redirect()->back()->with('warning', __('Sinh viên thuê theo ngày không tạo hóa đơn hàng tháng.'));
@@ -212,6 +214,15 @@ class BillController extends Controller
 
             if ($exists) {
                 return redirect()->back()->with('warning', __('Hóa đơn tháng này đã tồn tại và chưa bị hủy.'));
+            }
+        } else {
+            $nonMonthlyBills = Bill::where('booking_id', $booking->id)
+                ->where('is_monthly_bill', false)
+                ->where('status', '!=', 'cancelled')
+                ->get();
+
+            if ($nonMonthlyBills->count() >= 2) {
+                return redirect()->back()->with('warning', __('Hóa đơn kết thúc đã tồn tại và chưa bị hủy.'));
             }
         }
 

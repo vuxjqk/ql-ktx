@@ -2,7 +2,7 @@
 
 @section('title', 'Chi tiết phòng - ' . $room->room_code)
 
-@push('styles')
+@pushOnce('styles')
     <style>
         .gallery-main {
             height: 500px;
@@ -28,7 +28,7 @@
             border: 3px solid #3B82F6;
         }
     </style>
-@endpush
+@endPushOnce
 
 @section('content')
     <!-- Breadcrumb -->
@@ -37,18 +37,18 @@
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-2 text-sm">
                     <li>
-                        <a href="#" class="text-gray-600 hover:text-blue-600">
+                        <a href="{{ route('student.home') }}" class="text-gray-600 hover:text-blue-600">
                             <i class="fas fa-home"></i>
                         </a>
                     </li>
                     <li><i class="fas fa-chevron-right text-gray-400 text-xs"></i></li>
                     <li>
-                        <a href="#" class="text-gray-600 hover:text-blue-600">
+                        <a href="{{ route('student.rooms.index') }}" class="text-gray-600 hover:text-blue-600">
                             Danh sách phòng
                         </a>
                     </li>
                     <li><i class="fas fa-chevron-right text-gray-400 text-xs"></i></li>
-                    <li class="text-gray-900 font-medium">{{ $room->room_code }}</li>
+                    <li class="text-gray-900 font-medium">Phòng {{ $room->room_code }}</li>
                 </ol>
             </nav>
         </div>
@@ -60,7 +60,7 @@
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div class="flex-1">
                     <div class="flex items-center space-x-3 mb-2">
-                        <h1 class="text-3xl font-bold text-gray-900">{{ $room->room_code }}</h1>
+                        <h1 class="text-3xl font-bold text-gray-900">Phòng {{ $room->room_code }}</h1>
                         @if ($room->current_occupancy < $room->capacity)
                             <span class="bg-green-500 text-white text-sm font-semibold px-4 py-1 rounded-full">
                                 <i class="fas fa-check-circle mr-1"></i>Còn trống
@@ -86,16 +86,13 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <form action="#" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-red-500 hover:text-red-500 transition-all duration-200">
-                            <i class="fas fa-heart {{ $room->is_favourited ?? false ? 'text-red-500' : '' }}"></i>
-                            <span class="font-medium">{{ $room->is_favourited ?? false ? 'Đã lưu' : 'Lưu' }}</span>
-                        </button>
-                    </form>
+                    <button data-favourite-url="{{ route('student.favourites.toggleFavourite', $room) }}"
+                        class="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-red-500 hover:text-red-500 transition-all duration-200 favourite-btn">
+                        <i class="fas fa-heart {{ $room->is_favourited ?? false ? 'text-red-500' : '' }}"></i>
+                        <span class="font-medium">{{ $room->is_favourited ?? false ? 'Đã lưu' : 'Lưu' }}</span>
+                    </button>
                     <button
-                        onclick="if(navigator.share){navigator.share({title:'{{ $room->room_code }}',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);alert('Đã sao chép link!')}"
+                        onclick="if(navigator.share){navigator.share({title:'Phòng {{ $room->room_code }}',url:window.location.href})}else{navigator.clipboard.writeText(window.location.href);alert('Đã sao chép link!')}"
                         class="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-all duration-200">
                         <i class="fas fa-share-alt"></i>
                         <span class="font-medium">Chia sẻ</span>
@@ -117,7 +114,7 @@
                         <div class="gallery-main overflow-hidden">
                             @if ($room->images && $room->images->count() > 0)
                                 <img :src="'{{ asset('storage') . '/' }}' + images[currentImage]"
-                                    alt="{{ $room->room_code }}" class="w-full h-full object-cover">
+                                    alt="Phòng {{ $room->room_code }}" class="w-full h-full object-cover">
                             @else
                                 <div
                                     class="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
@@ -266,8 +263,8 @@
                     <!-- Review Form -->
                     @auth
                         @if (!$userReview)
-                            <form action="#" method="POST" class="mb-8 p-6 bg-blue-50 rounded-lg">
-                                @csrf
+                            <form data-review-url="{{ route('student.reviews.reviewRoom', $room) }}"
+                                class="mb-8 p-6 bg-blue-50 rounded-lg review-form">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Viết đánh giá của bạn</h3>
 
                                 <div class="mb-4">
@@ -369,10 +366,11 @@
                                 class="text-4xl font-bold text-blue-600">{{ number_format($room->price_per_month) }}đ</span>
                             <span class="text-gray-600 ml-2">/tháng</span>
                         </div>
-                        <p class="text-sm text-gray-600 mt-2">
-                            <i class="fas fa-calendar-day mr-1"></i>
-                            Theo ngày: {{ number_format($room->price_per_day) }}đ
-                        </p>
+                        <div class="flex items-baseline">
+                            <span
+                                class="text-2xl font-semibold text-gray-700">{{ number_format($room->price_per_day) }}đ</span>
+                            <span class="text-gray-600 ml-2">/ngày</span>
+                        </div>
                     </div>
 
                     <!-- Booking Form -->
@@ -463,13 +461,14 @@
             <div class="mt-12">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">Phòng tương tự</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach ($similarRooms as $similarRoom)
+                    @foreach ($similarRooms as $room)
                         <div
                             class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                            <!-- Room Image -->
                             <div class="relative h-48 overflow-hidden">
-                                @if ($similarRoom->images && $similarRoom->images->count() > 0)
-                                    <img src="{{ asset('storage/' . $similarRoom->images->first()->image_path) }}"
-                                        alt="{{ $similarRoom->room_code }}"
+                                @if ($room->images && $room->images->count() > 0)
+                                    <img src="{{ asset('storage/' . $room->images->first()->image_path) }}"
+                                        alt="Phòng {{ $room->room_code }}"
                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                 @else
                                     <div
@@ -478,26 +477,90 @@
                                     </div>
                                 @endif
 
-                                @if ($similarRoom->current_occupancy < $similarRoom->capacity)
+                                <!-- Status Badge -->
+                                @if ($room->current_occupancy < $room->capacity)
                                     <span
-                                        class="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                                        Còn trống
+                                        class="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                                        <i class="fas fa-check-circle mr-1"></i>Còn
+                                        {{ $room->capacity - $room->current_occupancy }} chỗ
+                                    </span>
+                                @else
+                                    <span
+                                        class="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                                        <i class="fas fa-times-circle mr-1"></i>Đã đầy
                                     </span>
                                 @endif
+
+                                <!-- Favourite Button -->
+                                <button data-favourite-url="{{ route('student.favourites.toggleFavourite', $room) }}"
+                                    class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white transition-colors duration-200 favourite-btn">
+                                    <i
+                                        class="fas fa-heart {{ $room->is_favourited ? 'text-red-500' : 'text-gray-400' }}"></i>
+                                </button>
                             </div>
 
+                            <!-- Room Info -->
                             <div class="p-5">
-                                <h3 class="text-lg font-bold text-gray-900 mb-2">{{ $similarRoom->room_code }}</h3>
-                                <p class="text-sm text-gray-600 mb-4">
-                                    <i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>
-                                    {{ $similarRoom->floor->branch->name ?? 'N/A' }}
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xl font-bold text-blue-600">
-                                        {{ number_format($similarRoom->price_per_month) }}đ
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-900">Phòng {{ $room->room_code }}</h3>
+                                        <p class="text-sm text-gray-600 mt-1">
+                                            <i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>
+                                            {{ $room->floor->branch->name ?? 'N/A' }} - Tầng
+                                            {{ $room->floor->floor_number ?? 'N/A' }}
+                                        </p>
+                                    </div>
+                                    @if ($room->reviews_avg_rating)
+                                        <div class="flex items-center bg-yellow-50 px-2 py-1 rounded-lg">
+                                            <i class="fas fa-star text-yellow-400 text-sm mr-1"></i>
+                                            <span
+                                                class="text-sm font-semibold text-gray-900">{{ number_format($room->reviews_avg_rating, 1) }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span
+                                        class="inline-flex items-center text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+                                        <i class="fas fa-users mr-1"></i>
+                                        {{ $room->current_occupancy }}/{{ $room->capacity }}
                                     </span>
-                                    <a href="#" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">
-                                        Xem chi tiết →
+                                    <span
+                                        class="inline-flex items-center text-xs bg-purple-50 text-purple-700 px-3 py-1 rounded-full">
+                                        <i class="fas fa-door-closed mr-1"></i>
+                                        {{ $room->floor->gender_type === 'male' ? 'Nam' : ($room->floor->gender_type === 'female' ? 'Nữ' : 'Hỗn hợp') }}
+                                    </span>
+                                </div>
+
+                                @if ($room->amenities && $room->amenities->count() > 0)
+                                    <div class="flex flex-wrap gap-1 mb-4">
+                                        @foreach ($room->amenities->take(3) as $amenity)
+                                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                                {{ $amenity->name }}
+                                            </span>
+                                        @endforeach
+                                        @if ($room->amenities->count() > 3)
+                                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                                +{{ $room->amenities->count() - 3 }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <div class="border-t border-gray-100 pt-4 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-2xl font-bold text-blue-600">
+                                            {{ number_format($room->price_per_month) }}đ
+                                            <span class="text-sm text-gray-500 font-normal">/tháng</span>
+                                        </p>
+                                        <p class="text-xl font-semibold text-gray-700">
+                                            {{ number_format($room->price_per_day) }}đ
+                                            <span class="text-sm text-gray-500 font-normal">/ngày</span>
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('student.rooms.show', $room) }}"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-semibold">
+                                        Xem chi tiết
                                     </a>
                                 </div>
                             </div>
@@ -509,7 +572,7 @@
     </div>
 @endsection
 
-@push('scripts')
+@pushOnce('scripts')
     <script>
         // Auto-scroll to reviews if hash is present
         if (window.location.hash === '#reviews') {
@@ -517,5 +580,83 @@
                 behavior: 'smooth'
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            document.querySelectorAll('.favourite-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.dataset.favouriteUrl;
+                    const icon = this.querySelector('i');
+                    const span = this.querySelector('span');
+
+                    axios.post(url, {}, {
+                            headers: {
+                                'X-CSRF-TOKEN': token
+                            }
+                        })
+                        .then(response => {
+                            const status = response.data.status;
+
+                            if (status === 'added') {
+                                icon.classList.remove('far', 'text-gray-400');
+                                icon.classList.add('fas', 'text-red-500');
+
+                                if (span) span.textContent = 'Đã lưu';
+                            } else {
+                                icon.classList.remove('fas', 'text-red-500');
+                                icon.classList.add('far', 'text-gray-400');
+
+                                if (span) span.textContent = 'Lưu';
+                            }
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert('Có lỗi xảy ra, vui lòng thử lại');
+                        });
+                });
+            });
+
+            document.querySelectorAll('.review-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const url = this.dataset.reviewUrl;
+                    const rating = this.querySelector('input[name="rating"]').value;
+                    const comment = this.querySelector('textarea[name="comment"]').value;
+                    const statusBox = this.closest('.review-wrapper')?.querySelector(
+                            '.review-status') ||
+                        this.querySelector('.review-status');
+
+                    axios.post(url, {
+                            rating: rating,
+                            comment: comment
+                        }, {
+                            headers: {
+                                'X-CSRF-TOKEN': token
+                            }
+                        })
+                        .then(response => {
+                            const data = response.data;
+
+                            if (statusBox) {
+                                statusBox.textContent = data.status === 'created' ?
+                                    'Đã gửi đánh giá!' :
+                                    'Đã cập nhật đánh giá!';
+                                statusBox.className = 'review-status text-green-600 mt-2';
+                            }
+
+                            window.location.reload();
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            if (statusBox) {
+                                statusBox.textContent = 'Gửi đánh giá thất bại.';
+                                statusBox.className = 'review-status text-red-500 mt-2';
+                            }
+                        });
+                });
+            });
+        });
     </script>
-@endpush
+@endPushOnce

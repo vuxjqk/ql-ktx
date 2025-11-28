@@ -36,11 +36,11 @@
             <div class="flex justify-between h-16">
                 <!-- Logo & Brand -->
                 <div class="flex items-center">
-                    <a href="#" class="flex items-center space-x-3">
+                    <a href="{{ route('student.home') }}" class="flex items-center space-x-3">
                         <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-lg">
                             <i class="fas fa-building text-white text-xl"></i>
                         </div>
-                        <span class="text-xl font-bold text-gray-800">Ký túc xá UNI</span>
+                        <span class="text-xl font-bold text-gray-800">Ký túc xá HUIT</span>
                     </a>
                 </div>
 
@@ -80,21 +80,32 @@
                             </span>
                         @endif
                     </a>
+                    <a href="#"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
+                            {{ request()->routeIs('student.about')
+                                ? 'bg-blue-50 text-blue-700'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-info-circle mr-2"></i>Về chúng tôi
+                    </a>
+                    <a href="#"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200
+                            {{ request()->routeIs('student.contact')
+                                ? 'bg-blue-50 text-blue-700'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fas fa-envelope mr-2"></i>Liên hệ
+                    </a>
                 </div>
 
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open"
+                    <div class="relative" x-data="notificationDropdown()" x-init="fetchNotifications()">
+                        <button @click="toggle()"
                             class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
                             <i class="fas fa-bell text-lg"></i>
-                            @if (isset($unreadNotifications) && $unreadNotifications > 0)
-                                <span
-                                    class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                    {{ $unreadNotifications > 9 ? '9+' : $unreadNotifications }}
-                                </span>
-                            @endif
+                            <span x-show="unreadCount > 0"
+                                class="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+                                x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
                         </button>
 
                         <!-- Notification Dropdown -->
@@ -104,7 +115,7 @@
                                 <h3 class="text-sm font-semibold text-gray-900">Thông báo</h3>
                             </div>
                             <div class="max-h-96 overflow-y-auto">
-                                @forelse($notifications ?? [] as $notification)
+                                <template x-for="notification in notifications" :key="notification.id">
                                     <a href="#"
                                         class="block p-4 hover:bg-gray-50 border-b border-gray-100 transition-colors duration-200">
                                         <div class="flex items-start space-x-3">
@@ -115,72 +126,95 @@
                                                 </div>
                                             </div>
                                             <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900">{{ $notification->title }}
+                                                <p class="text-sm font-medium text-gray-900"
+                                                    x-text="notification.title"></p>
+                                                <p class="text-xs text-gray-500 mt-1" x-text="notification.created_at">
                                                 </p>
-                                                <p class="text-xs text-gray-500 mt-1">
-                                                    {{ $notification->created_at->diffForHumans() }}</p>
                                             </div>
                                         </div>
                                     </a>
-                                @empty
-                                    <div class="p-8 text-center text-gray-500">
-                                        <i class="fas fa-bell-slash text-3xl mb-2"></i>
-                                        <p class="text-sm">Không có thông báo mới</p>
-                                    </div>
-                                @endforelse
+                                </template>
+
+                                <div x-show="notifications.length === 0" class="p-8 text-center text-gray-500">
+                                    <i class="fas fa-bell-slash text-3xl mb-2"></i>
+                                    <p class="text-sm">Không có thông báo mới</p>
+                                </div>
                             </div>
                             <div class="p-3 text-center border-t border-gray-200">
-                                <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-700">
+                                <a href="{{ route('student.notifications.index') }}"
+                                    class="text-sm font-medium text-blue-600 hover:text-blue-700">
                                     Xem tất cả
                                 </a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- User Profile -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open"
-                            class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                            <div
-                                class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-medium">
-                                {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
-                            </div>
-                            <span
-                                class="hidden md:block text-sm font-medium text-gray-700">{{ auth()->user()->name ?? 'User' }}</span>
-                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
-                        </button>
+                    <!-- User Authentication Links / Profile Dropdown -->
+                    <div class="flex items-center space-x-4">
+                        @auth
+                            <!-- Đã đăng nhập → hiện avatar + dropdown -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open"
+                                    class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                                    <div
+                                        class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm">
+                                        {{ substr(auth()->user()->name, 0, 1) }}
+                                    </div>
+                                    <span class="hidden md:block text-sm font-medium text-gray-700">
+                                        {{ auth()->user()->name }}
+                                    </span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                </button>
 
-                        <!-- User Dropdown -->
-                        <div x-show="open" @click.away="open = false" x-cloak
-                            class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                            <div class="p-4 border-b border-gray-200">
-                                <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name ?? 'User' }}</p>
-                                <p class="text-xs text-gray-500">{{ auth()->user()->email ?? 'email@example.com' }}</p>
+                                <!-- Dropdown Menu -->
+                                <div x-show="open" @click.away="open = false" x-cloak
+                                    class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                                    <div class="p-4 border-b border-gray-200 bg-gray-50">
+                                        <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                        <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</p>
+                                    </div>
+                                    <div class="py-2">
+                                        <a href="{{ route('student.profile.edit') }}"
+                                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
+                                            <i class="fas fa-user mr-3 text-gray-400"></i>Thông tin cá nhân
+                                        </a>
+                                        <a href="{{ route('student.bookings.history') }}"
+                                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
+                                            <i class="fas fa-history mr-3 text-gray-400"></i>Lịch sử đặt phòng
+                                        </a>
+                                        <a href="{{ route('student.service-costs.index') }}"
+                                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
+                                            <i class="fas fa-cog mr-3 text-gray-400"></i>Chi phí dịch vụ
+                                        </a>
+                                    </div>
+                                    <div class="border-t border-gray-200 py-2 bg-gray-50">
+                                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                                            @csrf
+                                            <button type="submit"
+                                                class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center font-medium">
+                                                <i class="fas fa-sign-out-alt mr-3"></i>Đăng xuất
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="py-2">
-                                <a href="{{ route('student.profile.edit') }}"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                    <i class="fas fa-user mr-2 text-gray-400"></i>Thông tin cá nhân
+                        @else
+                            <!-- Chưa đăng nhập → hiện 2 nút kiểu nổi bật -->
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ route('login') }}"
+                                    class="flex items-center px-4 py-2 rounded-lg text-sm font-medium 
+                                        {{ request()->routeIs('login') ? 'bg-blue-50 text-blue-700' : 'bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900' }} 
+                                        border border-gray-300 shadow-sm transition-all duration-200">
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
                                 </a>
-                                <a href="#"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                    <i class="fas fa-history mr-2 text-gray-400"></i>Lịch sử đặt phòng
-                                </a>
-                                <a href="#"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                    <i class="fas fa-cog mr-2 text-gray-400"></i>Cài đặt
+                                <a href="{{ route('register') }}"
+                                    class="flex items-center px-4 py-2 rounded-lg text-sm font-medium 
+                                        {{ request()->routeIs('register') ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700' }} 
+                                        shadow-md transition-all duration-200">
+                                    <i class="fas fa-user-plus mr-2"></i>Đăng ký
                                 </a>
                             </div>
-                            <div class="border-t border-gray-200 py-2">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit"
-                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
-                                        <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        @endauth
                     </div>
 
                     <!-- Mobile Menu Button -->
@@ -196,21 +230,29 @@
         <div class="md:hidden border-t border-gray-200" x-data="{ mobileMenuOpen: false }"
             @toggle-mobile-menu.window="mobileMenuOpen = !mobileMenuOpen" x-show="mobileMenuOpen" x-cloak>
             <div class="px-4 py-3 space-y-1">
-                <a href="#"
+                <a href="{{ route('student.home') }}"
                     class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.home') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
                     <i class="fas fa-home mr-2"></i>Trang chủ
                 </a>
-                <a href="#"
+                <a href="{{ route('student.rooms.index') }}"
                     class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.rooms.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
                     <i class="fas fa-door-open mr-2"></i>Phòng
                 </a>
-                <a href="#"
+                <a href="{{ route('student.bookings.index') }}"
                     class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.bookings.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
                     <i class="fas fa-calendar-check mr-2"></i>Đặt phòng
                 </a>
-                <a href="#"
+                <a href="{{ route('student.favourites.index') }}"
                     class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.favourites.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
                     <i class="fas fa-heart mr-2"></i>Yêu thích
+                </a>
+                <a href="#"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.about') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <i class="fas fa-info-circle mr-2"></i>Về chúng tôi
+                </a>
+                <a href="#"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('student.contact') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <i class="fas fa-envelope mr-2"></i>Liên hệ
                 </a>
             </div>
         </div>
@@ -230,7 +272,7 @@
                         <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-lg">
                             <i class="fas fa-building text-white text-xl"></i>
                         </div>
-                        <span class="text-xl font-bold text-white">Ký túc xá UNI</span>
+                        <span class="text-xl font-bold text-white">Ký túc xá HUIT</span>
                     </div>
                     <p class="text-sm text-gray-400 mb-4">
                         Hệ thống quản lý ký túc xá hiện đại, tiện nghi và an toàn dành cho sinh viên.
@@ -251,9 +293,11 @@
                 <div>
                     <h3 class="text-white font-semibold mb-4">Liên kết</h3>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-sm hover:text-white transition-colors duration-200">Trang
+                        <li><a href="{{ route('student.home') }}"
+                                class="text-sm hover:text-white transition-colors duration-200">Trang
                                 chủ</a></li>
-                        <li><a href="#" class="text-sm hover:text-white transition-colors duration-200">Danh
+                        <li><a href="{{ route('student.rooms.index') }}"
+                                class="text-sm hover:text-white transition-colors duration-200">Danh
                                 sách phòng</a>
                         </li>
                         <li><a href="#" class="text-sm hover:text-white transition-colors duration-200">Về chúng
@@ -283,7 +327,7 @@
             </div>
 
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-                <p>&copy; {{ date('Y') }} Ký túc xá UNI. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} Ký túc xá HUIT. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -294,6 +338,32 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @stack('scripts')
+
+    <script>
+        function notificationDropdown() {
+            return {
+                open: false,
+                notifications: [],
+                unreadCount: 0,
+
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open) {
+                        this.fetchNotifications();
+                    }
+                },
+
+                fetchNotifications() {
+                    axios.get('{{ route('student.notifications.getNotifications') }}')
+                        .then(res => {
+                            this.notifications = res.data.notifications;
+                            this.unreadCount = res.data.unread_count;
+                        })
+                        .catch(err => console.error(err));
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>

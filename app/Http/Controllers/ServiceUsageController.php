@@ -18,7 +18,7 @@ class ServiceUsageController extends Controller
 
         $usageDate = $request->input('usage_date', now()->toDateString());
 
-        $usages = $room->serviceUsages()
+        $usages = $room->usages()
             ->withCount('shares')
             ->whereDate('usage_date', $usageDate)
             ->get()
@@ -70,7 +70,7 @@ class ServiceUsageController extends Controller
 
         try {
             DB::transaction(function () use ($usageDate, $servicesInput, $serviceIds, $services, $room, $bookings, $bookingCount) {
-                $room->serviceUsages()
+                $room->usages()
                     ->where('usage_date', $usageDate)
                     ->whereNotIn('service_id', $serviceIds)
                     ->delete();
@@ -78,7 +78,7 @@ class ServiceUsageController extends Controller
                 foreach ($servicesInput as $input) {
                     $service = $services->get($input['service_id']);
 
-                    $usage = $room->serviceUsages()->updateOrCreate([
+                    $usage = $room->usages()->updateOrCreate([
                         'service_id' => $input['service_id'],
                         'usage_date' => $usageDate,
                     ], [
