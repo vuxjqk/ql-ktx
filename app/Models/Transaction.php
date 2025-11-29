@@ -8,6 +8,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'payment_id',
+        'gateway',
         'transaction_code',
         'amount',
     ];

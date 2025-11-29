@@ -71,6 +71,10 @@
                                             class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
                                             VNPAY
                                         </a>
+                                        <a href="{{ route('student.zalopay.redirect', $newBooking->bills->first()) }}"
+                                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
+                                            ZALOPAY
+                                        </a>
                                         <a href="{{ route('student.payments.store', $newBooking->bills->first()) }}"
                                             class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
                                             Test
@@ -298,6 +302,10 @@
                                                                 <a href="{{ route('student.vnpay.redirect', $bill) }}"
                                                                     class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
                                                                     VNPAY
+                                                                </a>
+                                                                <a href="{{ route('student.zalopay.redirect', $bill) }}"
+                                                                    class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
+                                                                    ZALOPAY
                                                                 </a>
                                                                 <a href="{{ route('student.payments.store', $bill) }}"
                                                                     class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
