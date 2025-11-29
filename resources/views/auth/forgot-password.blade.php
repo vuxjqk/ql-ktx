@@ -1,31 +1,109 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+{{-- resources/views/auth/passwords/email.blade.php --}}
+@extends('student.layouts.app')
+
+@section('title', 'Quên mật khẩu')
+
+@section('content')
+    <div
+        class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <!-- Logo & Title -->
+            <div class="text-center mb-10">
+                <div
+                    class="mx-auto w-28 h-28 bg-white rounded-full shadow-xl flex items-center justify-center mb-6 border-4 border-blue-100">
+                    <i class="fas fa-key text-6xl text-blue-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-3">Quên mật khẩu?</h1>
+                <p class="text-lg text-gray-600">Nhập email sinh viên để nhận link đặt lại mật khẩu</p>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-8 sm:p-10">
+
+                    <!-- Success message (nếu đã gửi thành công) -->
+                    @if (session('status'))
+                        <div
+                            class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg text-center font-medium">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
+                        @csrf
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-envelope mr-2 text-blue-600"></i>Email sinh viên
+                            </label>
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                value="{{ old('email') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="mssv@huit.edu.vn">
+                            @error('email')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-800 transition shadow-lg">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Gửi link đặt lại mật khẩu
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="relative my-8">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-gray-500 font-medium">Hoặc</span>
+                        </div>
+                    </div>
+
+                    <!-- Social Login (có thể dùng để đăng nhập luôn) -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <a href="{{ route('auth.redirect', 'google') }}"
+                            class="social-btn border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-6 w-6">
+                            <span class="hidden sm:inline">Google</span>
+                        </a>
+
+                        <a href="{{ route('auth.redirect', 'facebook') }}"
+                            class="social-btn border-gray-300 hover:border-blue-600 hover:bg-blue-50 text-gray-700">
+                            <i class="fab fa-facebook-f text-xl text-blue-600"></i>
+                            <span class="hidden sm:inline">Facebook</span>
+                        </a>
+
+                        <a href="{{ route('auth.redirect', 'github') }}"
+                            class="social-btn border-gray-300 hover:border-black hover:bg-gray-100 text-gray-700">
+                            <i class="fab fa-github text-xl"></i>
+                            <span class="hidden sm:inline">GitHub</span>
+                        </a>
+                    </div>
+
+                    <!-- Back to Login -->
+                    <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                        <p class="text-gray-600">
+                            Đã nhớ mật khẩu?
+                            <a href="{{ route('login') }}"
+                                class="font-bold text-blue-600 hover:text-blue-800 transition underline underline-offset-2">
+                                Đăng nhập ngay
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Text -->
+            <div class="text-center mt-10 text-gray-500 text-sm">
+                <p>© 2025 Hệ thống Quản lý Ký túc xá Sinh viên HUIT</p>
+                <p class="mt-1">Phát triển bởi Trần Anh Vũ • Vũ Đình Ân • Trần Huỳnh Đức Anh</p>
+            </div>
+        </div>
     </div>
-
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" icon="fas fa-envelope" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
-                autofocus :placeholder="__('Nhập địa chỉ email')" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                href="{{ route('login') }}">
-                {{ __('Quay lại') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+@endsection

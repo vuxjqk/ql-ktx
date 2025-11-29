@@ -24,7 +24,10 @@ class HomeController extends Controller
                 ->whereColumn('current_occupancy', '<', 'capacity')
                 ->limit(8)
                 ->get(),
-            'recentNotifications' => Notification::latest()->limit(4)->get(),
+            'recentNotifications' => Notification::whereNull('user_id')
+                ->latest()
+                ->limit(4)
+                ->get(),
         ]);
     }
 }

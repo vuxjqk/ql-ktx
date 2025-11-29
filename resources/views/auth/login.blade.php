@@ -1,104 +1,125 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+{{-- resources/views/auth/login.blade.php --}}
+@extends('student.layouts.app')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('title', 'Đăng nhập')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" icon="fas fa-envelope" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
-                autofocus autocomplete="username" :placeholder="__('Nhập địa chỉ email')" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('content')
+    <div
+        class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <!-- Logo & Title -->
+            <div class="text-center mb-10">
+                <div
+                    class="mx-auto w-28 h-28 bg-white rounded-full shadow-xl flex items-center justify-center mb-6 border-4 border-blue-100">
+                    <i class="fas fa-building text-6xl text-blue-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-900 mb-3">Chào mừng trở lại!</h1>
+                <p class="text-lg text-gray-600">Đăng nhập để tiếp tục quản lý chỗ ở KTX của bạn</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-8 sm:p-10">
+                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                        @csrf
+
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-envelope mr-2 text-blue-600"></i>Email sinh viên
+                            </label>
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                value="{{ old('email') }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="mssv@huit.edu.vn">
+                            @error('email')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Password -->
+                        <div>
+                            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-lock mr-2 text-blue-600"></i>Mật khẩu
+                            </label>
+                            <input id="password" name="password" type="password" autocomplete="current-password" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                placeholder="Nhập mật khẩu của bạn">
+                            @error('password')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Remember & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center text-sm">
+                                <input type="checkbox" name="remember" class="text-blue-600 focus:ring-blue-500 rounded">
+                                <span class="ml-2 text-gray-700">Nhớ mật khẩu</span>
+                            </label>
+
+                            <a href="{{ route('password.request') }}"
+                                class="text-sm text-blue-600 hover:text-blue-800 font-medium transition">
+                                Quên mật khẩu?
+                            </a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-800 transition shadow-lg">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Đăng nhập
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="relative my-8">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white text-gray-500 font-medium">Hoặc đăng nhập bằng</span>
+                        </div>
+                    </div>
+
+                    <!-- Social Login Buttons -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <a href="{{ route('auth.redirect', 'google') }}"
+                            class="social-btn border-gray-300 hover:border-red-400 hover:bg-red-50 text-gray-700">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="h-6 w-6">
+                            <span class="hidden sm:inline">Google</span>
+                        </a>
+
+                        <a href="{{ route('auth.redirect', 'facebook') }}"
+                            class="social-btn border-gray-300 hover:border-blue-600 hover:bg-blue-50 text-gray-700">
+                            <i class="fab fa-facebook-f text-xl text-blue-600"></i>
+                            <span class="hidden sm:inline">Facebook</span>
+                        </a>
+
+                        <a href="{{ route('auth.redirect', 'github') }}"
+                            class="social-btn border-gray-300 hover:border-black hover:bg-gray-100 text-gray-700">
+                            <i class="fab fa-github text-xl"></i>
+                            <span class="hidden sm:inline">GitHub</span>
+                        </a>
+                    </div>
+
+                    <!-- Register Link -->
+                    <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                        <p class="text-gray-600">
+                            Chưa có tài khoản?
+                            <a href="{{ route('register') }}"
+                                class="font-bold text-blue-600 hover:text-blue-800 transition underline underline-offset-2">
+                                Đăng ký ngay
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Text -->
+            <div class="text-center mt-10 text-gray-500 text-sm">
+                <p>© 2025 Hệ thống Quản lý Ký túc xá Sinh viên HUIT</p>
+                <p class="mt-1">Phát triển bởi Trần Anh Vũ • Vũ Đình Ân • Trần Huỳnh Đức Anh</p>
+            </div>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" icon="fas fa-lock" />
-
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="current-password" :placeholder="__('Nhập mật khẩu')" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('register'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('register') }}">
-                    {{ __('Chưa có tài khoản?') }}
-                </a>
-            @endif
-
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ms-3"
-                    href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-
-    <hr class="w-48 mx-auto my-6 border border-gray-300">
-    <p class="text-sm text-gray-600 text-center mb-6">{{ __('Hoặc đăng nhập bằng') }}</p>
-
-    <div class="flex justify-center gap-3">
-        <x-secondary-button id="google-login">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"
-                class="w-6 h-6">
-            <span class="text-gray-600">Google</span>
-        </x-secondary-button>
-        <x-secondary-button id="facebook-login">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook"
-                class="w-6 h-6">
-            <span class="text-gray-600">Facebook</span>
-        </x-secondary-button>
-        <x-secondary-button id="github-login">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub"
-                class="w-6 h-6">
-            <span class="text-gray-600">GitHub</span>
-        </x-secondary-button>
     </div>
-
-    @pushOnce('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const login = (provider) => {
-                    const baseUrl = '{{ url('/auth') }}';
-
-                    fetch(`${baseUrl}/${provider}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success && data.socialite_url) {
-                                window.location.href = data.socialite_url;
-                            } else {
-                                alert('Không lấy được URL login');
-                            }
-                        })
-                        .catch(err => console.error('Lỗi:', err));
-                }
-
-                ['google-login', 'facebook-login', 'github-login'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) {
-                        btn.addEventListener('click', () => login(id.split('-')[0]));
-                    }
-                });
-            });
-        </script>
-    @endPushOnce
-</x-guest-layout>
+@endsection

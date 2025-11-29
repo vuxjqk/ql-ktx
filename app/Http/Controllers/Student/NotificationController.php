@@ -9,39 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function getNotifications()
-    {
-        $userId = Auth::id();
-
-        $notifications = Notification::where('user_id', $userId)
-            ->orWhereNull('user_id')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'title' => $notification->title,
-                    'is_read' => $notification->is_read,
-                    'created_at' => $notification->created_at->diffForHumans(),
-                ];
-            });
-
-        $unreadCount = Notification::where(function ($query) use ($userId) {
-            $query->where('user_id', $userId)
-                ->orWhereNull('user_id');
-        })
-            ->whereDoesntHave('reads', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->count();
-
-        return response()->json([
-            'notifications' => $notifications,
-            'unread_count' => $unreadCount,
-        ]);
-    }
-
     public function index()
     {
         $userId = Auth::id();

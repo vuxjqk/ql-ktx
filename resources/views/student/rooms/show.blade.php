@@ -426,10 +426,10 @@
                                 <i class="fas fa-phone text-blue-600 w-6"></i>
                                 <span class="ml-2">(028) 1234 5678</span>
                             </a>
-                            <a href="mailto:ktx@university.edu.vn"
+                            <a href="mailto:info@huit.edu.vn"
                                 class="flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-200">
                                 <i class="fas fa-envelope text-blue-600 w-6"></i>
-                                <span class="ml-2">ktx@university.edu.vn</span>
+                                <span class="ml-2">info@huit.edu.vn</span>
                             </a>
                             <a href="#"
                                 class="flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-200">

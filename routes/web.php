@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AmenityController;
-use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\BookingController;
@@ -19,6 +18,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceUsageController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Student\BookingController as StudentBookingController;
+use App\Http\Controllers\Student\ContactController;
 use App\Http\Controllers\Student\FavouriteController;
 use App\Http\Controllers\Student\HomeController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
@@ -28,7 +28,7 @@ use App\Http\Controllers\Student\RoomController as StudentRoomController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ReviewController;
 use App\Http\Controllers\Student\ServiceCostController;
-use App\Http\Controllers\Student\SocialiteController as StudentSocialiteController;
+use App\Http\Controllers\Student\SocialiteController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -42,9 +42,6 @@ Route::get('/lang/{locale}', function ($locale) {
 
 Route::post('/chatbot', [ChatbotController::class, 'handleChat'])->name('chatbot.handle');
 Route::get('/floors-by-branch/{branchId}', [FloorController::class, 'getByBranch']);
-
-Route::get('/auth/{provider}', [SocialiteController::class, 'redirect']);
-Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback']);
 
 Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -105,11 +102,16 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('student.home');
+Route::get('/about', function () {
+    return view('student.about');
+})->name('student.about');
+Route::get('/contact', [ContactController::class, 'create'])->name('student.contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('student.contact.store');
+
+Route::get('/auth/{provider}', [SocialiteController::class, 'redirect'])->name('auth.redirect');
+Route::get('/auth/{provider}/callback', [SocialiteController::class, 'callback']);
 
 Route::prefix('student')->name('student.')->group(function () {
-    Route::get('/auth/{provider}', [StudentSocialiteController::class, 'redirect'])->name('auth.redirect');
-    Route::get('/auth/{provider}/callback', [StudentSocialiteController::class, 'callback']);
-
     Route::get('/rooms', [StudentRoomController::class, 'index'])->name('rooms.index');
     Route::get('/rooms/{room}', [StudentRoomController::class, 'show'])->name('rooms.show');
 
@@ -143,7 +145,6 @@ Route::prefix('student')->name('student.')->group(function () {
         Route::get('/notifications/{notification}', [StudentNotificationController::class, 'show'])->name('notifications.show');
         Route::post('/notifications/{notification}/read', [StudentNotificationController::class, 'markRead'])->name('notifications.markRead');
         Route::post('/notifications/mark-all-read', [StudentNotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
-        Route::get('/notifications/getNotifications', [StudentNotificationController::class, 'getNotifications'])->name('notifications.getNotifications');
     });
 });
 

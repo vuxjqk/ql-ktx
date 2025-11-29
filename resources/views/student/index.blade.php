@@ -198,7 +198,8 @@
                     <h2 class="text-3xl font-bold text-gray-900">
                         <i class="fas fa-bell mr-3 text-blue-600"></i>Thông báo mới
                     </h2>
-                    <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">
+                    <a href="{{ route('student.notifications.index') }}"
+                        class="text-blue-600 hover:text-blue-700 font-medium">
                         Xem tất cả <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>

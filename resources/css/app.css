@@ -46,3 +46,15 @@
 .exceed-quota {
     @apply bg-red-50 border-l-4 border-red-500;
 }
+
+.social-btn {
+    @apply w-full flex items-center justify-center space-x-3 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-200 border-2;
+}
+
+.social-btn:hover {
+    @apply transform -translate-y-1 shadow-lg;
+}
+
+.input-focus {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition;
+}

@@ -45,7 +45,7 @@
                             <x-th>{{ __('STT') }}</x-th>
                             <x-th>{{ __('Tiêu đề') }}</x-th>
                             <x-th>{{ __('Nội dung') }}</x-th>
-                            <x-th>{{ __('Người gửi') }}</x-th>
+                            <x-th>{{ __('Người nhận') }}</x-th>
                             <x-th>{{ __('Ngày gửi') }}</x-th>
                             <x-th>{{ __('Tệp đính kèm') }}</x-th>
                             <x-th>{{ __('Hành động') }}</x-th>
@@ -58,18 +58,22 @@
                                 <x-td class="font-medium">{{ $notification->title }}</x-td>
                                 <x-td>{{ Str::limit($notification->content, 50) ?? 'N/A' }}</x-td>
                                 <x-td>
-                                    <div class="flex items-center gap-2">
-                                        @if ($notification->user->avatar)
-                                            <img src="{{ asset('storage/' . $notification->user->avatar) }}"
-                                                alt="Avatar" class="w-6 h-6 rounded-full object-cover">
-                                        @else
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                                                {{ mb_substr($notification->user->name, 0, 2, 'UTF-8') }}
-                                            </div>
-                                        @endif
-                                        {{ $notification->user->name }}
-                                    </div>
+                                    @if ($notification->user)
+                                        <div class="flex items-center gap-2">
+                                            @if ($notification->user->avatar)
+                                                <img src="{{ asset('storage/' . $notification->user->avatar) }}"
+                                                    alt="Avatar" class="w-6 h-6 rounded-full object-cover">
+                                            @else
+                                                <div
+                                                    class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                                                    {{ mb_substr($notification->user->name, 0, 2, 'UTF-8') }}
+                                                </div>
+                                            @endif
+                                            {{ $notification->user->name }}
+                                        </div>
+                                    @else
+                                        {{ __('Tất cả') }}
+                                    @endif
                                 </x-td>
                                 <x-td>{{ $notification->created_at->format('d/m/Y H:i') }}</x-td>
                                 <x-td>
@@ -107,6 +111,13 @@
                 <i class="fas fa-bell text-blue-600 me-1"></i>
                 {{ __('Tạo thông báo mới') }}
             </h2>
+
+            <div class="mt-6">
+                <x-input-label for="user_id-creation" :value="__('Người nhận')" icon="fas fa-user" />
+                <x-select id="user_id-creation" class="block mt-1 w-full" :options="$users" name="user_id"
+                    :selected="old('user_id')" :placeholder="__('Tất cả')" />
+                <x-input-error :messages="$errors->notificationCreation->get('user_id')" class="mt-2" />
+            </div>
 
             <div class="mt-6">
                 <x-input-label for="title-creation" :value="__('Tiêu đề')" icon="fas fa-heading" />

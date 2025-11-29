@@ -3,24 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = Notification::orderBy('created_at', 'desc')
+        $notifications = Notification::latest()
             ->paginate(10);
 
-        return view('notifications.index', compact('notifications'));
+        $users = User::where('role', 'student')
+            ->with('student:id,user_id,student_code')
+            ->get()
+            ->mapWithKeys(function ($user) {
+                $label = $user->student
+                    ? "{$user->name} - MSSV: {$user->student->student_code}"
+                    : "{$user->name} - Email: {$user->email}";
+
+                return [$user->id => $label];
+            })->toArray();
+
+        return view('notifications.index', compact('notifications', 'users'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validateWithBag('notificationCreation', [
+            'user_id' => 'nullable|exists:users,id',
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'attachment' => 'nullable|file|max:4096',
@@ -29,8 +41,6 @@ class NotificationController extends Controller
         if ($request->hasFile('attachment')) {
             $validated['attachment'] = $request->file('attachment')->store('notifications', 'public');
         }
-
-        $validated['user_id'] = Auth::id();
 
         Notification::create($validated);
 
