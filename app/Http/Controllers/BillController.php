@@ -53,7 +53,7 @@ class BillController extends Controller
 
         $now = now();
         $periodStart = optional(Bill::where('booking_id', $booking->id)
-            ->whereRaw("is_monthly_bill = true")
+            ->where('is_monthly_bill', true)
             ->latest()
             ->first())
             ->created_at?->addDay() ?? $booking->check_in_date;
@@ -206,7 +206,7 @@ class BillController extends Controller
 
         if ($isMonthlyBill) {
             $exists = Bill::where('booking_id', $booking->id)
-                ->whereRaw("is_monthly_bill = true")
+                ->where('is_monthly_bill', true)
                 ->whereYear('created_at', now()->year)
                 ->whereMonth('created_at', now()->month)
                 ->where('status', '!=', 'cancelled')
@@ -233,7 +233,7 @@ class BillController extends Controller
                 $checkOutDate = $booking->actual_check_out_date;
 
                 $lastMonthlyBill = Bill::where('booking_id', $booking->id)
-                    ->whereRaw("is_monthly_bill = true")
+                    ->where('is_monthly_bill', true)
                     ->latest()
                     ->first();
 

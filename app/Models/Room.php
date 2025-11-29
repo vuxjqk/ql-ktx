@@ -43,7 +43,16 @@ class Room extends Model
                 fn($q, $search) =>
                 $q->where('room_code', 'like', "%$search%")
             )
-
+            ->when(
+                $filters['room_code'] ?? null,
+                fn($q, $room_code) =>
+                $q->where('room_code', 'like', "%$room_code%")
+            )
+            ->when(
+                $filters['is_status'] ?? null,
+                fn($q, $is_status) =>
+                $q->where('is_status', $is_status)
+            )
             ->when(
                 $filters['capacity'] ?? null,
                 fn($q, $capacity) =>
