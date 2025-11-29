@@ -1,8 +1,9 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            <i class="fas fa-info-circle text-blue-600 me-1"></i>
-            {{ __('Profile Information') }}
+            <<<<<<< HEAD=======<i class="fas fa-info-circle text-blue-600 me-1"></i>
+                >>>>>>> upstream-main
+                {{ __('Profile Information') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">

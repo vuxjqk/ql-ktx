@@ -18,16 +18,26 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => CheckRole::class,
+            'api.role' => \App\Http\Middleware\ApiRoleMiddleware::class,
             'branch' => CheckUserBranch::class,
             'cors' => Cors::class,
         ]);
+
+        // Web-only middleware
         $middleware->web(append: [
             SetLocale::class,
         ]);
+
+        // CORS cho API
         $middleware->api(prepend: [
             Cors::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: ['api/*'])
+            ->trustProxies(at: ['*']);
+
+        $middleware->group('api', [
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+    ->withExceptions(function (Exceptions $exceptions): void {})->create();
