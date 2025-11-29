@@ -74,10 +74,7 @@
                     {{ __('Cấu hình chung') }}
                 </h3>
 
-                <form method="POST" action="{{ route('settings.update') }}" class="space-y-6">
-                    @csrf
-                    @method('PUT')
-
+                <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <x-input-label for="system_name" :value="__('Tên hệ thống')" icon="fas fa-building" />
@@ -152,7 +149,7 @@
                             {{ __('Lưu cấu hình') }}
                         </x-primary-button>
                     </div>
-                </form>
+                </div>
             </div>
 
             <!-- Cấu hình ký túc xá -->
@@ -162,10 +159,7 @@
                     {{ __('Cấu hình ký túc xá') }}
                 </h3>
 
-                <form method="POST" action="{{ route('settings.dormitory') }}" class="space-y-6">
-                    @csrf
-                    @method('PUT')
-
+                <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <x-input-label for="check_in_time" :value="__('Giờ nhận phòng')" icon="fas fa-sign-in-alt" />
@@ -214,12 +208,12 @@
                     </div>
 
                     <div class="flex justify-end">
-                        <x-primary-button class="bg-purple-600 hover:bg-purple-700">
+                        <x-primary-button>
                             <i class="fas fa-home"></i>
                             {{ __('Cập nhật quy định ký túc xá') }}
                         </x-primary-button>
                     </div>
-                </form>
+                </div>
             </div>
 
             <!-- Cấu hình bảo mật -->
@@ -261,10 +255,10 @@
                     </div>
 
                     <div class="flex justify-end">
-                        <x-primary-button class="bg-red-600 hover:bg-red-700">
+                        <x-danger-button>
                             <i class="fas fa-lock"></i>
                             {{ __('Cập nhật bảo mật') }}
-                        </x-primary-button>
+                        </x-danger-button>
                     </div>
                 </div>
             </div>

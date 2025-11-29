@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Student;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,8 +12,14 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    public function edit()
+    public function edit(Request $request)
     {
+        if (Auth::user()->role !== 'student') {
+            return view('profile.edit', [
+                'user' => $request->user(),
+            ]);
+        }
+
         return view('student.profile.edit');
     }
 

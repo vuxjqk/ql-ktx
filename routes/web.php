@@ -154,9 +154,6 @@ Route::middleware(['auth', 'verified', 'branch'])->group(function () {
     |----------------------------------------------------------------------
     */
     Route::get('/settings', [SettingController::class, 'index'])->name('settings');
-    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
-    Route::put('/settings/dormitory', [SettingController::class, 'dormitory'])->name('settings.dormitory');
-    Route::put('/settings/security', [SettingController::class, 'security'])->name('settings.security');
 
     /*
     |----------------------------------------------------------------------
