@@ -101,10 +101,17 @@
                             <div class="relative" x-data="{ open: false }">
                                 <button @click="open = !open"
                                     class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                                    <div
-                                        class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm">
-                                        {{ substr(auth()->user()->name, 0, 1) }}
-                                    </div>
+                                    @if (Auth::user()->avatar)
+                                        <!-- Nếu có avatar -->
+                                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                                            alt="{{ Auth::user()->name }}" class="h-9 w-9 rounded-full object-cover">
+                                    @else
+                                        <!-- Nếu không có avatar, hiển thị chữ cái đầu -->
+                                        <div
+                                            class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-sm">
+                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                        </div>
+                                    @endif
                                     <span class="hidden md:block text-sm font-medium text-gray-700">
                                         {{ auth()->user()->name }}
                                     </span>
