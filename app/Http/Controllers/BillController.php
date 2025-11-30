@@ -53,7 +53,7 @@ class BillController extends Controller
 
         $now = now();
         $periodStart = optional(Bill::where('booking_id', $booking->id)
-            ->where('is_monthly_bill', true)
+            ->whereRaw('is_monthly_bill IS TRUE')
             ->latest()
             ->first())
             ->created_at?->addDay() ?? $booking->check_in_date;
@@ -184,7 +184,7 @@ class BillController extends Controller
         Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
 
         if ($email = $bill->user->email) {
-            Mail::to($email)->queue(new InvoiceMail($bill, $pdfPath));
+            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
         }
 
         File::delete($pdfPath);
@@ -206,7 +206,7 @@ class BillController extends Controller
 
         if ($isMonthlyBill) {
             $exists = Bill::where('booking_id', $booking->id)
-                ->where('is_monthly_bill', true)
+                ->whereRaw('is_monthly_bill IS TRUE')
                 ->whereYear('created_at', now()->year)
                 ->whereMonth('created_at', now()->month)
                 ->where('status', '!=', 'cancelled')
@@ -233,7 +233,7 @@ class BillController extends Controller
                 $checkOutDate = $booking->actual_check_out_date;
 
                 $lastMonthlyBill = Bill::where('booking_id', $booking->id)
-                    ->where('is_monthly_bill', true)
+                    ->whereRaw('is_monthly_bill IS TRUE')
                     ->latest()
                     ->first();
 
@@ -306,7 +306,7 @@ class BillController extends Controller
                     'status'          => 'unpaid',
                     'due_date'        => $now->addDays(7),
                     'created_by'      => Auth::id(),
-                    'is_monthly_bill' => $isMonthlyBill,
+                    'is_monthly_bill' => $isMonthlyBill ? DB::raw('TRUE') : DB::raw('FALSE'),
                 ]);
 
                 foreach ($billItems as $item) {

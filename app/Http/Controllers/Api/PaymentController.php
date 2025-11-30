@@ -205,7 +205,7 @@ class PaymentController extends Controller
         Pdf::loadView('bills.export', compact('bill'))->save($pdfPath);
 
         if ($email = $bill->user->email) {
-            Mail::to($email)->queue(new InvoiceMail($bill, $pdfPath));
+            Mail::to($email)->send(new InvoiceMail($bill, $pdfPath));
         }
 
         File::delete($pdfPath);

@@ -297,7 +297,7 @@
                                                             <i class="fas fa-credit-card mr-2"></i>Thanh toán ngay
                                                         </button>
                                                         <div x-show="open" @click.away="open = false" x-cloak
-                                                            class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                                                            class="absolute right-0 bottom-full mb-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                                                             <div class="py-2">
                                                                 <a href="{{ route('student.vnpay.redirect', $bill) }}"
                                                                     class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
