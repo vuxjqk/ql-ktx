@@ -13,4 +13,9 @@ class Contract extends Model
         'deposit',
         'contract_file',
     ];
+
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
 }

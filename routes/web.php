@@ -19,6 +19,7 @@ use App\Http\Controllers\ServiceUsageController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Student\BookingController as StudentBookingController;
 use App\Http\Controllers\Student\ContactController;
+use App\Http\Controllers\Student\ContractController;
 use App\Http\Controllers\Student\FavouriteController;
 use App\Http\Controllers\Student\HomeController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
@@ -98,6 +99,11 @@ Route::prefix('student')->name('student.')->group(function () {
         Route::post('/bookings/{booking}/extend', [StudentBookingController::class, 'extend'])->name('bookings.extend');
         Route::delete('/bookings/{booking}', [StudentBookingController::class, 'cancel'])->name('bookings.cancel');
         Route::get('/bookings/history', [StudentBookingController::class, 'history'])->name('bookings.history');
+
+        // Quản lý hợp đồng
+        Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+        Route::post('/contracts/{contract}/agree', [ContractController::class, 'agree'])->name('contracts.agree');
+        Route::get('/contracts/{contract}/export', [ContractController::class, 'export'])->name('contracts.export');
 
         // Báo sửa chữa
         Route::post('/repairs', [StudentRepairController::class, 'store'])->name('repairs.store');

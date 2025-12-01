@@ -2,7 +2,7 @@
 
 @section('title', 'Về chúng tôi')
 
-@push('styles')
+@pushOnce('styles')
     <style>
         .member-card {
             transition: all 0.4s ease;
@@ -30,7 +30,7 @@
             background-clip: text;
         }
     </style>
-@endpush
+@endPushOnce
 
 @section('content')
     <!-- Hero -->

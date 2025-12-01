@@ -92,6 +92,11 @@ class Booking extends Model
         return $this->hasMany(Bill::class);
     }
 
+    public function parentBooking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
+
     public function expire()
     {
         if ($this->status !== 'active') {

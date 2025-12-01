@@ -23,6 +23,11 @@ class BookingController extends Controller
             ->latest()
             ->first();
 
+        if ($activeBooking && $activeBooking->contract && !$activeBooking->contract->contract_file) {
+            return redirect()->route('student.contracts.show', $activeBooking->contract)
+                ->with('warning', 'Vui lòng ký hợp đồng');
+        }
+
         $latestBooking = $user->bookings()
             ->latest()
             ->first();

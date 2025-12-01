@@ -3,7 +3,7 @@
 
 @section('title', 'Liên hệ')
 
-@push('styles')
+@pushOnce('styles')
     <style>
         .contact-card {
             transition: all 0.3s ease;
@@ -14,7 +14,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
     </style>
-@endpush
+@endPushOnce
 
 @section('content')
     <!-- Hero -->
